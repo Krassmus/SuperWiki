@@ -17,5 +17,5 @@
     STUDIP.SuperWiki.updatePage = function (data) {
         jQuery("#superwiki_page_content").data("chdate", data.chdate)
         jQuery("#superwiki_page_content").html(data.html);
-    }
+    };
 </script>
