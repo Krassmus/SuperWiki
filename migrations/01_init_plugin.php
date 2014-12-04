@@ -8,13 +8,24 @@ class InitPlugin extends Migration {
     }
 
     public function up() {
+        DBManager::get()->exec("
+            CREATE TABLE IF NOT EXISTS `superwiki_settings` (
+                `seminar_id` varchar(32) NOT NULL,
+                `name` varchar(64) NOT NULL DEFAULT 'SuperWiki',
+                `indexpage` VARCHAR(32) NULL,
+                `create_permission` varchar(32) NOT NULL DEFAULT 'all',
+                PRIMARY KEY (`seminar_id`),
+                KEY `indexpage` (`indexpage`)
+            ) ENGINE=MyISAM
+	    ");
 	    DBManager::get()->exec("
             CREATE TABLE IF NOT EXISTS `superwiki_pages` (
                 `page_id` varchar(32) NOT NULL,
                 `seminar_id` varchar(32) NOT NULL,
                 `name` varchar(128) NOT NULL,
-                `content` text NOT NULL,
-                `permission` varchar(32) NOT NULL DEFAULT 'all',
+                `content` text NULL,
+                `read_permission` varchar(32) NOT NULL DEFAULT 'all',
+                `write_permission` varchar(32) NOT NULL DEFAULT 'all',
                 `chdate` bigint(20) NOT NULL,
                 `mkdate` bigint(20) NOT NULL,
                 PRIMARY KEY (`page_id`),
@@ -25,6 +36,9 @@ class InitPlugin extends Migration {
     }
 	
 	public function down() {
+        DBManager::get()->exec("
+            DROP TABLE IF EXISTS `superwiki_settings`
+        ");
         DBManager::get()->exec("
             DROP TABLE IF EXISTS `superwiki_pages`
         ");

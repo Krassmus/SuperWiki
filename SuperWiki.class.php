@@ -1,6 +1,7 @@
 <?php
 
-require_once __DIR__."/models/WikiPage.class.php";
+require_once __DIR__."/models/SuperwikiPage.class.php";
+require_once __DIR__."/models/SuperwikiSettings.class.php";
 
 class SuperWiki extends StudIPPlugin implements StandardPlugin {
 
@@ -11,12 +12,15 @@ class SuperWiki extends StudIPPlugin implements StandardPlugin {
             if (stripos(Request::get("page"), "plugins.php/superwiki") !== false && isset($data['SuperWiki'])) {
                 $output = array();
                 $page = WikiPage::findByName($data['SuperWiki']['site'], $data['SuperWiki']['seminar_id']);
-                if ($data['SuperWiki']['chdate'] < $page['chdate']) {
-                    $output['html'] = formatReady($page['content']);
-                    $output['chdate'] = $page['chdate'];
+                if ($data['SuperWiki']['mode'] === "read") {
+                    if ($data['SuperWiki']['chdate'] < $page['chdate']) {
+                        $output['html'] = formatReady($page['content']);
+                        $output['chdate'] = $page['chdate'];
+                    }
+                }
+                if (count($output)) {
                     UpdateInformation::setInformation("SuperWiki.updatePage", $output);
                 }
-
             }
         }
     }
@@ -26,12 +30,16 @@ class SuperWiki extends StudIPPlugin implements StandardPlugin {
     }
 
     function getIconNavigation($course_id, $last_visit, $user_id) {
-        return null;
+        $settings = SuperwikiSettings::find($course_id);
+        $tab = new Navigation($settings ? $settings['name'] : _("SuperWiki"), PluginEngine::getURL($this, array(), "pad/site"));
+        $tab->setImage(Assets::image_path("icons/20/grey/wiki"));
+        return $tab;
     }
 
     function getTabNavigation($course_id) {
-        $tab = new Navigation(_("SuperWiki"), PluginEngine::getURL($this, array(), "pad/site"));
-        $tab->setImage(Assets::image_path("icons/32/white/wiki"));
+        $settings = SuperwikiSettings::find($course_id);
+        $tab = new Navigation($settings ? $settings['name'] : _("SuperWiki"), PluginEngine::getURL($this, array(), "pad/site"));
+        $tab->setImage(Assets::image_path("icons/16/white/wiki"));
         return array('superwiki' => $tab);
     }
 

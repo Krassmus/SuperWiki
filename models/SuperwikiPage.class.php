@@ -1,6 +1,6 @@
 <?php
 
-class WikiPage extends SimpleORMap {
+class SuperwikiPage extends SimpleORMap {
 
     static public function findByName($name, $seminar_id)
     {
@@ -12,5 +12,17 @@ class WikiPage extends SimpleORMap {
     {
         $config['db_table'] = 'superwiki_pages';
         parent::configure($config);
+    }
+
+    public function isReadable($user_id = null)
+    {
+        $user_id || $user_id = $GLOBALS['user']->id;
+        return true;
+    }
+
+    public function isEditable($user_id = null)
+    {
+        $user_id || $user_id = $GLOBALS['user']->id;
+        return true;
     }
 }
