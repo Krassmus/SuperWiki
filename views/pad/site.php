@@ -1,9 +1,13 @@
 <input type="hidden" id="seminar_id" value="<?= $_SESSION['SessionSeminar'] ?>">
 <input type="hidden" id="site" value="<?= htmlReady($page['name']) ?>">
 
-<h1><?= htmlReady($page['name']) ?></h1>
+<h1><?= htmlReady($page['name'] ?: "intro") ?></h1>
 <div id="superwiki_page_content" data-chdate="<?= htmlReady($page['chdate']) ?>">
-    <?= formatReady($page['content']) ?>
+    <? if ($page->isNew()) : ?>
+        <?= _("Dieses Wiki ist schon super. Aber leider trotzdem noch leer.") ?>
+    <? else : ?>
+        <?= formatReady($page['content']) ?>
+    <? endif ?>
 </div>
 <script>
     STUDIP.SuperWiki = {};
@@ -33,7 +37,7 @@ if ($GLOBALS['perm']->have_studip_perm("tutor", $_SESSION['SessionSeminar'])) {
 if ($page->isEditable()) {
     $actions->addLink(_("Seite bearbeiten"), PluginEngine::getURL($plugin, array(), "pad/edit/".$page->getId()), "icons/16/blue/edit");
 }
-$actions->addLink(_("Neue Seite anlegen"), PluginEngine::getURL($plugin, array(), "pad/edit"), "icons/16/blue/add");
+$actions->addLink(_("Neue Seite anlegen"), PluginEngine::getURL($plugin, array('page_id' => $page->getId()), "pad/edit"), "icons/16/blue/add");
 
 $sidebar->addWidget($actions);
 

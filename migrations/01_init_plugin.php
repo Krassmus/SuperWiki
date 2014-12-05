@@ -29,7 +29,8 @@ class InitPlugin extends Migration {
                 `chdate` bigint(20) NOT NULL,
                 `mkdate` bigint(20) NOT NULL,
                 PRIMARY KEY (`page_id`),
-                KEY `permission` (`permission`),
+                KEY `read_permission` (`read_permission`),
+                KEY `write_permission` (`write_permission`),
                 KEY `seminar_id` (`seminar_id`)
             ) ENGINE=MyISAM
 	    ");

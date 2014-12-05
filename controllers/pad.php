@@ -18,8 +18,7 @@ class PadController extends PluginController {
         if ($page_id) {
             $this->page = new SuperwikiPage($page_id);
         } else {
-            $name = Request::get("s", "intro");
-            $this->page = SuperwikiPage::findByName($name, $_SESSION['SessionSeminar']);
+            $this->page = new SuperwikiPage();
         }
     }
 
@@ -54,6 +53,13 @@ class PadController extends PluginController {
             throw new AccessDeniedException();
         }
         $this->settings = new SuperwikiSettings($_SESSION['SessionSeminar']);
-        PageLayout::setTitle(_("Superwiki Einstellungen"));
+        PageLayout::setTitle(_("SuperWiki Einstellungen"));
+        if (Request::isPost()) {
+            $this->settings['name'] = Request::get("name");
+            $this->settings['indexpage'] = Request::get("indexpage");
+            $this->settings->store();
+            PageLayout::postMessage(MessageBox::success(_("Daten wurden gespeichert")));
+            $this->redirect("superwiki/pad/site/".Request::option("page_id"));
+        }
     }
 }
