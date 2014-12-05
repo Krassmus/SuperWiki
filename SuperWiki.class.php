@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__."/models/SuperwikiPage.class.php";
+require_once __DIR__."/models/SuperwikiVersion.class.php";
 require_once __DIR__."/models/SuperwikiSettings.class.php";
 
 class SuperWiki extends StudIPPlugin implements StandardPlugin {

@@ -8,10 +8,34 @@ class SuperwikiPage extends SimpleORMap {
         return count($pages) ? $pages[0] : null;
     }
 
+    static public function findAll($seminar_id)
+    {
+        return self::findBySQL("content != '' AND content IS NOT NULL AND seminar_id = ? ORDER BY name ASC", array($seminar_id));
+    }
+
     protected static function configure($config = array())
     {
         $config['db_table'] = 'superwiki_pages';
         parent::configure($config);
+    }
+
+    public function __construct($id = null)
+    {
+        $this->registerCallback('before_store', 'createVersion');
+        parent::__construct($id);
+    }
+
+    protected function createVersion()
+    {
+        if (($this->content['content'] !== $this->content_db['data'])
+                && (($this->content_db['last_author'] !== $this->content['last_author']) || ($this['chdate'] < time() - 60 * 30))) {
+            //Neue Version anlegen:
+            $version = new SuperwikiVersion();
+            $version->setData($this->content_db);
+            $version->setId($version->getNewId());
+            $version->store();
+        }
+        return true;
     }
 
     public function isReadable($user_id = null)
