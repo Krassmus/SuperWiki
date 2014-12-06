@@ -2,7 +2,7 @@
 
 require_once 'app/controllers/plugin_controller.php';
 
-class PadController extends PluginController {
+class PageController extends PluginController {
 
     protected $allow_nobody = false;
 
@@ -14,10 +14,18 @@ class PadController extends PluginController {
         $this->settings = new SuperwikiSettings($_SESSION['SessionSeminar']);
     }
 
-    public function site_action($page_id = null)
+    public function view_action($page_id = null)
     {
         if ($page_id) {
             $this->page = new SuperwikiPage($page_id);
+            $history = $_SESSION['SuperWiki_History'][$_SESSION['SessionSeminar']];
+            if ($history[count($history) - 1] !== $page_id) {
+                $history[] = $page_id;
+                if (count($history) > 6) {
+                    array_shift($history);
+                }
+            }
+            $_SESSION['SuperWiki_History'][$_SESSION['SessionSeminar']] = $history;
         } else {
             $this->page = new SuperwikiPage($this->settings['indexpage'] ?: null);
         }
@@ -33,8 +41,8 @@ class PadController extends PluginController {
                 $this->page = new SuperwikiPage();
             }
         }
-        if (!$this->page->isEditable()) {
-            throw new AccessDeniedException();
+        if ((!$this->page->isNew() && !$this->page->isEditable()) || ($this->page->isNew() && !$this->settings->haveCreatePermission())) {
+            throw new AccessDeniedException("Keine Berechtigung.");
         }
         if (Request::isPost()
                 && (!$this->page->isNew() || $this->settings->haveCreatePermission())
@@ -54,7 +62,7 @@ class PadController extends PluginController {
                 $this->settings->store();
             }
             PageLayout::postMessage(MessageBox::success(_("Seite gespeichert.")));
-            $this->redirect("superwiki/pad/site/".$this->page->getId());
+            $this->redirect("superwiki/page/view/".$this->page->getId());
         }
     }
 
@@ -71,7 +79,7 @@ class PadController extends PluginController {
             $this->settings['create_permission'] = Request::get("create_permission");
             $this->settings->store();
             PageLayout::postMessage(MessageBox::success(_("Daten wurden gespeichert")));
-            $this->redirect("superwiki/pad/site/".Request::option("page_id"));
+            $this->redirect("superwiki/page/view/".Request::option("page_id"));
         }
     }
 }

@@ -27,8 +27,9 @@ class SuperwikiPage extends SimpleORMap {
 
     protected function createVersion()
     {
-        if (($this->content['content'] !== $this->content_db['data'])
-                && (($this->content_db['last_author'] !== $this->content['last_author']) || ($this['chdate'] < time() - 60 * 30))) {
+        if (!$this->isNew() && ($this->content['content'] !== $this->content_db['data'])
+                && (($this->content_db['last_author'] !== $this->content['last_author'])
+                    || ($this['chdate'] < time() - 60 * 30))) {
             //Neue Version anlegen:
             $version = new SuperwikiVersion();
             $version->setData($this->content_db);
@@ -41,12 +42,40 @@ class SuperwikiPage extends SimpleORMap {
     public function isReadable($user_id = null)
     {
         $user_id || $user_id = $GLOBALS['user']->id;
-        return true;
+        switch ($this['read_permission']) {
+            case "all":
+                return true;
+            case "tutor":
+                return $GLOBALS['perm']->have_studip_perm("tutor", $this['seminar_id'], $user_id);
+            case "dozent":
+                return $GLOBALS['perm']->have_studip_perm("dozent", $this['seminar_id'], $user_id);
+        }
+        return false;
     }
 
     public function isEditable($user_id = null)
     {
         $user_id || $user_id = $GLOBALS['user']->id;
-        return true;
+        switch ($this['write_permission']) {
+            case "all":
+                return true;
+            case "tutor":
+                return $GLOBALS['perm']->have_studip_perm("tutor", $this['seminar_id'], $user_id);
+            case "dozent":
+                return $GLOBALS['perm']->have_studip_perm("dozent", $this['seminar_id'], $user_id);
+        }
+        return false;
+    }
+
+    public function wikiFormat()
+    {
+        $text = formatReady($this['content']);
+        $pages = self::findBySQL("seminar_id = ? AND content IS NOT NULL AND content != '' ORDER BY CHAR_LENGTH(name) DESC", array($this['seminar_id']));
+        foreach ($pages as $page) {
+            if ($page->getId() !== $this->getId()) {
+                $text = preg_replace("/(\s)".$page['name']."/", '$1<a href="'.URLHelper::getLink("plugins.php/superwiki/page/view/".$page->getId(), array('cid' => $page['seminar_id'])).'">'.Assets::img("icons/16/blue/wiki", array('class' => "text-bottom"))." ".htmlReady($page['name']).'</a>', $text);
+            }
+        }
+        return $text;
     }
 }
