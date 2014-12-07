@@ -29,6 +29,9 @@ class PageController extends PluginController {
         } else {
             $this->page = new SuperwikiPage($this->settings['indexpage'] ?: null);
         }
+        if (!$this->page->isReadable()) {
+            throw new AccessDeniedException("Keine Berechtigung.");
+        }
     }
 
     public function edit_action($page_id = null)
@@ -71,7 +74,6 @@ class PageController extends PluginController {
         if (!$GLOBALS['perm']->have_studip_perm("tutor", $_SESSION['SessionSeminar'])) {
             throw new AccessDeniedException();
         }
-        $this->settings = new SuperwikiSettings($_SESSION['SessionSeminar']);
         PageLayout::setTitle(_("SuperWiki Einstellungen"));
         if (Request::isPost()) {
             $this->settings['name'] = Request::get("name");
@@ -80,6 +82,14 @@ class PageController extends PluginController {
             $this->settings->store();
             PageLayout::postMessage(MessageBox::success(_("Daten wurden gespeichert")));
             $this->redirect("superwiki/page/view/".Request::option("page_id"));
+        }
+    }
+
+    public function timeline_action($page_id)
+    {
+        $this->page = new SuperwikiPage($page_id);
+        if (!$this->page->isReadable()) {
+            throw new AccessDeniedException("Keine Berechtigung.");
         }
     }
 }

@@ -56,6 +56,12 @@ if ($page->isEditable()) {
 if ($settings->haveCreatePermission()) {
     $actions->addLink(_("Neue Seite anlegen"), PluginEngine::getURL($plugin, array(), "page/edit"), "icons/16/blue/add");
 }
-
 $sidebar->addWidget($actions);
+
+$views = new ViewsWidget();
+$views->addLink(_("Seite"), PluginEngine::getLink($plugin, array(), "page/view/".$page->getId()))->setActive(true);
+$views->addLink(_("Historie"), PluginEngine::getLink($plugin, array(), "page/timeline/".$page->getId()));
+
+$sidebar->addWidget($views);
+
 

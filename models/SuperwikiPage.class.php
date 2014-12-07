@@ -16,6 +16,11 @@ class SuperwikiPage extends SimpleORMap {
     protected static function configure($config = array())
     {
         $config['db_table'] = 'superwiki_pages';
+        $config['has_many']['versions'] = array(
+            'class_name' => 'SuperwikiVersion',
+            'on_delete' => 'delete',
+            'on_store' => 'store'
+        );
         parent::configure($config);
     }
 
