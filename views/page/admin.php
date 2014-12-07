@@ -1,4 +1,4 @@
-<form action="<?= PluginEngine::getLink($plugin, array(), "pad/admin") ?>" method="post" class="studip_form">
+<form action="<?= PluginEngine::getLink($plugin, array(), "page/admin") ?>" method="post" class="studip_form">
     <input type="hidden" name="page_id" value="<?= Request::option("page_id") ?>">
     <fieldset>
         <legend>
