@@ -49,6 +49,7 @@ $sidebar->setImage('sidebar/wiki-sidebar.png');
 $actions = new ActionsWidget();
 if ($GLOBALS['perm']->have_studip_perm("tutor", $_SESSION['SessionSeminar'])) {
     $actions->addLink(_("Wiki-Einstellungen"), PluginEngine::getURL($plugin, array(), "page/admin"), "icons/16/blue/admin", array('data-dialog' => "true"));
+    $actions->addLink(_("Seiten-Einstellungen"), PluginEngine::getURL($plugin, array(), "page/permissions/".$page->getId()), "icons/16/blue/roles", array('data-dialog' => "true"));
 }
 if ($page->isEditable()) {
     $actions->addLink(_("Seite bearbeiten"), PluginEngine::getURL($plugin, array(), "page/edit/".$page->getId()), "icons/16/blue/edit");
@@ -59,7 +60,7 @@ if ($settings->haveCreatePermission()) {
 $sidebar->addWidget($actions);
 
 $views = new ViewsWidget();
-$views->addLink(_("Seite"), PluginEngine::getLink($plugin, array(), "page/view/".$page->getId()))->setActive(true);
+$views->addLink(_("Aktuelle Seite"), PluginEngine::getLink($plugin, array(), "page/view/".$page->getId()))->setActive(true);
 $views->addLink(_("Historie"), PluginEngine::getLink($plugin, array(), "page/timeline/".$page->getId()));
 
 $sidebar->addWidget($views);

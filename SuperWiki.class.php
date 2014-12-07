@@ -12,7 +12,7 @@ class SuperWiki extends StudIPPlugin implements StandardPlugin {
             $data = Request::getArray("page_info");
             if (stripos(Request::get("page"), "plugins.php/superwiki") !== false && isset($data['SuperWiki'])) {
                 $output = array();
-                $page = WikiPage::findByName($data['SuperWiki']['site'], $data['SuperWiki']['seminar_id']);
+                $page = SuperwikiPage::findByName($data['SuperWiki']['site'], $data['SuperWiki']['seminar_id']);
                 if ($data['SuperWiki']['mode'] === "read") {
                     if ($data['SuperWiki']['chdate'] < $page['chdate']) {
                         $output['html'] = formatReady($page['content']);

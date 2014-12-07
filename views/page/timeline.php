@@ -12,6 +12,7 @@
             'slide': function (event, ui) {
                 jQuery(".superwiki_content:visible:not(#version_" + ui.value + ")").hide();
                 jQuery("#version_" + ui.value).show();
+                jQuery("#version_id").val(jQuery("#version_" + ui.value).data("version_id"));
             }
         });
     });
@@ -21,12 +22,21 @@
 <h1><?= htmlReady($page['name']) ?></h1>
 
 <div class="versions">
-    <div class="superwiki_content" id="version_<?= count($page->versions) + 1 ?>"><?= $page->wikiFormat() ?></div>
+    <div class="superwiki_content" id="version_<?= count($page->versions) + 1 ?>" data-version_id=""><?= $page->wikiFormat() ?></div>
 
     <? foreach ($page->versions as $key => $version) : ?>
-        <div class="superwiki_content" id="version_<?= count($page->versions) - $key ?>" style="display: none;"><?= $version->wikiFormat() ?></div>
+        <div class="superwiki_content" id="version_<?= count($page->versions) - $key ?>" style="display: none;" data-version_id="<?= $version->getId() ?>"><?= $version->wikiFormat() ?></div>
     <? endforeach ?>
 </div>
+
+<? if ($page->isEditable()) : ?>
+    <form action="<?= PluginEngine::getLink($plugin, array(), "page/timeline/".$page->getId()) ?>" method="post">
+        <div style="text-align: center;">
+            <input type="hidden" name="version_id" id="version_id" value="">
+            <?= \Studip\Button::create(_("Diese Version wiederherstellen"), "resurrect", array('onClick' => "return window.confirm('"._("Seite wirklich mit dieser alten Version überschreiben?")."');")) ?>
+        </div>
+    </form>
+<? endif ?>
 
 <?
 $sidebar = Sidebar::Get();
@@ -45,7 +55,7 @@ if ($settings->haveCreatePermission()) {
 $sidebar->addWidget($actions);
 
 $views = new ViewsWidget();
-$views->addLink(_("Seite"), PluginEngine::getLink($plugin, array(), "page/view/".$page->getId()));
+$views->addLink(_("Aktuelle Seite"), PluginEngine::getLink($plugin, array(), "page/view/".$page->getId()));
 $views->addLink(_("Historie"), PluginEngine::getLink($plugin, array(), "page/timeline/".$page->getId()))->setActive(true);
 
 $sidebar->addWidget($views);

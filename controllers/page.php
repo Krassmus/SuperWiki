@@ -85,11 +85,40 @@ class PageController extends PluginController {
         }
     }
 
+    public function permissions_action($page_id)
+    {
+        $this->page = new SuperwikiPage($page_id);
+        if (!$GLOBALS['perm']->have_studip_perm("tutor", $this->page['seminar_id'])) {
+            throw new AccessDeniedException("Keine Berechtigung.");
+        }
+        PageLayout::setTitle(_("Seiteneinstellungen ".$this->page['name']));
+        if (Request::isPost()) {
+            $this->page['read_permission'] = Request::get('read_permission');
+            $this->page['write_permission'] = Request::get('write_permission');
+            $this->page->store();
+            PageLayout::postMessage(MessageBox::success(_("Seiteneinstellungen bearbeitet.")));
+            $this->redirect("superwiki/page/view/".$page_id);
+        }
+    }
+
     public function timeline_action($page_id)
     {
         $this->page = new SuperwikiPage($page_id);
         if (!$this->page->isReadable()) {
             throw new AccessDeniedException("Keine Berechtigung.");
+        }
+        if (Request::isPost() && Request::option("version_id")) {
+            if (!$this->page->isEditable()) {
+                throw new AccessDeniedException("Keine Berechtigung.");
+            }
+            $version = new SuperwikiVersion(Request::option("version_id"));
+            if ($version['page_id'] === $page_id) {
+                $this->page['content'] = $version['content'];
+                $this->page['last_author'] = $GLOBALS['user']->id;
+                $this->page->store();
+                PageLayout::postMessage(MessageBox::success(_("Alte Version der Seite wiederhergestellt.")));
+                $this->redirect("superwiki/page/view/".$page_id);
+            }
         }
     }
 }
