@@ -19,6 +19,6 @@ class SuperwikiSettings extends SimpleORMap {
             case "dozent":
                 return $GLOBALS['perm']->have_studip_perm("dozent", $this['seminar_id'], $user_id);
         }
-        return false;
+        return $this->isNew();
     }
 }
