@@ -29,7 +29,7 @@ class PageController extends PluginController {
         } else {
             $this->page = new SuperwikiPage($this->settings['indexpage'] ?: null);
         }
-        if (!$this->page->isReadable()) {
+        if (!$this->page->isNew() && !$this->page->isReadable()) {
             throw new AccessDeniedException("Keine Berechtigung.");
         }
     }
