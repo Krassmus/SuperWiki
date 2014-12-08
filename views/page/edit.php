@@ -26,6 +26,7 @@
             'seminar_id': jQuery("#seminar_id").val(),
             'page_id': jQuery("#page_id").val(),
             'content': jQuery("#superwiki_edit_content").val(),
+            'old_content': jQuery("#superwiki_edit_content").data("old_content"),
             'chdate': jQuery("#superwiki_edit_content").data("chdate"),
             'mode': "edit"
         };
