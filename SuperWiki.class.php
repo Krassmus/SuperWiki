@@ -12,10 +12,24 @@ class SuperWiki extends StudIPPlugin implements StandardPlugin {
             $data = Request::getArray("page_info");
             if (stripos(Request::get("page"), "plugins.php/superwiki") !== false && isset($data['SuperWiki'])) {
                 $output = array();
-                $page = SuperwikiPage::findByName($data['SuperWiki']['site'], $data['SuperWiki']['seminar_id']);
+                $page = SuperwikiPage::find($data['SuperWiki']['page_id']);
                 if ($data['SuperWiki']['mode'] === "read") {
                     if ($data['SuperWiki']['chdate'] < $page['chdate']) {
                         $output['html'] = formatReady($page['content']);
+                        $output['chdate'] = $page['chdate'];
+                    }
+                }
+                if ($data['SuperWiki']['mode'] === "edit") {
+                    $content1 =  studip_utf8decode($data['SuperWiki']['content']);
+                    $original_content =  studip_utf8decode($data['SuperWiki']['old_content']);
+                    $content2 = $page['content'];
+                    $page['content'] = $page->merge($content1, $content2, $original_content);
+                    if ($page['content'] !== $content2) {
+                        $page['last_author'] = $GLOBALS['user']->id;
+                        $page->store();
+                    }
+                    if ($data['SuperWiki']['chdate'] < $page['chdate']) {
+                        $output['content'] = $page['content'];
                         $output['chdate'] = $page['chdate'];
                     }
                 }
@@ -32,20 +46,22 @@ class SuperWiki extends StudIPPlugin implements StandardPlugin {
 
     function getIconNavigation($course_id, $last_visit, $user_id) {
         $settings = SuperwikiSettings::find($course_id);
-        $tab = new Navigation($settings ? $settings['name'] : _("SuperWiki"), PluginEngine::getURL($this, array(), "page/view"));
+        $icon = new Navigation($settings ? $settings['name'] : _("SuperWiki"), PluginEngine::getURL($this, array(), "page/view"));
         $new_changes = SuperwikiPage::countBySql("chdate > ? AND last_author != ?", array($last_visit, $user_id));
         if ($new_changes) {
-            $tab->setImage(Assets::image_path("icons/20/red/wiki"), array('title' => sprintf(_("%s Seiten wurden verändert."), $new_changes)));
+            $icon->setImage(Assets::image_path("icons/20/red/wiki"), array('title' => sprintf(_("%s Seiten wurden verändert."), $new_changes)));
         } else {
-            $tab->setImage(Assets::image_path("icons/20/grey/wiki"), array('title' => $settings ? $settings['name'] : _("SuperWiki")));
+            $icon->setImage(Assets::image_path("icons/20/grey/wiki"), array('title' => $settings ? $settings['name'] : _("SuperWiki")));
         }
-        return $tab;
+        return $icon;
     }
 
     function getTabNavigation($course_id) {
         $settings = SuperwikiSettings::find($course_id);
         $tab = new Navigation($settings ? $settings['name'] : _("SuperWiki"), PluginEngine::getURL($this, array(), "page/view"));
         $tab->setImage(Assets::image_path("icons/16/white/wiki"));
+        $tab->addSubNavigation("wiki", new Navigation($settings ? $settings['name'] : _("SuperWiki"), PluginEngine::getURL($this, array(), "page/view")));
+        $tab->addSubNavigation("all", new Navigation(_("Alle Seiten"), PluginEngine::getURL($this, array(), "overview/all")));
         return array('superwiki' => $tab);
     }
 

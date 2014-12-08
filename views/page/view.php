@@ -15,7 +15,7 @@
 <? endif ?>
 
 <input type="hidden" id="seminar_id" value="<?= $_SESSION['SessionSeminar'] ?>">
-<input type="hidden" id="site" value="<?= htmlReady($page['name']) ?>">
+<input type="hidden" id="page_id" value="<?= htmlReady($page->getId()) ?>">
 
 <h1><?= htmlReady($page['name'] ?: "intro") ?></h1>
 <div id="superwiki_page_content" data-chdate="<?= htmlReady($page['chdate']) ?>">
@@ -25,12 +25,15 @@
         <?= $page->wikiFormat() ?>
     <? endif ?>
 </div>
+
+<? if (!$page->isNew()) : ?>
 <script>
-    STUDIP.SuperWiki = {};
+    STUDIP.SuperWiki = STUDIP.SuperWiki || {};
     STUDIP.SuperWiki.periodicalPushData = function () {
         return {
             'seminar_id': jQuery("#seminar_id").val(),
             'site': jQuery("#site").val(),
+            'page_id': jQuery("#page_id").val(),
             'chdate': jQuery("#superwiki_page_content").data("chdate"),
             'mode': "read"
         };
@@ -40,6 +43,7 @@
         jQuery("#superwiki_page_content").html(data.html);
     };
 </script>
+<? endif ?>
 
 
 <?

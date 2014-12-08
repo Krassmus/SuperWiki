@@ -9,9 +9,10 @@ class PageController extends PluginController {
     function before_filter(&$action, &$args)
     {
         parent::before_filter($action, $args);
-        Navigation::activateItem("/course/superwiki");
+        Navigation::activateItem("/course/superwiki/wiki");
         Navigation::getItem("/course/superwiki")->setImage(Assets::image_path("icons/16/black/wiki"));
         $this->settings = new SuperwikiSettings($_SESSION['SessionSeminar']);
+        PageLayout::addScript($this->plugin->getPluginURL()."/assets/superwiki.js");
     }
 
     public function view_action($page_id = null)
