@@ -3,6 +3,11 @@
     <? foreach ($pages as $page) : ?>
         <tr>
             <td>
+                <? if ($page->getId() === $page->wikisettings['indexpage']) : ?>
+                    <?= Assets::img("icons/16/black/arr_2right", array('class' => "text-bottom", 'title' => _("Startseite"))) ?>
+                <? endif ?>
+            </td>
+            <td>
                 <a href="<?= PluginEngine::getLink($plugin, array(), "page/view/".$page->getId()) ?>">
                     <?= htmlReady($page['name']) ?>
                 </a>

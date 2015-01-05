@@ -21,6 +21,10 @@ class SuperwikiPage extends SimpleORMap {
             'on_delete' => 'delete',
             'on_store' => 'store'
         );
+        $config['belongs_to']['wikisettings'] = array(
+            'class_name' => 'SuperwikiSettings',
+            'foreign_key' => 'seminar_id'
+        );
         parent::configure($config);
     }
 
