@@ -38,7 +38,7 @@ STUDIP.SuperWiki = {
         if (typeof end2 === "undefined") {
             end2 = 0;
         }
-        //console.log(start1 + " " + end1 + " | " + start2 + " " + end2);
+        console.log(start1 + " " + end1 + " | " + start2 + " " + end2);
 
         //now we sort the carets, so we can begin with the first:
         if (start1 <= start2) {

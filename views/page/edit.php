@@ -15,7 +15,7 @@
         data-chdate="<?= htmlReady($page['chdate']) ?>"
         style="width: calc(100% - 8px); height: 300px;"
         ><?= htmlReady($page['content']) ?></textarea>
-    <?= \Studip\Button::create(_("speichern")) ?>
+    <?= \Studip\Button::create(_("Bearbeiten beenden")) ?>
 </form>
 
 <? if (!$page->isNew()) : ?>

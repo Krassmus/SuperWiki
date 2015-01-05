@@ -1,12 +1,29 @@
-<ul>
+<table class="default">
+    <tbody>
     <? foreach ($pages as $page) : ?>
-        <li>
-            <a href="<?= PluginEngine::getLink($plugin, array(), "page/view/".$page->getId()) ?>">
-                <?= htmlReady($page['name']) ?>
-            </a>
-        </li>
+        <tr>
+            <td>
+                <a href="<?= PluginEngine::getLink($plugin, array(), "page/view/".$page->getId()) ?>">
+                    <?= htmlReady($page['name']) ?>
+                </a>
+            </td>
+            <td>
+                <? if ($GLOBALS['perm']->have_studip_perm("tutor", $_SESSION['SessionSeminar']) && $page['write_permission'] != "all") : ?>
+                    <?= Assets::img("icons/20/grey/lock-locked", array('class' => "text-bottom", 'title' => _("Seite ist schreibgeschützt."))) ?>
+                <? endif ?>
+                <? if ($GLOBALS['perm']->have_studip_perm("tutor", $_SESSION['SessionSeminar']) && $page['read_permission'] != "all") : ?>
+                    <?= Assets::img("icons/20/grey/visibility-invisible", array('class' => "text-bottom", 'title' => _("Seite ist lesegeschützt."))) ?>
+                <? endif ?>
+                <? if ($page->isEditable()) : ?>
+                    <a href="<?= PluginEngine::getLink($plugin, array(), "page/edit/".$page->getId()) ?>">
+                        <?= Assets::img("icons/20/blue/edit", array('class' => "text-bottom")) ?>
+                    </a>
+                <? endif ?>
+            </td>
+        </tr>
     <? endforeach ?>
-</ul>
+    </tbody>
+</table>
 
 <?
 $sidebar = Sidebar::Get();
