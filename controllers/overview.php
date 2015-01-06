@@ -12,6 +12,7 @@ class OverviewController extends PluginController {
         Navigation::activateItem("/course/superwiki/all");
         Navigation::getItem("/course/superwiki")->setImage(Assets::image_path("icons/16/black/wiki"));
         $this->settings = new SuperwikiSettings($_SESSION['SessionSeminar']);
+        PageLayout::setTitle($GLOBALS['SessSemName']["header_line"]." - ".$this->settings['name']);
     }
 
     public function all_action()

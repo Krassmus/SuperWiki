@@ -13,6 +13,7 @@ class PageController extends PluginController {
         Navigation::getItem("/course/superwiki")->setImage(Assets::image_path("icons/16/black/wiki"));
         $this->settings = new SuperwikiSettings($_SESSION['SessionSeminar']);
         PageLayout::addScript($this->plugin->getPluginURL()."/assets/superwiki.js");
+        PageLayout::setTitle($GLOBALS['SessSemName']["header_line"]." - ".$this->settings['name']);
     }
 
     public function view_action($page_id = null)
