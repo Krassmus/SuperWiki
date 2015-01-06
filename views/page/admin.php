@@ -30,7 +30,7 @@
         </label>
 
         <div>
-            <? $icons = array("wiki", "info-circle", "info-small", "infopage", "link-intern") ?>
+            <? $icons = array("wiki", "info-circle", "info-small", "infopage", "exclaim", "link-intern", "literature", "log") ?>
             <? foreach ($icons as $icon) : ?>
             <label>
                 <input type="radio" name="icon" value="<?= htmlReady($icon) ?>"<?= $icon === $settings['icon'] ? " checked" : "" ?>>
