@@ -21,7 +21,7 @@ class SuperwikiPage extends SimpleORMap {
             'on_delete' => 'delete',
             'on_store' => 'store'
         );
-        $config['belongs_to']['wikisettings'] = array(
+        $config['belongs_to']['settings'] = array(
             'class_name' => 'SuperwikiSettings',
             'foreign_key' => 'seminar_id'
         );
@@ -82,7 +82,7 @@ class SuperwikiPage extends SimpleORMap {
         $pages = self::findBySQL("seminar_id = ? AND content IS NOT NULL AND content != '' ORDER BY CHAR_LENGTH(name) DESC", array($this['seminar_id']));
         foreach ($pages as $page) {
             if ($page->getId() !== $this->getId()) {
-                $text = preg_replace("/(\s)".$page['name']."/", '$1<a href="'.URLHelper::getLink("plugins.php/superwiki/page/view/".$page->getId(), array('cid' => $page['seminar_id'])).'">'.Assets::img("icons/16/blue/wiki", array('class' => "text-bottom"))." ".htmlReady($page['name']).'</a>', $text);
+                $text = preg_replace("/(\s)".$page['name']."/", '$1<a href="'.URLHelper::getLink("plugins.php/superwiki/page/view/".$page->getId(), array('cid' => $page['seminar_id'])).'">'.Assets::img("icons/16/blue/".$page->settings['icon'], array('class' => "text-bottom"))." ".htmlReady($page['name']).'</a>', $text);
             }
         }
         return $text;

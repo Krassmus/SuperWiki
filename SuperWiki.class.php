@@ -49,9 +49,9 @@ class SuperWiki extends StudIPPlugin implements StandardPlugin {
         $icon = new Navigation($settings ? $settings['name'] : _("SuperWiki"), PluginEngine::getURL($this, array(), "page/view"));
         $new_changes = SuperwikiPage::countBySql("chdate > ? AND last_author != ?", array($last_visit, $user_id));
         if ($new_changes) {
-            $icon->setImage(Assets::image_path("icons/20/red/wiki"), array('title' => sprintf(_("%s Seiten wurden verändert."), $new_changes)));
+            $icon->setImage(Assets::image_path("icons/20/red/".$settings['icon']), array('title' => sprintf(_("%s Seiten wurden verändert."), $new_changes)));
         } else {
-            $icon->setImage(Assets::image_path("icons/20/grey/wiki"), array('title' => $settings ? $settings['name'] : _("SuperWiki")));
+            $icon->setImage(Assets::image_path("icons/20/grey/".$settings['icon']), array('title' => $settings ? $settings['name'] : _("SuperWiki")));
         }
         return $icon;
     }
@@ -59,7 +59,7 @@ class SuperWiki extends StudIPPlugin implements StandardPlugin {
     function getTabNavigation($course_id) {
         $settings = SuperwikiSettings::find($course_id);
         $tab = new Navigation($settings ? $settings['name'] : _("SuperWiki"), PluginEngine::getURL($this, array(), "page/view"));
-        $tab->setImage(Assets::image_path("icons/16/white/wiki"));
+        $tab->setImage(Assets::image_path("icons/16/white/".$settings['icon']));
         $tab->addSubNavigation("wiki", new Navigation($settings ? $settings['name'] : _("SuperWiki"), PluginEngine::getURL($this, array(), "page/view")));
         $tab->addSubNavigation("all", new Navigation(_("Alle Seiten"), PluginEngine::getURL($this, array(), "overview/all")));
         return array('superwiki' => $tab);

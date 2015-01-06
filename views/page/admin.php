@@ -28,6 +28,16 @@
                 <option value="tutor"<?= $settings['create_permission'] === "tutor" ? " selected" : "" ?>><?= _("Tutoren und Dozenten") ?></option>
             </select>
         </label>
+
+        <div>
+            <? $icons = array("wiki", "info-circle", "info-small", "infopage", "link-intern") ?>
+            <? foreach ($icons as $icon) : ?>
+            <label>
+                <input type="radio" name="icon" value="<?= htmlReady($icon) ?>"<?= $icon === $settings['icon'] ? " checked" : "" ?>>
+                <?= Assets::img("icons/20/black/".$icon, array('class' => "text-bottom")) ?>
+            </label>
+            <? endforeach ?>
+        </div>
     </fieldset>
     <div data-dialog-button>
         <?= \Studip\Button::create(_("speichern")) ?>

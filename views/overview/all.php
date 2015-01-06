@@ -3,7 +3,7 @@
     <? foreach ($pages as $page) : ?>
         <tr>
             <td>
-                <? if ($page->getId() === $page->wikisettings['indexpage']) : ?>
+                <? if ($page->getId() === $page->settings['indexpage']) : ?>
                     <?= Assets::img("icons/16/black/arr_2right", array('class' => "text-bottom", 'title' => _("Startseite"))) ?>
                 <? endif ?>
             </td>
@@ -14,10 +14,10 @@
             </td>
             <td>
                 <? if ($GLOBALS['perm']->have_studip_perm("tutor", $_SESSION['SessionSeminar']) && $page['write_permission'] != "all") : ?>
-                    <?= Assets::img("icons/20/grey/lock-locked", array('class' => "text-bottom", 'title' => _("Seite ist schreibgeschützt."))) ?>
+                    <?= Assets::img("icons/20/black/lock-locked", array('class' => "text-bottom", 'title' => _("Seite ist schreibgeschützt."))) ?>
                 <? endif ?>
                 <? if ($GLOBALS['perm']->have_studip_perm("tutor", $_SESSION['SessionSeminar']) && $page['read_permission'] != "all") : ?>
-                    <?= Assets::img("icons/20/grey/visibility-invisible", array('class' => "text-bottom", 'title' => _("Seite ist lesegeschützt."))) ?>
+                    <?= Assets::img("icons/20/black/visibility-invisible", array('class' => "text-bottom", 'title' => _("Seite ist lesegeschützt."))) ?>
                 <? endif ?>
                 <? if ($page->isEditable()) : ?>
                     <a href="<?= PluginEngine::getLink($plugin, array(), "page/edit/".$page->getId()) ?>">

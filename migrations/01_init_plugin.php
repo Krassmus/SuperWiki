@@ -13,6 +13,7 @@ class InitPlugin extends Migration {
                 `seminar_id` varchar(32) NOT NULL,
                 `name` varchar(64) NOT NULL DEFAULT 'SuperWiki',
                 `indexpage` VARCHAR(32) NULL,
+                `icon` VARCHAR(64) NOT NULL DEFAULT 'wiki',
                 `create_permission` varchar(32) NOT NULL DEFAULT 'all',
                 PRIMARY KEY (`seminar_id`),
                 KEY `indexpage` (`indexpage`)

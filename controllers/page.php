@@ -9,9 +9,9 @@ class PageController extends PluginController {
     function before_filter(&$action, &$args)
     {
         parent::before_filter($action, $args);
-        Navigation::activateItem("/course/superwiki/wiki");
-        Navigation::getItem("/course/superwiki")->setImage(Assets::image_path("icons/16/black/wiki"));
         $this->settings = new SuperwikiSettings($_SESSION['SessionSeminar']);
+        Navigation::activateItem("/course/superwiki/wiki");
+        Navigation::getItem("/course/superwiki")->setImage(Assets::image_path("icons/16/black/".$this->settings['icon']));
         PageLayout::addScript($this->plugin->getPluginURL()."/assets/superwiki.js");
         PageLayout::setTitle($GLOBALS['SessSemName']["header_line"]." - ".$this->settings['name']);
     }
@@ -80,6 +80,7 @@ class PageController extends PluginController {
         if (Request::isPost()) {
             $this->settings['name'] = Request::get("name");
             $this->settings['indexpage'] = Request::get("indexpage");
+            $this->settings['icon'] = Request::get("icon", "wiki");
             $this->settings['create_permission'] = Request::get("create_permission");
             $this->settings->store();
             PageLayout::postMessage(MessageBox::success(_("Daten wurden gespeichert")));
