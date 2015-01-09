@@ -1,3 +1,4 @@
+<? if (count($pages)) : ?>
 <table class="default">
     <tbody>
     <? foreach ($pages as $page) : ?>
@@ -29,6 +30,9 @@
     <? endforeach ?>
     </tbody>
 </table>
+<? else : ?>
+    <? PageLayout::postMessage(MessageBox::info(_("Noch keine Seiten vorhanden."))) ?>
+<? endif ?>
 
 <?
 $sidebar = Sidebar::Get();

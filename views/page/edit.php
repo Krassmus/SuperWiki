@@ -1,7 +1,7 @@
 <input type="hidden" id="seminar_id" value="<?= htmlReady($page['seminar_id']) ?>">
 <input type="hidden" id="page_id" value="<?= htmlReady($page->getId()) ?>">
 
-<form action="?" method="post">
+<form action="?" method="post" id="superwiki_edit_form">
     <? if ($page->isNew()) : ?>
         <input type="text" name="name" style="display: block; width: calc(100% - 8px); font-size: 1.3em; font-weight: bold;" required>
     <? else : ?>
@@ -50,6 +50,12 @@ $sidebar = Sidebar::Get();
 $sidebar->setImage('sidebar/wiki-sidebar.png');
 
 $actions = new ActionsWidget();
+if ($GLOBALS['perm']->have_studip_perm("tutor", $_SESSION['SessionSeminar'])) {
+    $actions->addLink(_("Wiki-Einstellungen"), PluginEngine::getURL($plugin, array(), "page/admin"), "icons/16/blue/admin", array('data-dialog' => "true"));
+    if (!$page->isNew()) {
+        $actions->addLink(_("Seiten-Einstellungen"), PluginEngine::getURL($plugin, array(), "page/permissions/".$page->getId()), "icons/16/blue/roles", array('data-dialog' => "true"));
+    }
+}
 $actions->addLink(_("Neue Seite anlegen"), PluginEngine::getURL($plugin, array(), "pad/edit"), "icons/16/blue/add");
 
 $sidebar->addWidget($actions);

@@ -40,6 +40,16 @@ class SuperWiki extends StudIPPlugin implements StandardPlugin {
         }
     }
 
+    /**
+     * Initializes the plugin when actually invoked. Injects stylesheets into
+     * the page layout.
+     */
+    public function initialize()
+    {
+        $this->addStylesheet('assets/superwiki.less');
+        PageLayout::addHeadElement('script', array('src' => $this->getPluginURL() . '/assets/superwiki.js'), '');
+    }
+
     function getInfoTemplate($course_id) {
         return null;
     }
