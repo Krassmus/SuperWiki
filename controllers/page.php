@@ -14,7 +14,6 @@ class PageController extends PluginController {
         Navigation::getItem("/course/superwiki")->setImage(Assets::image_path("icons/16/black/".$this->settings['icon']));
         PageLayout::addScript($this->plugin->getPluginURL()."/assets/superwiki.js");
         PageLayout::setTitle($GLOBALS['SessSemName']["header_line"]." - ".$this->settings['name']);
-        PageLayout::addStylesheet($this->plugin->getPluginURL()."/assets/superwiki.css");
     }
 
     public function view_action($page_id = null)
