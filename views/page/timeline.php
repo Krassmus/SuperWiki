@@ -13,19 +13,42 @@
                 jQuery(".superwiki_content:visible:not(#version_" + ui.value + ")").hide();
                 jQuery("#version_" + ui.value).show();
                 jQuery("#version_id").val(jQuery("#version_" + ui.value).data("version_id"));
+                var template = jQuery("#info_template").html();
+                template = template.replace(":VERSION:", ui.value);
+                template = template.replace(":AUTHOR:", jQuery("#version_" + ui.value).data("author"));
+                template = template.replace(":DATE:", jQuery("#version_" + ui.value).data("date"));
+                jQuery("#info_messagebox").html(template);
             }
         });
     });
 </script>
 
+<div style="display: none" id="info_template">
+    <?= MessageBox::info(_("Version :VERSION: von :AUTHOR: am :DATE:")) ?>
+</div>
+
+<div id="info_messagebox">
+    <?= MessageBox::info(sprintf(_("Version %s von %s am %s"), count($page->versions) + 1, get_fullname($page['last_author']), date("j.n.Y G:h", $page['chdate']))) ?>
+</div>
 
 <h1><?= htmlReady($page['name']) ?></h1>
 
 <div class="versions">
-    <div class="superwiki_content" id="version_<?= count($page->versions) + 1 ?>" data-version_id=""><?= $page->wikiFormat() ?></div>
+    <div class="superwiki_content"
+         id="version_<?= count($page->versions) + 1 ?>"
+         data-version_id=""
+         data-version="<?= count($page->versions) + 1 ?>"
+         data-author="<?= htmlReady(get_fullname($page['last_author'])) ?>"
+         data-date="<?= date("j.n.Y G:h", $page['chdate']) ?>"><?= $page->wikiFormat() ?></div>
 
     <? foreach ($page->versions as $key => $version) : ?>
-        <div class="superwiki_content" id="version_<?= count($page->versions) - $key ?>" style="display: none;" data-version_id="<?= $version->getId() ?>"><?= $version->wikiFormat() ?></div>
+        <div class="superwiki_content"
+             id="version_<?= count($page->versions) - $key ?>"
+             style="display: none;"
+             data-version_id="<?= $version->getId() ?>"
+             data-version="<?= count($page->versions) - $key ?>"
+             data-author="<?= htmlReady(get_fullname($version['last_author'])) ?>"
+             data-date="<?= date("j.n.Y G:h", $version['chdate']) ?>"><?= $version->wikiFormat() ?></div>
     <? endforeach ?>
 </div>
 
