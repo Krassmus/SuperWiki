@@ -47,7 +47,6 @@ class SuperWiki extends StudIPPlugin implements StandardPlugin {
     public function initialize()
     {
         $this->addStylesheet('assets/superwiki.less');
-        PageLayout::addHeadElement('script', array('src' => $this->getPluginURL() . '/assets/superwiki.js'), '');
     }
 
     function getInfoTemplate($course_id) {

@@ -124,4 +124,95 @@ class PageController extends PluginController {
             }
         }
     }
+
+    /**
+     * Saves given files (dragged into the textarea) and returns the link to the
+     * file to the user as json.
+     * @throws AccessDeniedException
+     */
+    public function post_files_action() {
+        if (!Request::isPost()
+            || !$GLOBALS['perm']->have_studip_perm("autor", $_SESSION['SessionSeminar'])) {
+            throw new AccessDeniedException("Kein Zugriff");
+        }
+        //check folders
+        $db = DBManager::get();
+        $folder_id = md5("Superwiki_".$_SESSION['SessionSeminar']."_".$GLOBALS['user']->id);
+        $parent_folder_id = md5("Superwiki_".$_SESSION['SessionSeminar']);
+        $folder_id = $parent_folder_id;
+        $folder = $db->query(
+            "SELECT * " .
+            "FROM folder " .
+            "WHERE folder_id = ".$db->quote($folder_id)." " .
+            "")->fetch(PDO::FETCH_COLUMN, 0);
+        if (!$folder) {
+            $folder = $db->query(
+                "SELECT * " .
+                "FROM folder " .
+                "WHERE folder_id = ".$db->quote($parent_folder_id)." " .
+                "")->fetch(PDO::FETCH_COLUMN, 0);
+            if (!$folder) {
+                $db->exec(
+                    "INSERT IGNORE INTO folder " .
+                    "SET folder_id = ".$db->quote($parent_folder_id).", " .
+                        "range_id = ".$db->quote($_SESSION['SessionSeminar']).", " .
+                        "seminar_id = ".$db->quote($context).", " .
+                        "user_id = ".$db->quote($GLOBALS['user']->id).", " .
+                        "name = ".$db->quote("SuperwikiDateien").", " .
+                        "permission = '7', " .
+                        "mkdate = ".$db->quote(time()).", " .
+                        "chdate = ".$db->quote(time())." " .
+                        "");
+            }
+            $db->exec(
+                "INSERT IGNORE INTO folder " .
+                "SET folder_id = ".$db->quote($folder_id).", " .
+                    "range_id = ".$db->quote($parent_folder_id).", " .
+                    "seminar_id = ".$db->quote($_SESSION['SessionSeminar']).", " .
+                    "user_id = ".$db->quote($GLOBALS['user']->id).", " .
+                    "name = ".$db->quote(get_fullname()).", " .
+                    "permission = '7', " .
+                    "mkdate = ".$db->quote(time()).", " .
+                    "chdate = ".$db->quote(time())." " .
+            "");
+        }
+
+        $output = array();
+
+        foreach ($_FILES as $file) {
+            $GLOBALS['msg'] = '';
+            validate_upload($file);
+            if ($GLOBALS['msg']) {
+                $output['errors'][] = $file['name'] . ': ' . decodeHTML(trim(substr($GLOBALS['msg'],6), '§'));
+                continue;
+            }
+            if ($file['size']) {
+                $document['name'] = $document['filename'] = studip_utf8decode(strtolower($file['name']));
+                $document['user_id'] = $GLOBALS['user']->id;
+                $document['author_name'] = get_fullname();
+                $document['seminar_id'] = $_SESSION['SessionSeminar'];
+                $document['range_id'] = $folder_id;
+                $document['filesize'] = $file['size'];
+
+                $newfile = StudipDocument::createWithFile($file['tmp_name'], $document);
+                $success = (bool)$newfile;
+
+                if ($success) {
+                    $url = GetDownloadLink($newfile->getId(), $newfile['filename']);
+                    $type = null;
+                    strpos($file['type'], 'image') === false || $type = "img";
+                    strpos($file['type'], 'video') === false || $type = "video";
+                    if (strpos($file['type'], 'audio') !== false || strpos($document['filename'], '.ogg') !== false) {
+                        $type = "audio";
+                    }
+                    if ($type) {
+                        $output['inserts'][] = "[".$type."]".$url;
+                    } else {
+                        $output['inserts'][] = "[".$document['filename']."]".$url;
+                    }
+                }
+            }
+        }
+        $this->render_json($output);
+    }
 }
