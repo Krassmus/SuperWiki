@@ -14,15 +14,15 @@ STUDIP.SuperWiki = {
                 break;
             }
         }
-        for(var i = original.length; i > 0; i--) {
-            if (original[i] !== text1[i]) {
-                end1 = i;
+        for(var i = 0; i < text1.length; i++) {
+            if (original[original.length - i - 1] !== text1[text1.length - i - 1]) {
+                end1 = text1.length - i;
                 break;
             }
         }
-        for(var i = original.length; i > 0; i--) {
-            if (original[i] !== text2[i]) {
-                end2 = i;
+        for(var i = 0; i < text2.length; i++) {
+            if (original[original.length - i - 1] !== text2[text2.length - i - 1]) {
+                end2 = text2.length - i;
                 break;
             }
         }
@@ -38,7 +38,7 @@ STUDIP.SuperWiki = {
         if (typeof end2 === "undefined") {
             end2 = 0;
         }
-        //console.log(start1 + " " + end1 + " | " + start2 + " " + end2);
+        console.log(start1 + " " + end1 + " | " + start2 + " " + end2);
 
         //now we sort the carets, so we can begin with the first:
         if (start1 <= start2) {
@@ -66,7 +66,7 @@ STUDIP.SuperWiki = {
         if (end1 <= start2) {
             var text = text1.substr(0, text1.length - (original.length - end1));
             text += text2.substr(text1.length - (original.length - end1));
-            return text;
+            return STUDIP.SuperWiki._replace(original, text1);
         } else {
             //this is a conflict, take the more changed text as the result
             if (end1 - start1 > end2 - start2) {
@@ -75,6 +75,17 @@ STUDIP.SuperWiki = {
                 return text2;
             }
         }
+    },
+    _replace: function (original, text, replacements) {
+        replacements = replacements || { start_original: 0, start_text: 0, end_original: 0, end_text: 0};
+        var result = "";
+        var last_replacement = 0;
+        for (i in replacements) {
+            result += original.substr(last_replacement, replacements[i].start_original);
+            result += text.substr(replacements[i].start_text, replacements[i].end_text);
+            last_replacement = replacements[i].end_original;
+        }
+        return result;
     },
     /**
      * When a file is dropped into the textarea, it will be uploaded with this function
@@ -136,6 +147,7 @@ STUDIP.SuperWiki = {
 };
 
 jQuery(function () {
+    console.log(STUDIP.SuperWiki.merge("WWir sind Charlie Hebdo.", "Wir sind Charlie Hebdo!", "Wir sind Charlie Hebdo."));
     if (jQuery("#superwiki_edit_form textarea").length > 0) {
         jQuery("#superwiki_edit_form textarea").bind('dragover dragleave', function (event) {
             jQuery(this).toggleClass('hovered', event.type === 'dragover');

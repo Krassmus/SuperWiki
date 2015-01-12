@@ -3,7 +3,7 @@
     <tbody>
     <? foreach ($pages as $page) : ?>
         <tr>
-            <td>
+            <td style="width: 20px;">
                 <? if ($page->getId() === $page->settings['indexpage']) : ?>
                     <?= Assets::img("icons/16/black/arr_2right", array('class' => "text-bottom", 'title' => _("Startseite"))) ?>
                 <? endif ?>
