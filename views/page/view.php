@@ -18,7 +18,7 @@
 <input type="hidden" id="page_id" value="<?= htmlReady($page->getId()) ?>">
 
 <h1><?= htmlReady($page['name'] ?: "intro") ?></h1>
-<div class="superwiki_content" data-chdate="<?= htmlReady($page['chdate']) ?>">
+<div class="superwiki_content" data-chdate="<?= htmlReady($page['chdate']) ?>" id="superwiki_page_content">
     <? if ($page->isNew()) : ?>
         <?= _("Dieses Wiki ist schon super. Aber leider trotzdem noch leer.") ?>
     <? else : ?>
@@ -39,7 +39,7 @@
         };
     };
     STUDIP.SuperWiki.updatePage = function (data) {
-        jQuery("#superwiki_page_content").data("chdate", data.chdate)
+        jQuery("#superwiki_content").data("chdate", data.chdate)
         jQuery("#superwiki_page_content").html(data.html);
     };
 </script>

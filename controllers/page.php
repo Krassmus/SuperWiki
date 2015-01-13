@@ -61,12 +61,16 @@ class PageController extends PluginController {
                 $this->page['seminar_id'] = $_SESSION['SessionSeminar'];
             }
             $this->page['last_author'] = $GLOBALS['user']->id;
-            $this->page->store();
+            $success = $this->page->store();
             if (count(SuperwikiPage::findAll($_SESSION['SessionSeminar'])) === 1) {
                 $this->settings['indexpage'] = $this->page->getId();
                 $this->settings->store();
             }
-            PageLayout::postMessage(MessageBox::success(_("Seite gespeichert.")));
+            if ($success > 0 && $success !== false) {
+                PageLayout::postMessage(MessageBox::success(_("Seite gespeichert.")));
+            } elseif($success === false) {
+                PageLayout::postMessage(MessageBox::error(_("Ein Fehler ist aufgetreten.")));
+            }
             $this->redirect("superwiki/page/view/".$this->page->getId());
         }
     }
