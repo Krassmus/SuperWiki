@@ -1,91 +1,72 @@
 
 STUDIP.SuperWiki = {
     merge: function (text1, text2, original) {
-        var start1, start2, end1, end2;
-        for(var i = 0; i < original.length; i++) {
-            if (original[i] !== text1[i]) {
-                start1 = i;
-                break;
-            }
-        }
-        for(var i = 0; i < original.length; i++) {
-            if (original[i] !== text2[i]) {
-                start2 = i;
-                break;
-            }
-        }
-        for(var i = 0; i < text1.length; i++) {
-            if (original[original.length - i - 1] !== text1[text1.length - i - 1]) {
-                end1 = text1.length - i;
-                break;
-            }
-        }
-        for(var i = 0; i < text2.length; i++) {
-            if (original[original.length - i - 1] !== text2[text2.length - i - 1]) {
-                end2 = text2.length - i;
-                break;
-            }
-        }
-        if (typeof start1 === "undefined") {
-            start1 = 0;
-        }
-        if (typeof start2 === "undefined") {
-            start2 = 0;
-        }
-        if (typeof end1 === "undefined") {
-            end1 = 0;
-        }
-        if (typeof end2 === "undefined") {
-            end2 = 0;
-        }
-        console.log(start1 + " " + end1 + " | " + start2 + " " + end2);
+        var replacements1 = STUDIP.SuperWiki._get_replacements(original, text1);
+        var replacements2 = STUDIP.SuperWiki._get_replacements(original, text2);
 
-        //now we sort the carets, so we can begin with the first:
-        if (start1 <= start2) {
-            if (end1 >= end2) {
-                //now we have a dominant version1
-                return text1;
+        //now merge all replacements into one array of conflict-free replacements
+        var conflict = false;
+        for (var i in replacements1) {
+            conflict = false;
+            for (var j in replacements2) {
+                if ((replacements1[i].start > replacements2[j].end
+                    || replacements2[j].start > replacements1[i].end)) {
+                    //no conflict
+                } else {
+                    conflict = true;
+                    //now replace old replacement if this bigger
+                    if (replacements2[j].text.length < replacements1[i].text.length) {
+                        replacements2[j] = replacements1[i];
+                    } //else discard replacements1[i]
+                    break;
+                }
             }
-        } else {
-            if (end2 >= end1) {
-                //now we have a dominant version2
-                return text2;
-            }
-            var k;
-            k = start2;
-            start2 = start1;
-            start1 = k;
-            k = end2;
-            end2 = end1;
-            end1 = k;
-            k = text1;
-            text1 = text2;
-            text2 = k;
-            //now we have switched carets and texts, so that text1 has earlier changes
-        }
-        if (end1 <= start2) {
-            var text = text1.substr(0, text1.length - (original.length - end1));
-            text += text2.substr(text1.length - (original.length - end1));
-            return STUDIP.SuperWiki._replace(original, text1);
-        } else {
-            //this is a conflict, take the more changed text as the result
-            if (end1 - start1 > end2 - start2) {
-                return text1;
-            } else {
-                return text2;
+            if (!conflict) {
+                replacements2.push(replacements1[i]);
             }
         }
+
+        //now sort that array in ascending order of the start-value:
+        replacements2 = _.sortBy(replacements2, function ($r) {
+            return $r.start;
+        });
+
+        //and now we alter the original text by all replacements one after another
+        var index_alteration = 0;
+        var text = original;
+        for (i in replacements2) {
+            text = text.substr(0, replacements2[i].start + index_alteration)
+                + replacements2[i].text
+                + text.substr(replacements2[i].end + index_alteration);
+            index_alteration += replacements2[i].text.length - replacements2[i].end + replacements2[i].start;
+        }
+
+        return text;
     },
-    _replace: function (original, text, replacements) {
-        replacements = replacements || { start_original: 0, start_text: 0, end_original: 0, end_text: 0};
-        var result = "";
-        var last_replacement = 0;
-        for (i in replacements) {
-            result += original.substr(last_replacement, replacements[i].start_original);
-            result += text.substr(replacements[i].start_text, replacements[i].end_text);
-            last_replacement = replacements[i].end_original;
+    _get_replacements: function (original, text) {
+        var replacements = [];
+        var replacement = {};
+        var text_start, text_end;
+        for(var i = 0; i < original.length; i++) {
+            if (original[i] !== text[i]) {
+                replacement.start = i;
+                text_start = i;
+                break;
+            }
         }
-        return result;
+        for(var i = 0; i < original.length; i++) {
+            if ((original[original.length - 1 - i] !== text[text.length - 1 - i])
+                    || (original.length - i === replacement.start)) {
+                replacement.end = original.length - i;
+                text_end = text.length - i;
+                break;
+            }
+        }
+        replacement.text = text.substr(text_start, text_end - text_start);
+        //We could be more specific and find sub-changes with the levenshtein-algorithm,
+        //but for now we keep this simple algorithm.
+        replacements.push(replacement);
+        return replacements;
     },
     /**
      * When a file is dropped into the textarea, it will be uploaded with this function
@@ -93,7 +74,6 @@ STUDIP.SuperWiki = {
      * @param event
      */
     uploadFileToTextarea: function (event) {
-        console.log("ha");
         var textarea = this;
         event.preventDefault();
         var files = 0;
@@ -147,7 +127,7 @@ STUDIP.SuperWiki = {
 };
 
 jQuery(function () {
-    console.log(STUDIP.SuperWiki.merge("WWir sind Charlie Hebdo.", "Wir sind Charlie Hebdo!", "Wir sind Charlie Hebdo."));
+
     if (jQuery("#superwiki_edit_form textarea").length > 0) {
         jQuery("#superwiki_edit_form textarea").bind('dragover dragleave', function (event) {
             jQuery(this).toggleClass('hovered', event.type === 'dragover');
