@@ -12,6 +12,7 @@ class PageController extends PluginController {
         $this->settings = new SuperwikiSettings($_SESSION['SessionSeminar']);
         Navigation::activateItem("/course/superwiki/wiki");
         Navigation::getItem("/course/superwiki")->setImage(Assets::image_path("icons/16/black/".$this->settings['icon']));
+        PageLayout::addScript($this->plugin->getPluginURL()."/assets/TextMerger.js");
         PageLayout::addScript($this->plugin->getPluginURL()."/assets/superwiki.js");
         PageLayout::setTitle($GLOBALS['SessSemName']["header_line"]." - ".$this->settings['name']);
     }

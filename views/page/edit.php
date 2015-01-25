@@ -35,7 +35,8 @@
         var old_content = jQuery("#superwiki_edit_content").data("old_content");
         var new_content = data.content;
         var my_content = jQuery("#superwiki_edit_content").val();
-        var content = STUDIP.SuperWiki.merge(my_content, new_content, old_content);
+        //var content = STUDIP.SuperWiki.merge(my_content, new_content, old_content);
+        var content = TextMerger.get().merge(old_content, my_content, new_content);
         if (content !== my_content) {
             jQuery("#superwiki_edit_content").val(content);
         }
