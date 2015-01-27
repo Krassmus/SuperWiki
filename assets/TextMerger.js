@@ -1,6 +1,35 @@
 /*jslint browser: true, white: true, undef: true, nomen: true, eqeqeq: true, plusplus: true, bitwise: true, newcap: true, immed: true, indent: 4, onevar: false */
 /*global window, _ */
 
+/**
+ * This class provides functions for textmerging. Most typically you can insert two texts
+ * and an original text and the TextMerger-object returns the merged text with all
+ * inserts and replacements.
+ *
+ *     $merged_text = TextMerger.get().merge(original, my_altered_text, their_altered_text);
+ *
+ * Easy as that.
+ *
+ * Usually TextMerger focusses on returning a text. But what happens if there
+ * is any conflict? For example could both texts have replaced the same part
+ * of the original. In this case TextMerger examines the replacements and takes
+ * only that replacement which is larger. For example
+ *
+ *     TextMerger.get().merge("Hi there!", "Hi Master!", "Hello Dark Lord!")
+ *
+ * would return the string "Hello Dark Lord!", as the replacement "ello Dark Lord"
+ * from the second text is larger as "Master", which would be the replacement of
+ * the first text.
+ *
+ * But you can also tell TextMerger to throw an exception on a conflict by calling
+ *
+ *     TextMerger.get({exceptionOnConflict: true}).merge(original, my_altered_text, their_altered_text);
+ *
+ * That is also why TextMerger is an object and not a function. #get calls a contrsuctor and returns
+ * and object of TextMerger-class. With the parameter of the constructor you alter the behaviour
+ * of TextMerger.
+ */
+
 TextMerger = function (params) {
     this.exceptionOnConflict = typeof params !== "undefined" && params.exceptionOnConflict
         ? params.exceptionOnConflict
