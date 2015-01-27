@@ -42,7 +42,9 @@ class TextMerger {
                 //no conflict
                 $i++;
             } else {
-                //we have conflict
+                //we have conflict!
+                //we could go further now and try to solve this conflict by examining
+                //the string character-wise and build sub-replacements with levenshtein.
                 if ($this->exceptionOnConflict) {
                     throw new TextMergerException("Texts have a conflict.", array(
                         "original" => $original,

@@ -23,21 +23,39 @@ TextMerger.prototype.merge = function (original, text1, text2) {
             //no conflict
             i++;
         } else {
-            //we have conflict
-            if (this.exceptionOnConflict) {
-                throw new TextMerger.Exception("Texts have a conflict.", {
-                    "original": original,
-                    "text1": text1,
-                    "text2": text2,
-                    "conflictReplacement1": replacements[i - 1],
-                    "conflictReplacement2": replacements[i]
-                });
+            //we have conflict!
+            var subreplacements1 = [];
+            var subreplacements2 = [];
+            if (replacements[i].indexOf("\n") !== -1 && replacements[i - 1].indexOf("\n") !== -1) {
+                subreplacements1 = this._getSubReplacements(original, replacements[i - 1], "\n");
+                subreplacements2 = this._getSubReplacements(original, replacements[i], "\n");
+            } else if (replacements[i].indexOf(" ") !== -1 && replacements[i - 1].indexOf(" ") !== -1) {
+                subreplacements1 = this._getSubReplacements(original, replacements[i - 1], " ");
+                subreplacements2 = this._getSubReplacements(original, replacements[i], " ");
+            } else if(replacements[i].length < 100 && replacements[i - 1].length < 100) {
+                subreplacements1 = this._getSubReplacements(original, replacements[i - 1]);
+                subreplacements2 = this._getSubReplacements(original, replacements[i]);
+            }
+            if (subreplacements1.length > 1 || subreplacements2 > 1) {
+                replacements = _.sortBy(
+                    _.union(replacements, subreplacements1, subreplacements2)
+                    , "start");
             } else {
-                //now replace old replacement if this bigger
-                if (replacements[i - 1].text.length < replacements[i].text.length) {
-                    replacements = _.without(replacements, replacements[i - 1]);
+                if (this.exceptionOnConflict) {
+                    throw new TextMerger.Exception("Texts have a conflict.", {
+                        "original": original,
+                        "text1": text1,
+                        "text2": text2,
+                        "conflictReplacement1": replacements[i - 1],
+                        "conflictReplacement2": replacements[i]
+                    });
                 } else {
-                    replacements = _.without(replacements, replacements[i]);
+                    //now replace old replacement if this bigger
+                    if (replacements[i - 1].text.length < replacements[i].text.length) {
+                        replacements = _.without(replacements, replacements[i - 1]);
+                    } else {
+                        replacements = _.without(replacements, replacements[i]);
+                    }
                 }
             }
             //important: no i++ here
@@ -78,9 +96,47 @@ TextMerger.prototype._getReplacements = function (original, text) {
     }
     replacement.text = text.substr(text_start, text_end - text_start);
     //We could be more specific and find sub-changes with the levenshtein-algorithm,
-    //but for now we keep this simple algorithm.
+    //but we only do this when a conflict occurs (see above).
     replacements.push(replacement);
     return replacements;
+};
+
+TextMerger.prototype._getSubReplacements = function (original, replacement, delimiter) {
+    if (typeof delimiter === "undefined") {
+        delimiter = "";
+    }
+    var subreplacements = [];
+    var old_parts = original.substr(replacement['start'], replacement['end'] - replacement['start']).split(delimiter);
+    var new_parts = replacement['text'].split(delimiter);
+
+    //now do some levenshtein action:
+    var matrix = [];
+    var eq, ins, repl, del;
+    for (var i = 0; i <= old_parts.length; i++) {
+        for (var k = 0; k <= new_parts.length; k++) {
+            if (i === 0) {
+                matrix[i][k] = k;
+            } else if (k === 0) {
+                matrix[i][k] = i;
+            } else {
+                eq = matrix[i - 1][k - 2] + (old_parts[i - 1] === new_parts[k - 1] ? 0 : 10000);
+                repl = matrix[i - 2][k - 2] + 1;
+                ins = matrix[i - 1][k - 2] + 1;
+                del = matrix[i - 2][k - 1] + 1;
+                matrix[i][k] = Math.min(eq, ins, repl, del);
+            }
+        }
+    }
+    var create_backtrace = function (i, k) {
+        if (i > 0 && j > 0 && matrix[i - 1][k - 1] === matrix[i][k]) {
+            return "0"
+        } else {
+            return "1";
+        }
+    };
+
+    subreplacements.push(replacement);
+    return subreplacements;
 };
 
 
