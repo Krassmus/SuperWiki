@@ -55,13 +55,13 @@ TextMerger.prototype.merge = function (original, text1, text2) {
             //we have conflict!
             var subreplacements1 = [];
             var subreplacements2 = [];
-            if (replacements[i].indexOf("\n") !== -1 && replacements[i - 1].indexOf("\n") !== -1) {
+            if (replacements[i].text.indexOf("\n") !== -1 && replacements[i - 1].text.indexOf("\n") !== -1) {
                 subreplacements1 = this._getSubReplacements(original, replacements[i - 1], "\n");
                 subreplacements2 = this._getSubReplacements(original, replacements[i], "\n");
-            } else if (replacements[i].indexOf(" ") !== -1 && replacements[i - 1].indexOf(" ") !== -1) {
-                subreplacements1 = this._getSubReplacements(original, replacements[i - 1], " ");
+            } else if (replacements[i].text.indexOf(" ") !== -1 && replacements[i - 1].text.indexOf(" ") !== -1) {
+                subreplacements1 = this._getSubReplacements(original, replacements[i - 1].text, " ");
                 subreplacements2 = this._getSubReplacements(original, replacements[i], " ");
-            } else if(replacements[i].length < 100 && replacements[i - 1].length < 100) {
+            } else if(replacements[i].text.length < 100 && replacements[i - 1].text.length < 100) {
                 subreplacements1 = this._getSubReplacements(original, replacements[i - 1]);
                 subreplacements2 = this._getSubReplacements(original, replacements[i]);
             }
@@ -137,6 +137,10 @@ TextMerger.prototype._getSubReplacements = function (original, replacement, deli
     var subreplacements = [];
     var old_parts = original.substr(replacement['start'], replacement['end'] - replacement['start']).split(delimiter);
     var new_parts = replacement['text'].split(delimiter);
+    if (old_parts.length * new_parts.length > 10000) {
+        subreplacements.push(replacement);
+        return subreplacements;
+    }
 
     //now do some levenshtein action:
     var matrix = [];
@@ -156,19 +160,43 @@ TextMerger.prototype._getSubReplacements = function (original, replacement, deli
             }
         }
     }
-    var create_backtrace = function (i, k) {
-        if (i > 0 && j > 0 && matrix[i - 1][k - 1] === matrix[i][k]) {
-            return "0"
-        } else {
-            return "1";
-        }
-    };
 
-    subreplacements.push(replacement);
-    return subreplacements;
+    //backtracing ...
+    var last_replacement = {text: null};
+    var i = new_parts.length - 1,
+        k = old_parts.length - 1;
+    while (i > 0 && k > 0) {
+        if (matrix[i - 1][k - 1] === matrix[i][k]) {
+            if (last_replacement.text !== null) {
+                last_replacement.start = i;
+                subreplacements.push(last_replacement);
+                last_replacement.text = null;
+                last_replacement.end = null;
+            }
+            i--;
+            k--;
+        } else {
+            if (last_replacement.text !== null) {
+                last_replacement.end = k + 1;
+            }
+            if (matrix[i - 1][k - 2] === matrix[i][k] - 1) {
+
+            }
+            i--;
+        }
+    }
+
+    return _.reverse(subreplacements);
 };
 
-
+/**
+ * Constructor for object of type TextMerger.Exception. This kind
+ * of exception is used when TextMerger has some conflicts in merging
+ * and is configured to throw exceptions on conflicts.
+ * @param message : string that indicates what caused this exception
+ * @param data : a plain object
+ * @constructor
+ */
 TextMerger.Exception = function (message, data) {
     this.message = message;
     this.data    = data || {};
