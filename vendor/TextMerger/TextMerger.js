@@ -34,6 +34,9 @@ TextMerger = function (params) {
     this.exceptionOnConflict = typeof params !== "undefined" && params.exceptionOnConflict
         ? params.exceptionOnConflict
         : false;
+    this.levenshteinDelimiter = typeof params !== "undefined" && params.levenshteinDelimiter
+        ? (typeof params.levenshteinDelimiter === "Array" ? params.levenshteinDelimiter : [params.levenshteinDelimiter])
+        : ["\n", " ", ""];
 };
 TextMerger.get = function (params) {
     return new TextMerger(params);
@@ -55,15 +58,17 @@ TextMerger.prototype.merge = function (original, text1, text2) {
             //we have conflict!
             var subreplacements1 = [];
             var subreplacements2 = [];
-            if (replacements[i].text.indexOf("\n") !== -1 && replacements[i - 1].text.indexOf("\n") !== -1) {
-                subreplacements1 = this._getSubReplacements(original, replacements[i - 1], "\n");
-                subreplacements2 = this._getSubReplacements(original, replacements[i], "\n");
-            } else if (replacements[i].text.indexOf(" ") !== -1 && replacements[i - 1].text.indexOf(" ") !== -1) {
-                subreplacements1 = this._getSubReplacements(original, replacements[i - 1].text, " ");
-                subreplacements2 = this._getSubReplacements(original, replacements[i], " ");
-            } else if(replacements[i].text.length < 100 && replacements[i - 1].text.length < 100) {
-                subreplacements1 = this._getSubReplacements(original, replacements[i - 1]);
-                subreplacements2 = this._getSubReplacements(original, replacements[i]);
+            var delimiter;
+            for (j in this.levenshteinDelimiter) {
+                delimiter = this.levenshteinDelimiter[j];
+                if (delimiter === "" || (replacements[i].text.indexOf(delimiter) !== -1
+                        && replacements[i - 1].text.indexOf(delimiter) !== -1)) {
+                    if (replacements[i].text.split(delimiter).length < 100 && replacements[i - 1].text.split(delimiter).length < 100) {
+                        subreplacements1 = this._getSubReplacements(original, replacements[i - 1], delimiter);
+                        subreplacements2 = this._getSubReplacements(original, replacements[i], delimiter);
+                        break;
+                    }
+                }
             }
             if (subreplacements1.length > 1 || subreplacements2 > 1) {
                 replacements = _.sortBy(
@@ -126,7 +131,9 @@ TextMerger.prototype._getReplacements = function (original, text) {
     replacement.text = text.substr(text_start, text_end - text_start);
     //We could be more specific and find sub-changes with the levenshtein-algorithm,
     //but we only do this when a conflict occurs (see above).
-    replacements.push(replacement);
+    if (typeof replacement.start !== "undefined" && typeof replacement.end !== "undefined") {
+        replacements.push(replacement);
+    }
     return replacements;
 };
 
