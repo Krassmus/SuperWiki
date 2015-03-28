@@ -50,6 +50,7 @@ class PageController extends PluginController {
         if ((!$this->page->isNew() && !$this->page->isEditable()) || ($this->page->isNew() && !$this->settings->haveCreatePermission())) {
             throw new AccessDeniedException("Keine Berechtigung.");
         }
+
         if (Request::isPost()
                 && (!$this->page->isNew() || $this->settings->haveCreatePermission())
                 && ($this->page->isNew() || $this->page->isEditable())) {
@@ -61,7 +62,6 @@ class PageController extends PluginController {
                 $this->page['name'] = Request::get("name");
                 $this->page['seminar_id'] = $_SESSION['SessionSeminar'];
             }
-            $this->page['last_author'] = $GLOBALS['user']->id;
             $success = $this->page->store();
             if (count(SuperwikiPage::findAll($_SESSION['SessionSeminar'])) === 1) {
                 $this->settings['indexpage'] = $this->page->getId();
@@ -72,7 +72,7 @@ class PageController extends PluginController {
             } elseif($success === false) {
                 PageLayout::postMessage(MessageBox::error(_("Ein Fehler ist aufgetreten.")));
             }
-            $this->redirect("superwiki/page/view/".$this->page->getId());
+            $this->redirect("page/view/".$this->page->getId());
         }
     }
 

@@ -18,6 +18,9 @@
             font-size: 1.3em;
             padding: 5px;
         }
+        table.failed caption {
+            background-color: #cc6165;
+        }
         table a {
             font-size: 0.8em;
             color: blue;
@@ -41,7 +44,9 @@
         </tbody>
     </table>
 
-    <table class="test">
+    <h2>Tests</h2>
+
+    <table class="test failed">
         <caption>Useless merge</caption>
         <tbody>
         <tr>
@@ -74,7 +79,7 @@
         </tfoot>
     </table>
 
-    <table class="test">
+    <table class="test failed">
         <caption>Trivial merge</caption>
         <tbody>
         <tr>
@@ -107,29 +112,95 @@
         </tfoot>
     </table>
 
-    <table class="test">
+    <table class="test failed">
         <caption>Distinct changes</caption>
         <tbody>
-            <tr>
-                <td>Original</td>
-                <td class="original">Hello World!</td>
-            </tr>
-            <tr>
-                <td>Mine</td>
-                <td class="mine">Hi World!</td>
-            </tr>
-            <tr>
-                <td>Theirs</td>
-                <td class="theirs">Hello San Dimas!</td>
-            </tr>
-            <tr>
-                <td>Expected Result</td>
-                <td class="expected">Hi San Dimas!</td>
-            </tr>
-            <tr>
-                <td>Result</td>
-                <td class="result"></td>
-            </tr>
+        <tr>
+            <td>Original</td>
+            <td class="original">Hello World!</td>
+        </tr>
+        <tr>
+            <td>Mine</td>
+            <td class="mine">Hi World!</td>
+        </tr>
+        <tr>
+            <td>Theirs</td>
+            <td class="theirs">Hello San Dimas!</td>
+        </tr>
+        <tr>
+            <td>Expected Result</td>
+            <td class="expected">Hi San Dimas!</td>
+        </tr>
+        <tr>
+            <td>Result</td>
+            <td class="result"></td>
+        </tr>
+        </tbody>
+        <tfoot>
+        <tr>
+            <td colspan="2">
+                <a onClick="run(this.closest('.test'));">Test einzeln ausführen.</a>
+            </td>
+        </tr>
+        </tfoot>
+    </table>
+
+    <table class="test failed">
+        <caption>Cumulative changes</caption>
+        <tbody>
+        <tr>
+            <td>Original</td>
+            <td class="original">Hi,</td>
+        </tr>
+        <tr>
+            <td>Mine</td>
+            <td class="mine">Hi, I'm Ras!</td>
+        </tr>
+        <tr>
+            <td>Theirs</td>
+            <td class="theirs">Hi, call me John.</td>
+        </tr>
+        <tr>
+            <td>Expected Result</td>
+            <td class="expected">Hi, call me John. I'm Ras!</td>
+        </tr>
+        <tr>
+            <td>Result</td>
+            <td class="result"></td>
+        </tr>
+        </tbody>
+        <tfoot>
+        <tr>
+            <td colspan="2">
+                <a onClick="run(this.closest('.test'));">Test einzeln ausführen.</a>
+            </td>
+        </tr>
+        </tfoot>
+    </table>
+
+    <table class="test failed">
+        <caption>Complicated Merging</caption>
+        <tbody>
+        <tr>
+            <td>Original</td>
+            <td class="original">Hey lovely world</td>
+        </tr>
+        <tr>
+            <td>Mine</td>
+            <td class="mine">Hey graceful world</td>
+        </tr>
+        <tr>
+            <td>Theirs</td>
+            <td class="theirs">Hello lovely world!</td>
+        </tr>
+        <tr>
+            <td>Expected Result</td>
+            <td class="expected">Hello graceful world!</td>
+        </tr>
+        <tr>
+            <td>Result</td>
+            <td class="result"></td>
+        </tr>
         </tbody>
         <tfoot>
         <tr>
@@ -159,9 +230,11 @@
             var result, expected;
             for (var i = 0; i < tests.length; i++) {
                 if (run(tests[i])) {
+                    tests[i].classList.remove("failed");
                     document.getElementById("successful").innerHTML =
                             parseInt(document.getElementById("successful").innerHTML, 10) + 1;
                 } else {
+                    tests[i].classList.add("failed");
                     document.getElementById("failed").innerHTML =
                             parseInt(document.getElementById("failed").innerHTML, 10) + 1;
                 }

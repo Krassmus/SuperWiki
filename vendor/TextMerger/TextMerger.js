@@ -151,6 +151,9 @@ TextMerger.prototype._getSubReplacements = function (original, replacement, deli
 
     //now do some levenshtein action:
     var matrix = [];
+    for (var i = 0; i <= old_parts.length; i++) {
+        matrix.push(new Array(new_parts.length));
+    }
     var eq, ins, repl, del;
     for (var i = 0; i <= old_parts.length; i++) {
         for (var k = 0; k <= new_parts.length; k++) {
@@ -159,10 +162,10 @@ TextMerger.prototype._getSubReplacements = function (original, replacement, deli
             } else if (k === 0) {
                 matrix[i][k] = i;
             } else {
-                eq = matrix[i - 1][k - 2] + (old_parts[i - 1] === new_parts[k - 1] ? 0 : 10000);
-                repl = matrix[i - 2][k - 2] + 1;
-                ins = matrix[i - 1][k - 2] + 1;
-                del = matrix[i - 2][k - 1] + 1;
+                eq = matrix[i][k - 1] + (old_parts[i - 1] === new_parts[k - 1] ? 0 : 10000);
+                repl = matrix[i - 1][k - 1] + 1;
+                ins = matrix[i][k - 1] + 1;
+                del = matrix[i - 1][k] + 1;
                 matrix[i][k] = Math.min(eq, ins, repl, del);
             }
         }
