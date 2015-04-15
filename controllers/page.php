@@ -89,7 +89,7 @@ class PageController extends PluginController {
             $this->settings['create_permission'] = Request::get("create_permission");
             $this->settings->store();
             PageLayout::postMessage(MessageBox::success(_("Daten wurden gespeichert")));
-            $this->redirect("superwiki/page/view/".Request::option("page_id"));
+            $this->redirect("page/view/".Request::option("page_id"));
         }
     }
 
@@ -105,8 +105,9 @@ class PageController extends PluginController {
             $this->page['write_permission'] = Request::get('write_permission');
             $this->page->store();
             PageLayout::postMessage(MessageBox::success(_("Seiteneinstellungen bearbeitet.")));
-            $this->redirect("superwiki/page/view/".$page_id);
+            $this->redirect("page/view/".$page_id);
         }
+        $this->statusgruppen = Statusgruppen::findBySeminar_id($this->page['seminar_id']);
     }
 
     public function timeline_action($page_id)
