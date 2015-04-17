@@ -2,31 +2,33 @@
 <table class="default">
     <tbody>
     <? foreach ($pages as $page) : ?>
-        <tr>
-            <td style="width: 20px;">
-                <? if ($page->getId() === $page->settings['indexpage']) : ?>
-                    <?= Assets::img("icons/16/black/arr_2right", array('class' => "text-bottom", 'title' => _("Startseite"))) ?>
-                <? endif ?>
-            </td>
-            <td>
-                <a href="<?= PluginEngine::getLink($plugin, array(), "page/view/".$page->getId()) ?>">
-                    <?= htmlReady($page['name']) ?>
-                </a>
-            </td>
-            <td>
-                <? if ($GLOBALS['perm']->have_studip_perm("tutor", $_SESSION['SessionSeminar']) && $page['write_permission'] != "all") : ?>
-                    <?= Assets::img("icons/20/black/lock-locked", array('class' => "text-bottom", 'title' => _("Seite ist schreibgeschützt."))) ?>
-                <? endif ?>
-                <? if ($GLOBALS['perm']->have_studip_perm("tutor", $_SESSION['SessionSeminar']) && $page['read_permission'] != "all") : ?>
-                    <?= Assets::img("icons/20/black/visibility-invisible", array('class' => "text-bottom", 'title' => _("Seite ist lesegeschützt."))) ?>
-                <? endif ?>
-                <? if ($page->isEditable()) : ?>
-                    <a href="<?= PluginEngine::getLink($plugin, array(), "page/edit/".$page->getId()) ?>">
-                        <?= Assets::img("icons/20/blue/edit", array('class' => "text-bottom")) ?>
+        <? if ($page->isReadable()) : ?>
+            <tr>
+                <td style="width: 20px;">
+                    <? if ($page->getId() === $page->settings['indexpage']) : ?>
+                        <?= Assets::img("icons/16/black/arr_2right", array('class' => "text-bottom", 'title' => _("Startseite"))) ?>
+                    <? endif ?>
+                </td>
+                <td>
+                    <a href="<?= PluginEngine::getLink($plugin, array(), "page/view/".$page->getId()) ?>">
+                        <?= htmlReady($page['name']) ?>
                     </a>
-                <? endif ?>
-            </td>
-        </tr>
+                </td>
+                <td>
+                    <? if ($GLOBALS['perm']->have_studip_perm("tutor", $_SESSION['SessionSeminar']) && $page['write_permission'] !== "all") : ?>
+                        <?= Assets::img("icons/20/black/lock-locked", array('class' => "text-bottom", 'title' => _("Seite ist schreibgeschützt."))) ?>
+                    <? endif ?>
+                    <? if ($GLOBALS['perm']->have_studip_perm("tutor", $_SESSION['SessionSeminar']) && $page['read_permission'] !== "all") : ?>
+                        <?= Assets::img("icons/20/black/visibility-invisible", array('class' => "text-bottom", 'title' => _("Seite ist lesegeschützt."))) ?>
+                    <? endif ?>
+                    <? if ($page->isEditable()) : ?>
+                        <a href="<?= PluginEngine::getLink($plugin, array(), "page/edit/".$page->getId()) ?>">
+                            <?= Assets::img("icons/20/blue/edit", array('class' => "text-bottom")) ?>
+                        </a>
+                    <? endif ?>
+                </td>
+            </tr>
+        <? endif ?>
     <? endforeach ?>
     </tbody>
 </table>

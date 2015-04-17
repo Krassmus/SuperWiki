@@ -34,6 +34,9 @@ TextMerger = function (params) {
     this.exceptionOnConflict = typeof params !== "undefined" && params.exceptionOnConflict
         ? params.exceptionOnConflict
         : false;
+    this.levenshteinDelimiter = typeof params !== "undefined" && params.levenshteinDelimiter
+        ? (typeof params.levenshteinDelimiter === "Array" ? params.levenshteinDelimiter : [params.levenshteinDelimiter])
+        : ["\n", " ", ""];
 };
 TextMerger.get = function (params) {
     return new TextMerger(params);
@@ -55,15 +58,17 @@ TextMerger.prototype.merge = function (original, text1, text2) {
             //we have conflict!
             var subreplacements1 = [];
             var subreplacements2 = [];
-            if (replacements[i].indexOf("\n") !== -1 && replacements[i - 1].indexOf("\n") !== -1) {
-                subreplacements1 = this._getSubReplacements(original, replacements[i - 1], "\n");
-                subreplacements2 = this._getSubReplacements(original, replacements[i], "\n");
-            } else if (replacements[i].indexOf(" ") !== -1 && replacements[i - 1].indexOf(" ") !== -1) {
-                subreplacements1 = this._getSubReplacements(original, replacements[i - 1], " ");
-                subreplacements2 = this._getSubReplacements(original, replacements[i], " ");
-            } else if(replacements[i].length < 100 && replacements[i - 1].length < 100) {
-                subreplacements1 = this._getSubReplacements(original, replacements[i - 1]);
-                subreplacements2 = this._getSubReplacements(original, replacements[i]);
+            var delimiter;
+            for (j in this.levenshteinDelimiter) {
+                delimiter = this.levenshteinDelimiter[j];
+                if (delimiter === "" || (replacements[i].text.indexOf(delimiter) !== -1
+                        && replacements[i - 1].text.indexOf(delimiter) !== -1)) {
+                    if (replacements[i].text.split(delimiter).length < 100 && replacements[i - 1].text.split(delimiter).length < 100) {
+                        subreplacements1 = this._getSubReplacements(original, replacements[i - 1], delimiter);
+                        subreplacements2 = this._getSubReplacements(original, replacements[i], delimiter);
+                        break;
+                    }
+                }
             }
             if (subreplacements1.length > 1 || subreplacements2 > 1) {
                 replacements = _.sortBy(
@@ -126,7 +131,9 @@ TextMerger.prototype._getReplacements = function (original, text) {
     replacement.text = text.substr(text_start, text_end - text_start);
     //We could be more specific and find sub-changes with the levenshtein-algorithm,
     //but we only do this when a conflict occurs (see above).
-    replacements.push(replacement);
+    if (typeof replacement.start !== "undefined" && typeof replacement.end !== "undefined") {
+        replacements.push(replacement);
+    }
     return replacements;
 };
 
@@ -137,9 +144,16 @@ TextMerger.prototype._getSubReplacements = function (original, replacement, deli
     var subreplacements = [];
     var old_parts = original.substr(replacement['start'], replacement['end'] - replacement['start']).split(delimiter);
     var new_parts = replacement['text'].split(delimiter);
+    if (old_parts.length * new_parts.length > 10000) {
+        subreplacements.push(replacement);
+        return subreplacements;
+    }
 
     //now do some levenshtein action:
     var matrix = [];
+    for (var i = 0; i <= old_parts.length; i++) {
+        matrix.push(new Array(new_parts.length));
+    }
     var eq, ins, repl, del;
     for (var i = 0; i <= old_parts.length; i++) {
         for (var k = 0; k <= new_parts.length; k++) {
@@ -148,27 +162,51 @@ TextMerger.prototype._getSubReplacements = function (original, replacement, deli
             } else if (k === 0) {
                 matrix[i][k] = i;
             } else {
-                eq = matrix[i - 1][k - 2] + (old_parts[i - 1] === new_parts[k - 1] ? 0 : 10000);
-                repl = matrix[i - 2][k - 2] + 1;
-                ins = matrix[i - 1][k - 2] + 1;
-                del = matrix[i - 2][k - 1] + 1;
+                eq = matrix[i][k - 1] + (old_parts[i - 1] === new_parts[k - 1] ? 0 : 10000);
+                repl = matrix[i - 1][k - 1] + 1;
+                ins = matrix[i][k - 1] + 1;
+                del = matrix[i - 1][k] + 1;
                 matrix[i][k] = Math.min(eq, ins, repl, del);
             }
         }
     }
-    var create_backtrace = function (i, k) {
-        if (i > 0 && j > 0 && matrix[i - 1][k - 1] === matrix[i][k]) {
-            return "0"
-        } else {
-            return "1";
-        }
-    };
 
-    subreplacements.push(replacement);
-    return subreplacements;
+    //backtracing ...
+    var last_replacement = {text: null};
+    var i = new_parts.length - 1,
+        k = old_parts.length - 1;
+    while (i > 0 && k > 0) {
+        if (matrix[i - 1][k - 1] === matrix[i][k]) {
+            if (last_replacement.text !== null) {
+                last_replacement.start = i;
+                subreplacements.push(last_replacement);
+                last_replacement.text = null;
+                last_replacement.end = null;
+            }
+            i--;
+            k--;
+        } else {
+            if (last_replacement.text !== null) {
+                last_replacement.end = k + 1;
+            }
+            if (matrix[i - 1][k - 2] === matrix[i][k] - 1) {
+
+            }
+            i--;
+        }
+    }
+
+    return _.reverse(subreplacements);
 };
 
-
+/**
+ * Constructor for object of type TextMerger.Exception. This kind
+ * of exception is used when TextMerger has some conflicts in merging
+ * and is configured to throw exceptions on conflicts.
+ * @param message : string that indicates what caused this exception
+ * @param data : a plain object
+ * @constructor
+ */
 TextMerger.Exception = function (message, data) {
     this.message = message;
     this.data    = data || {};

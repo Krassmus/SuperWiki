@@ -6,6 +6,10 @@
             <select name="read_permission">
                 <option value="all"><?= _("jeder") ?></option>
                 <option value="tutor"<?= $page['read_permission'] === "tutor" ? " selected" : "" ?>><?= _("Tutoren & Dozenten") ?></option>
+                <option value="dozent"<?= $page['read_permission'] === "dozent" ? " selected" : "" ?>><?= _("Nur Dozenten") ?></option>
+                <? foreach ($statusgruppen as $statusgruppe) : ?>
+                    <option value="<?= $statusgruppe->getId() ?>"<?= $page['read_permission'] === $statusgruppe->getId() ? " selected" : "" ?>><?= htmlReady($statusgruppe['name']) ?></option>
+                <? endforeach ?>
             </select>
         </label>
         <label>
@@ -13,6 +17,10 @@
             <select name="write_permission">
                 <option value="all"><?= _("jeder") ?></option>
                 <option value="tutor"<?= $page['write_permission'] === "tutor" ? " selected" : "" ?>><?= _("Tutoren & Dozenten") ?></option>
+                <option value="dozent"<?= $page['write_permission'] === "dozent" ? " selected" : "" ?>><?= _("Nur Dozenten") ?></option>
+                <? foreach ($statusgruppen as $statusgruppe) : ?>
+                    <option value="<?= $statusgruppe->getId() ?>"<?= $page['write_permission'] === $statusgruppe->getId() ? " selected" : "" ?>><?= htmlReady($statusgruppe['name']) ?></option>
+                <? endforeach ?>
             </select>
         </label>
     </fieldset>

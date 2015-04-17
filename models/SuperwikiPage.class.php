@@ -51,6 +51,9 @@ class SuperwikiPage extends SimpleORMap {
     public function isReadable($user_id = null)
     {
         $user_id || $user_id = $GLOBALS['user']->id;
+        if ($GLOBALS['perm']->have_studip_perm("dozent", $this['seminar_id'], $user_id)) {
+            return true;
+        }
         switch ($this['read_permission']) {
             case "all":
                 return true;
@@ -58,6 +61,9 @@ class SuperwikiPage extends SimpleORMap {
                 return $GLOBALS['perm']->have_studip_perm("tutor", $this['seminar_id'], $user_id);
             case "dozent":
                 return $GLOBALS['perm']->have_studip_perm("dozent", $this['seminar_id'], $user_id);
+            default:
+                //statusgruppe_id
+                return Statusgruppen::find($this['read_permission'])->isMember($user_id);
         }
         return false;
     }
@@ -65,6 +71,9 @@ class SuperwikiPage extends SimpleORMap {
     public function isEditable($user_id = null)
     {
         $user_id || $user_id = $GLOBALS['user']->id;
+        if ($GLOBALS['perm']->have_studip_perm("dozent", $this['seminar_id'], $user_id)) {
+            return true;
+        }
         switch ($this['write_permission']) {
             case "all":
                 return true;
@@ -72,6 +81,9 @@ class SuperwikiPage extends SimpleORMap {
                 return $GLOBALS['perm']->have_studip_perm("tutor", $this['seminar_id'], $user_id);
             case "dozent":
                 return $GLOBALS['perm']->have_studip_perm("dozent", $this['seminar_id'], $user_id);
+            default:
+                //statusgruppe_id
+                return Statusgruppen::find($this['read_permission'])->isMember($user_id);
         }
         return false;
     }

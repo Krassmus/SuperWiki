@@ -3,7 +3,7 @@
 require_once __DIR__."/models/SuperwikiPage.class.php";
 require_once __DIR__."/models/SuperwikiVersion.class.php";
 require_once __DIR__."/models/SuperwikiSettings.class.php";
-require_once __DIR__."/vendor/TextMerger.php";
+require_once __DIR__ . "/vendor/TextMerger/TextMerger.php";
 
 class SuperWiki extends StudIPPlugin implements StandardPlugin {
 
