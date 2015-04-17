@@ -83,7 +83,8 @@ class SuperwikiPage extends SimpleORMap {
                 return $GLOBALS['perm']->have_studip_perm("dozent", $this['seminar_id'], $user_id);
             default:
                 //statusgruppe_id
-                return Statusgruppen::find($this['read_permission'])->isMember($user_id);
+                $statusgruppe = Statusgruppen::find($this['read_permission']);
+                return $statusgruppe && $statusgruppe->isMember($user_id);
         }
         return false;
     }
