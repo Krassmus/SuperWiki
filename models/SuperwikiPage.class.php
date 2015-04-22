@@ -45,6 +45,7 @@ class SuperwikiPage extends SimpleORMap {
             $version->setId($version->getNewId());
             $version->store();
         }
+        $this['last_author'] = $GLOBALS['user']->id;
         return true;
     }
 
