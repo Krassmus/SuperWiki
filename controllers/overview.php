@@ -20,5 +20,11 @@ class OverviewController extends PluginController {
         $this->pages = SuperwikiPage::findAll($_SESSION['SessionSeminar']);
     }
 
+    public function latest_changes_action()
+    {
+        if (Request::int("since")) {
+            $this->pages = SuperwikiPage::findBySql("chdate > ? ORDER BY chdate DESC", array(Request::int("since")));
+        }
+    }
 
 }

@@ -226,4 +226,5 @@ class PageController extends PluginController {
         }
         $this->render_json($output);
     }
+
 }
