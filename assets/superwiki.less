@@ -10,3 +10,21 @@
 .superwiki_content img {
     max-width: 100%;
 }
+
+.full_wiki_page {
+    background-color: white;
+    overflow: auto;
+    &:-moz-full-screen {
+        padding: 10px;
+    }
+    &:-webkit-full-screen {
+        padding: 10px;
+    }
+    &:-ms-fullscreen {
+        padding: 10px;
+    }
+    &:fullscreen {
+        padding: 10px;
+    }
+}
+

@@ -55,6 +55,18 @@ STUDIP.SuperWiki = {
                 }
             });
         }
+    },
+    requestFullscreen: function () {
+        var page = jQuery(".full_wiki_page")[0];
+        if (page.requestFullscreen) {
+            page.requestFullscreen();
+        } else if (page.msRequestFullscreen) {
+            page.msRequestFullscreen();
+        } else if (page.mozRequestFullScreen) {
+            page.mozRequestFullScreen();
+        } else if (page.webkitRequestFullscreen) {
+            page.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+        }
     }
 };
 

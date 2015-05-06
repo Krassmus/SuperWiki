@@ -17,13 +17,15 @@
 <input type="hidden" id="seminar_id" value="<?= $_SESSION['SessionSeminar'] ?>">
 <input type="hidden" id="page_id" value="<?= htmlReady($page->getId()) ?>">
 
-<h1><?= htmlReady($page['name'] ?: "intro") ?></h1>
-<div class="superwiki_content" data-chdate="<?= htmlReady($page['chdate']) ?>" id="superwiki_page_content">
-    <? if ($page->isNew()) : ?>
-        <?= _("Dieses Wiki ist schon super. Aber leider trotzdem noch leer.") ?>
-    <? else : ?>
-        <?= $page->wikiFormat() ?>
-    <? endif ?>
+<div class="full_wiki_page">
+    <h1><?= htmlReady($page['name'] ?: "intro") ?></h1>
+    <div class="superwiki_content" data-chdate="<?= htmlReady($page['chdate']) ?>" id="superwiki_page_content">
+        <? if ($page->isNew()) : ?>
+            <?= _("Dieses Wiki ist schon super. Aber leider trotzdem noch leer.") ?>
+        <? else : ?>
+            <?= $page->wikiFormat() ?>
+        <? endif ?>
+    </div>
 </div>
 
 <? if (!$page->isNew()) : ?>
@@ -68,6 +70,7 @@ $sidebar->addWidget($actions);
 if (!$page->isNew()) {
     $views = new ViewsWidget();
     $views->addLink(_("Aktuelle Seite"), PluginEngine::getLink($plugin, array(), "page/view/".$page->getId()))->setActive(true);
+    $views->addLink(_("Vollbild"), "#", null, array('onClick' => "STUDIP.SuperWiki.requestFullscreen(); return false;"));
     $views->addLink(_("Historie"), PluginEngine::getLink($plugin, array(), "page/timeline/".$page->getId()));
     $sidebar->addWidget($views);
 }
