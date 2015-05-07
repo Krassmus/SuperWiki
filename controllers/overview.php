@@ -23,7 +23,7 @@ class OverviewController extends PluginController {
     public function latest_changes_action()
     {
         if (Request::int("since")) {
-            $this->pages = SuperwikiPage::findBySql("chdate > ? ORDER BY chdate DESC", array(Request::int("since")));
+            $this->pages = SuperwikiPage::findBySql("seminar_id = ? AND chdate > ? ORDER BY chdate DESC", array($_SESSION['SessionSeminar'], Request::int("since")));
         }
     }
 

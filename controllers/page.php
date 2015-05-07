@@ -26,6 +26,9 @@ class PageController extends PluginController {
     {
         if ($page_id) {
             $this->page = new SuperwikiPage($page_id);
+            if ($this->page['seminar_id'] !== $_SESSION['SessionSeminar']) {
+                throw new AccessDeniedException("Not in right course");
+            }
             $history = $_SESSION['SuperWiki_History'][$_SESSION['SessionSeminar']];
             if ($history[count($history) - 1] !== $page_id) {
                 $history[] = $page_id;
@@ -46,6 +49,9 @@ class PageController extends PluginController {
     {
         if ($page_id) {
             $this->page = new SuperwikiPage($page_id);
+            if ($this->page['seminar_id'] !== $_SESSION['SessionSeminar']) {
+                throw new AccessDeniedException("Not in right course");
+            }
         } else {
             $this->page = SuperwikiPage::findByName(Request::get("name"), $_SESSION['SessionSeminar']);
             if (!$this->page) {
