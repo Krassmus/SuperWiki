@@ -12,13 +12,13 @@ class PageController extends PluginController {
         $this->settings = new SuperwikiSettings($_SESSION['SessionSeminar']);
         Navigation::activateItem("/course/superwiki/wiki");
         Navigation::getItem("/course/superwiki")->setImage(Assets::image_path("icons/16/black/".($this->settings['icon'] ?: "wiki")));
-        PageLayout::addScript($this->plugin->getPluginURL()."/assets/TextMerger.js");
+        PageLayout::addScript($this->plugin->getPluginURL()."/vendor/TextMerger/TextMerger.js");
         PageLayout::addScript($this->plugin->getPluginURL()."/assets/superwiki.js");
         PageLayout::setTitle($GLOBALS['SessSemName']["header_line"]." - ".$this->settings['name']);
 
         $this->set_content_type('text/html;charset=windows-1252');
         if (Request::isAjax()) {
-            $this->set_layout($null);
+            $this->set_layout(null);
         }
     }
 

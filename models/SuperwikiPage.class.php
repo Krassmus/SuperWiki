@@ -52,6 +52,9 @@ class SuperwikiPage extends SimpleORMap {
     public function isReadable($user_id = null)
     {
         $user_id || $user_id = $GLOBALS['user']->id;
+        if (!$GLOBALS['perm']->have_studip_perm("user", $this['seminar_id'], $user_id)) {
+            return false;
+        }
         if ($GLOBALS['perm']->have_studip_perm("dozent", $this['seminar_id'], $user_id)) {
             return true;
         }
@@ -72,6 +75,9 @@ class SuperwikiPage extends SimpleORMap {
     public function isEditable($user_id = null)
     {
         $user_id || $user_id = $GLOBALS['user']->id;
+        if (!$GLOBALS['perm']->have_studip_perm("autor", $this['seminar_id'], $user_id)) {
+            return false;
+        }
         if ($GLOBALS['perm']->have_studip_perm("dozent", $this['seminar_id'], $user_id)) {
             return true;
         }

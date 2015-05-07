@@ -20,11 +20,10 @@ class SuperWiki extends StudIPPlugin implements StandardPlugin {
                         $output['chdate'] = $page['chdate'];
                     }
                 }
-                if ($data['SuperWiki']['mode'] === "edit") {
+                if ($data['SuperWiki']['mode'] === "edit" && $page->isEditable()) {
                     $content1 =  studip_utf8decode($data['SuperWiki']['content']);
                     $original_content =  studip_utf8decode($data['SuperWiki']['old_content']);
                     $content2 = $page['content'];
-                    //$page['content'] = $page->merge($content1, $content2, $original_content);
                     $page['content'] = TextMerger::get()->merge($original_content, $content1, $content2);
                     if ($page['content'] !== $content2) {
                         $page['last_author'] = $GLOBALS['user']->id;
