@@ -81,6 +81,7 @@ class TextMerger {
     {
         $replacements = array();
         $replacement = array();
+        $text_start = $text_end = null;
         for($i = 0; $i < strlen($original); $i++) {
             if ($original[$i] !== $text[$i]) {
                 $replacement['start'] = $i;
@@ -90,17 +91,18 @@ class TextMerger {
         }
         for($i = 0; $i < strlen($original); $i++) {
             if (($original[strlen($original) - 1 - $i] !== $text[strlen($text) - 1 - $i])
-                || (strlen($original) - $i === $replacement['start'])) {
-                $replacement['end'] = strlen($original) - $i;
+                    || (strlen($original) - $i === $replacement['start'])) {
+                $replacement['end'] = strlen($original) - i;
                 $text_end = strlen($text) - $i;
                 break;
             }
         }
         $replacement['text'] = substr($text, $text_start, $text_end - $text_start);
-
         //We could be more specific and find sub-changes with the levenshtein-algorithm,
-        //but for now we keep this simple algorithm.
-        $replacements[] = $replacement;
+        //but we only do this when a conflict occurs (see above).
+        if ($replacement['start'] !== null && $replacement['end'] !== null) {
+            $replacements[] = $replacement;
+        }
         return $replacements;
     }
 }
