@@ -132,12 +132,15 @@ TextMerger.prototype._getReplacements = function (original, text) {
     //We could be more specific and find sub-changes with the levenshtein-algorithm,
     //but we only do this when a conflict occurs (see above).
     if (typeof replacement.start !== "undefined" && typeof replacement.end !== "undefined") {
-        replacements.push(replacement);
+        if (replacement['text'] || (replacement.start !== replacement.end)) {
+            replacements.push(replacement);
+        }
     }
     return replacements;
 };
 
 TextMerger.prototype._getSubReplacements = function (original, replacement, delimiter) {
+    return [replacement];
     if (typeof delimiter === "undefined") {
         delimiter = "";
     }

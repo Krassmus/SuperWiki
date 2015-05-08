@@ -51,7 +51,12 @@ require_once __DIR__."/../TextMerger.php";
         </tbody>
     </table>
 
-    <h2>Tests</h2>
+    <h2>
+        Tests
+        <? if (isset($_REQUEST['only']) && $_REQUEST['only'] !== "") : ?>
+            <a href="?only=" style="font-size: 0.5em;">All tests</a>
+        <? endif ?>
+    </h2>
 
     <?
     $tests = array();
@@ -98,8 +103,12 @@ require_once __DIR__."/../TextMerger.php";
         'expected' => "Hello graceful world!"
     );*/
 
+    if (isset($_REQUEST['only']) && $_REQUEST['only'] !== "") {
+        $tests = array($tests[$_REQUEST['only']]);
+    }
+
     ?>
-    <? foreach ($tests as $test) : ?>
+    <? foreach ($tests as $key => $test) : ?>
         <? $result = TextMerger::get()->merge($test['original'], $test['mine'], $test['theirs']) ?>
         <table class="test <?= $result === $test['expected'] ? "" : "failed" ?>">
             <caption><?= escape($test['title']) ?></caption>
@@ -128,7 +137,7 @@ require_once __DIR__."/../TextMerger.php";
             <tfoot>
                 <tr>
                     <td colspan="2">
-                        <a href="?only=">Execute test independently.</a>
+                        <a href="?only=<?= $key ?>">Execute test independently.</a>
                     </td>
                 </tr>
             </tfoot>

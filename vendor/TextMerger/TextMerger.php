@@ -14,6 +14,7 @@ class TextMergerException extends Exception {
 class TextMerger {
 
     protected $exceptionOnConflict = false;
+    protected $levenshteinDelimiter = null;
 
     static public function get($params = array())
     {
@@ -25,6 +26,9 @@ class TextMerger {
         $this->exceptionOnConflict = isset($params['exceptionOnConflict'])
             ? $params['exceptionOnConflict']
             : false;
+        $this->levenshteinDelimiter = isset($params['levenshteinDelimiter'])
+            ? $params['levenshteinDelimiter']
+            : array("\n", " ", "");
     }
 
     public function merge($original, $text1, $text2)
@@ -35,6 +39,7 @@ class TextMerger {
         );
         usort($replacements, function ($a, $b) { return $a['start'] >= $b['start'] ? 1 : -1; });
         //reduce conflicts
+        //var_dump($replacements);
         $i = 1;
         while ($i < count($replacements)) {
             if (($replacements[$i]['start'] > $replacements[$i - 1]['end']
@@ -43,22 +48,42 @@ class TextMerger {
                 $i++;
             } else {
                 //we have conflict!
-                //we could go further now and try to solve this conflict by examining
-                //the string character-wise and build sub-replacements with levenshtein.
-                if ($this->exceptionOnConflict) {
-                    throw new TextMergerException("Texts have a conflict.", array(
-                        "original" => $original,
-                        "text1" => $text1,
-                        "text2" => $text2,
-                        "conflictReplacement1" => $replacements[$i - 1],
-                        "conflictReplacement2" => $replacements[$i]
-                    ));
-                } else {
-                    //now replace old replacement if this bigger
-                    if (strlen($replacements[$i - 1]['text']) < strlen($replacements[$i]['text'])) {
-                        $replacements = array_splice($replacements, $i - 1);
+                $subreplacements1 = array();
+                $subreplacements2 = array();
+                foreach ($this->levenshteinDelimiter as $delimiter) {
+                    if ($delimiter === "" || (strpos($replacements[$i]['text'], $delimiter) !== false
+                                && strpos($replacements[$i - 1]['text'], $delimiter) !== false)) {
+                        $parts = $delimiter !== ""
+                            ? explode($delimiter, $replacements[$i]['text'])
+                            : $replacements[$i]['text'];
+                        $last_parts = $delimiter !== ""
+                            ? explode($delimiter, $replacements[$i - 1]['text'])
+                            : $replacements[$i - 1]['text'];
+                        if (count($parts) < 100 && count($last_parts) < 100) {
+                            $subreplacements1 = $this->_getSubReplacements($original, $replacements[$i - 1], $delimiter);
+                            $subreplacements2 = $this->_getSubReplacements($original, $replacements[$i], $delimiter);
+                            break;
+                        }
+                    }
+                }
+                if (count($subreplacements1) > 1 || count($subreplacements2) > 1) {
+                        usort($replacements, function ($a, $b) { return $a['start'] >= $b['start'] ? 1 : -1; });
                     } else {
-                        $replacements = array_splice($replacements, $i);
+                        if ($this->exceptionOnConflict) {
+                            throw new TextMergerException("Texts have a conflict.", array(
+                            "original" => $original,
+                            "text1" => $text1,
+                            "text2" => $text2,
+                            "conflictReplacement1" => $replacements[$i - 1],
+                            "conflictReplacement2" => $replacements[$i]
+                        ));
+                    } else {
+                        //now replace old replacement if this bigger
+                        if (strlen($replacements[$i - 1]['text']) < strlen($replacements[i]['text'])) {
+                            $replacements = array_splice($replacements, $i - 1);
+                        } else {
+                            $replacements = array_splice($replacements, $i);
+                        }
                     }
                 }
                 //important: no i++ here
@@ -101,8 +126,16 @@ class TextMerger {
         //We could be more specific and find sub-changes with the levenshtein-algorithm,
         //but we only do this when a conflict occurs (see above).
         if ($replacement['start'] !== null && $replacement['end'] !== null) {
-            $replacements[] = $replacement;
+            if ($replacement['text'] || ($replacement['start'] !== $replacement['end'])) {
+                $replacements[] = $replacement;
+            }
         }
         return $replacements;
+    }
+
+    protected function _getSubReplacements($original, $replacement, $delimiter) {
+        return array($replacement);
+        //Of course we need to implement some more here.
+        //But first let's wait until the JS is final.
     }
 }
