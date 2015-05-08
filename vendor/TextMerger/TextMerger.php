@@ -92,7 +92,7 @@ class TextMerger {
         for($i = 0; $i < strlen($original); $i++) {
             if (($original[strlen($original) - 1 - $i] !== $text[strlen($text) - 1 - $i])
                     || (strlen($original) - $i === $replacement['start'])) {
-                $replacement['end'] = strlen($original) - i;
+                $replacement['end'] = strlen($original) - $i;
                 $text_end = strlen($text) - $i;
                 break;
             }
