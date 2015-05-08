@@ -41,8 +41,10 @@
         };
     };
     STUDIP.SuperWiki.updatePage = function (data) {
-        jQuery("#superwiki_content").data("chdate", data.chdate)
-        jQuery("#superwiki_page_content").html(data.html);
+        if (data.html && data.chdate) {
+            jQuery("#superwiki_content").data("chdate", data.chdate)
+            jQuery("#superwiki_page_content").html(data.html);
+        }
     };
 </script>
 <? endif ?>

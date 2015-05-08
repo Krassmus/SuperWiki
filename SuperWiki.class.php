@@ -5,7 +5,7 @@ require_once __DIR__."/models/SuperwikiVersion.class.php";
 require_once __DIR__."/models/SuperwikiSettings.class.php";
 require_once __DIR__ . "/vendor/TextMerger/TextMerger.php";
 
-class SuperWiki extends StudIPPlugin implements StandardPlugin {
+class SuperWiki extends StudIPPlugin implements StandardPlugin, SystemPlugin {
 
     public function __construct() {
         parent::__construct();
@@ -19,12 +19,12 @@ class SuperWiki extends StudIPPlugin implements StandardPlugin {
                         $output['html'] = formatReady($page['content']);
                         $output['chdate'] = $page['chdate'];
                     }
-                }
-                if ($data['SuperWiki']['mode'] === "edit" && $page->isEditable()) {
+                } elseif ($data['SuperWiki']['mode'] === "edit" && $page->isEditable()) {
                     $content1 =  studip_utf8decode($data['SuperWiki']['content']);
                     $original_content =  studip_utf8decode($data['SuperWiki']['old_content']);
                     $content2 = $page['content'];
                     $page['content'] = TextMerger::get()->merge($original_content, $content1, $content2);
+                    $output['debugcontent'] = $page['content'];
                     if ($page['content'] !== $content2) {
                         $page['last_author'] = $GLOBALS['user']->id;
                         $page->store();

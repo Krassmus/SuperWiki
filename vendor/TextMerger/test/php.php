@@ -63,6 +63,13 @@ require_once __DIR__."/../TextMerger.php";
         'expected' => "Hello World!"
     );
     $tests[] = array(
+        'title' => "Trivial addendum",
+        'original' => "Hello World!",
+        'mine' => "Hello World! You rock!",
+        'theirs' => "Hello World!",
+        'expected' => "Hello World! You rock!"
+    );
+    $tests[] = array(
         'title' => "Trivial merge",
         'original' => "Hello World!",
         'mine' => "Yeah World!",
