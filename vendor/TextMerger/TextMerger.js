@@ -114,7 +114,7 @@ TextMerger.prototype._getReplacements = function (original, text) {
     var replacement = {};
     var text_start, text_end;
     for(var i = 0; i < original.length; i++) {
-        if (original[i] !== text[i]) {
+        if ((original[i] !== text[i]) || (i === original.length - 1)) {
             replacement.start = i;
             text_start = i;
             break;
@@ -196,7 +196,7 @@ TextMerger.prototype._getSubReplacements = function (original, replacement, deli
         }
     }
 
-    return _.reverse(subreplacements);
+    return subreplacements.reverse();
 };
 
 /**

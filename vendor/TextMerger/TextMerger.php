@@ -83,7 +83,7 @@ class TextMerger {
         $replacement = array();
         $text_start = $text_end = null;
         for($i = 0; $i < strlen($original); $i++) {
-            if ($original[$i] !== $text[$i]) {
+            if (($original[$i] !== $text[$i]) || ($i === strlen($original) - 1)) {
                 $replacement['start'] = $i;
                 $text_start = $i;
                 break;

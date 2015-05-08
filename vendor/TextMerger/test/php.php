@@ -36,7 +36,7 @@ require_once __DIR__."/../TextMerger.php";
 </head>
     <body>
 
-    <h1>Testing  TextMerger.js</h1>
+    <h1>Testing  TextMerger.php</h1>
 
     <table id="resulttable">
         <tbody>
@@ -125,6 +125,13 @@ require_once __DIR__."/../TextMerger.php";
                 <td class="result"><?= escape($result) ?></td>
             </tr>
             </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="2">
+                        <a href="?only=">Execute test independently.</a>
+                    </td>
+                </tr>
+            </tfoot>
         </table>
     <? endforeach ?>
 
