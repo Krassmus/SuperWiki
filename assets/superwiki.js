@@ -58,14 +58,17 @@ STUDIP.SuperWiki = {
     },
     requestFullscreen: function () {
         var page = jQuery(".full_wiki_page")[0];
-        if (page.requestFullscreen) {
-            page.requestFullscreen();
-        } else if (page.msRequestFullscreen) {
-            page.msRequestFullscreen();
-        } else if (page.mozRequestFullScreen) {
-            page.mozRequestFullScreen();
-        } else if (page.webkitRequestFullscreen) {
-            page.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+        var presentation = jQuery("#superwiki_presentation")[0];
+
+        jQuery(presentation).find(".activeslide").html(jQuery(page).html());
+        if (presentation.requestFullscreen) {
+            presentation.requestFullscreen();
+        } else if (presentation.msRequestFullscreen) {
+            presentation.msRequestFullscreen();
+        } else if (presentation.mozRequestFullScreen) {
+            presentation.mozRequestFullScreen();
+        } else if (presentation.webkitRequestFullscreen) {
+            presentation.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
         }
     }
 };

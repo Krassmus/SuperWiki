@@ -28,6 +28,10 @@
     </div>
 </div>
 
+<div id="superwiki_presentation">
+    <div class="activeslide"></div>
+</div>
+
 <? if (!$page->isNew()) : ?>
 <script>
     STUDIP.SuperWiki = STUDIP.SuperWiki || {};

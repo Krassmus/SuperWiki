@@ -11,19 +11,23 @@
     max-width: 100%;
 }
 
-.full_wiki_page {
+#superwiki_presentation {
     background-color: white;
     overflow: auto;
+    display: none;
     &:-moz-full-screen {
-        padding: 10px;
+        display: block;
     }
     &:-webkit-full-screen {
-        padding: 10px;
+        display: block;
     }
     &:-ms-fullscreen {
-        padding: 10px;
+        display: block;
     }
     &:fullscreen {
+        display: block;
+    }
+    > .activeslide {
         padding: 10px;
     }
 }
