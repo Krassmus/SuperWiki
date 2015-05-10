@@ -88,20 +88,20 @@ require_once __DIR__."/../TextMerger.php";
         'theirs' => "Hello San Dimas!",
         'expected' => "Hi San Dimas!"
     );
-    /*$tests[] = array(
+    $tests[] = array(
         'title' => "Cumulative changes",
         'original' => "Hi,",
         'mine' => "Hi, I'm Ras!",
         'theirs' => "Hi, call me John.",
         'expected' => "Hi, call me John. I'm Ras!"
-    );*/
-    /*$tests[] = array(
+    );
+    $tests[] = array(
         'title' => "Complicated Merging",
         'original' => "Hey lovely world",
         'mine' => "Hey graceful world",
         'theirs' => "Hello lovely world!",
         'expected' => "Hello graceful world!"
-    );*/
+    );
 
     if (isset($_REQUEST['only']) && $_REQUEST['only'] !== "") {
         $tests = array($tests[$_REQUEST['only']]);

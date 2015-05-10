@@ -98,10 +98,12 @@ class SuperwikiPage extends SimpleORMap {
 
     public function wikiFormat()
     {
-        $text = formatReady($this['content']);
+        $formatter = new SuperWikiFormat();
+        //Markup::purify($this['content']) ... error
+        $text = symbol(smile($formatter->format(nl2br(htmlspecialchars($this['content'], ENT_QUOTES, 'cp1252')))));
         $pages = self::findBySQL("seminar_id = ? AND content IS NOT NULL AND content != '' ORDER BY CHAR_LENGTH(name) DESC", array($this['seminar_id']));
         foreach ($pages as $page) {
-            if ($page->getId() !== $this->getId()) {
+            if (($page->getId() !== $this->getId()) && $page->isReadable()) {
                 $text = preg_replace("/(\s)".$page['name']."/", '$1<a href="'.URLHelper::getLink("plugins.php/superwiki/page/view/".$page->getId(), array('cid' => $page['seminar_id'])).'">'.Assets::img("icons/16/blue/".$page->settings['icon'], array('class' => "text-bottom"))." ".htmlReady($page['name']).'</a>', $text);
             }
         }

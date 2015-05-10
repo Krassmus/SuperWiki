@@ -44,6 +44,7 @@
         if (data.html && data.chdate) {
             jQuery("#superwiki_content").data("chdate", data.chdate)
             jQuery("#superwiki_page_content").html(data.html);
+            STUDIP.Markup.element("#superwiki_page_content");
         }
     };
 </script>

@@ -1,9 +1,11 @@
 <?php
 
-require_once __DIR__."/models/SuperwikiPage.class.php";
-require_once __DIR__."/models/SuperwikiVersion.class.php";
-require_once __DIR__."/models/SuperwikiSettings.class.php";
+require_once __DIR__."/lib/SuperWikiFormat.php";
+require_once __DIR__."/lib/SuperwikiPage.class.php";
+require_once __DIR__."/lib/SuperwikiVersion.class.php";
+require_once __DIR__."/lib/SuperwikiSettings.class.php";
 require_once __DIR__ . "/vendor/TextMerger/TextMerger.php";
+require_once 'lib/classes/Markup.class.php';
 
 class SuperWiki extends StudIPPlugin implements StandardPlugin, SystemPlugin {
 
@@ -16,7 +18,7 @@ class SuperWiki extends StudIPPlugin implements StandardPlugin, SystemPlugin {
                 $page = SuperwikiPage::find($data['SuperWiki']['page_id']);
                 if ($data['SuperWiki']['mode'] === "read") {
                     if ($data['SuperWiki']['chdate'] < $page['chdate']) {
-                        $output['html'] = formatReady($page['content']);
+                        $output['html'] = $page->wikiFormat();
                         $output['chdate'] = $page['chdate'];
                     }
                 } elseif ($data['SuperWiki']['mode'] === "edit" && $page->isEditable()) {
