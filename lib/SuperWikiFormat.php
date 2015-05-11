@@ -3,7 +3,12 @@
 class SuperWikiFormat extends StudipFormat
 {
     private static $superwiki_rules = array(
-        'wiki-comments' => array(
+        'presentation-settings' => array(
+            'start'    => '{{presentation(.*?)}}',
+            'callback' => 'SuperWikiFormat::markupPresentationSettings',
+            'before' => "media"
+        ),
+        'presentation-newpage' => array(
             'start'    => '{{newpage(.*?)}}',
             'callback' => 'SuperWikiFormat::markupSlideNewpage'
         ),
@@ -92,17 +97,30 @@ class SuperWikiFormat extends StudipFormat
         }
     }
 
-    protected static function markupSlideNewpage($markup, $matches) {
-        $classes = array();
+    protected static function markupPresentationSettings($markup, $matches) {
+        $data = array();
         if ($matches[1]) {
-            $animation_classes = array("instant", "fade", "slide");
-            foreach (explode(":", $matches[1]) as $parameter) {
-                if (in_array(trim($parameter), $animation_classes)) {
-                    $classes['animation'] = trim($parameter);
+            foreach (explode(" ", $matches[1]) as $parameter) {
+                list($name, $value) = explode("=", $parameter, 2);
+                if ($name && $value) {
+                    $data[] = 'data-'.htmlReady($name).'="'.($value).'"';
                 }
             }
         }
-        return '<div class="superwikislide_newpage '.implode(" ", $classes).'"></div>';
+        return '<div class="superwiki_presentation settings" '.implode(" ", $data).'></div>';
+    }
+
+    protected static function markupSlideNewpage($markup, $matches) {
+        $data = array();
+        if ($matches[1]) {
+            foreach (explode(" ", $matches[1]) as $parameter) {
+                list($name, $value) = explode("=", $parameter, 2);
+                if ($name && $value) {
+                    $data[] = 'data-'.htmlReady($name).'="'.htmlReady($value).'"';
+                }
+            }
+        }
+        return '<div class="superwiki_presentation newpage" '.implode(" ", $data).'></div>';
     }
 
 }

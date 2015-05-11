@@ -11,9 +11,28 @@
     max-width: 100%;
 }
 
+.superwiki_presentation, .superwiki_presentation + br {
+    display: none;
+}
+
 #superwiki_presentation {
     background-color: white;
-    overflow: auto;
+    background-repeat: no-repeat;
+    background-size: auto 100%;
+    background-position: left center;
+    font-size: 1.5em;
+    h1 {
+        font-size: 1.8em;
+    }
+    h2 {
+        font-size: 1.3em;
+    }
+    h3 {
+        font-size: 1.1em;
+    }
+    h4, h5, h6 {
+        font-size: 1.0em;
+    }
     display: none;
     &:-moz-full-screen {
         display: block;
@@ -29,6 +48,10 @@
     }
     > .activeslide {
         padding: 10px;
+    }
+    > * {
+        max-height: 100%;
+        overflow: auto;
     }
 }
 

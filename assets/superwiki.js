@@ -59,8 +59,24 @@ STUDIP.SuperWiki = {
     requestFullscreen: function () {
         var page = jQuery(".full_wiki_page")[0];
         var presentation = jQuery("#superwiki_presentation")[0];
+        var settings = jQuery(page).find(".superwiki_presentation.settings");
 
         jQuery(presentation).find(".activeslide").html(jQuery(page).html());
+        if (settings.data("background")) {
+            jQuery(presentation).css('background-image', "url(" + settings.data("background") + ")");
+        }
+        if (settings.data("top")) {
+            jQuery(presentation).css('padding-top', settings.data("top") + "px");
+        }
+        if (settings.data("bottom")) {
+            jQuery(presentation).css('padding-bottom', settings.data("bottom") + "px");
+        }
+        if (settings.data("left")) {
+            jQuery(presentation).css('padding-left', settings.data("left") + "px");
+        }
+        if (settings.data("right")) {
+            jQuery(presentation).css('padding-right', settings.data("right") + "px");
+        }
         if (presentation.requestFullscreen) {
             presentation.requestFullscreen();
         } else if (presentation.msRequestFullscreen) {
