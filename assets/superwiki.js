@@ -65,6 +65,9 @@ STUDIP.SuperWiki = {
         if (settings.data("background")) {
             jQuery(presentation).css('background-image', "url(" + settings.data("background") + ")");
         }
+        if (settings.data("font")) {
+            jQuery(presentation).css('font-family', settings.data("font"));
+        }
         if (settings.data("top")) {
             jQuery(presentation).css('padding-top', settings.data("top") + "px");
         }
