@@ -103,6 +103,22 @@ STUDIP.SuperWiki = {
         } else if (presentation.webkitRequestFullscreen) {
             presentation.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
         }
+    },
+    nextSlide: function () {
+        var active = jQuery("#superwiki_presentation > .active");
+        if (active.next().length) {
+            var next = active.next();
+            active.removeClass("active");
+            next.addClass("active");
+        }
+    },
+    previousSlide: function () {
+        var active = jQuery("#superwiki_presentation > .active");
+        if (active.prev().length) {
+            var previous = active.prev();
+            active.removeClass("active");
+            previous.addClass("active");
+        }
     }
 };
 
@@ -113,4 +129,13 @@ jQuery(function () {
             return false;
         }).on("drop", STUDIP.SuperWiki.uploadFileToTextarea);
     }
+    jQuery(document).on("keyup", function (ui, event) {
+        if (window.fullScreen) {
+            if ((ui.keyCode === 32) || (ui.keyCode === 39)) {
+                STUDIP.SuperWiki.nextSlide();
+            } else if (ui.keyCode === 37) {
+                STUDIP.SuperWiki.previousSlide();
+            }
+        }
+    });
 });
