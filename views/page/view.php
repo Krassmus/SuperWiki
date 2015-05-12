@@ -75,7 +75,7 @@ $sidebar->addWidget($actions);
 if (!$page->isNew()) {
     $views = new ViewsWidget();
     $views->addLink(_("Aktuelle Seite"), PluginEngine::getLink($plugin, array(), "page/view/".$page->getId()))->setActive(true);
-    $views->addLink(_("Vollbild"), "#", null, array('onClick' => "STUDIP.SuperWiki.requestFullscreen(); return false;"));
+    $views->addLink(_("Vollbild-Präsentation"), "#", null, array('onClick' => "STUDIP.SuperWiki.requestFullscreen(); return false;"));
     $views->addLink(_("Historie"), PluginEngine::getLink($plugin, array(), "page/timeline/".$page->getId()));
     $sidebar->addWidget($views);
 }

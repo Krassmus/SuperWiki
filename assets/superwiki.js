@@ -75,24 +75,26 @@ STUDIP.SuperWiki = {
         jQuery(presentation).children(":first-child").addClass("active");
         if (settings.data("background")) {
             jQuery(presentation).css('background-image', "url(" + settings.data("background") + ")");
+        } else {
+            jQuery(presentation).css('background-image', "url(" + STUDIP.ABSOLUTE_URI_STUDIP + "plugins_packages/RasmusFuhse/SuperWiki/assets/presentation_background.svg)");
         }
         if (settings.data("font")) {
             jQuery(presentation).css('font-family', settings.data("font"));
         }
-        if (settings.data("top")) {
-            jQuery(presentation).css('padding-top', settings.data("top") + "px");
+        if (settings.data("fontcolor")) {
+            jQuery(presentation).css('color', settings.data("fontcolor"));
         }
-        if (settings.data("bottom")) {
-            jQuery(presentation).css('padding-bottom', settings.data("bottom") + "px");
-        }
-        if (settings.data("left")) {
-            jQuery(presentation).css('padding-left', settings.data("left") + "px");
-        }
-        if (settings.data("right")) {
-            jQuery(presentation).css('padding-right', settings.data("right") + "px");
-        }
+        jQuery(presentation).css('padding-top', (settings.data("top") ? settings.data("top") : "100") + "px");
+        jQuery(presentation).css('padding-bottom', (settings.data("top") ? settings.data("bottom") : "30") + "px");
+        jQuery(presentation).css('padding-left', (settings.data("top") ? settings.data("left") : "30") + "px");
+        jQuery(presentation).css('padding-right', (settings.data("top") ? settings.data("right") : "30") + "px");
         if (settings.data("align")) {
             jQuery(presentation).css('text-align', settings.data("align"));
+        } else {
+            jQuery(presentation).css('text-align', "center");
+        }
+        if (settings.data("valign")) {
+            jQuery(presentation).css('align-self', settings.data("valign") === "top" ? "flex-start" : "flex-end");
         }
         if (presentation.requestFullscreen) {
             presentation.requestFullscreen();
@@ -113,9 +115,34 @@ STUDIP.SuperWiki = {
                     active.removeClass("active");
                     next.addClass("active");
                 case "slide":
+                case "slideleft":
                     jQuery(active).hide("slide", {direction: "left"}, 500, function () {
                         active.removeClass("active");
                         jQuery(next).show("slide", {direction: "right"}, 500, function () {
+                            next.addClass("active");
+                        });
+                    });
+                    break;
+                case "slideright":
+                    jQuery(active).hide("slide", {direction: "right"}, 500, function () {
+                        active.removeClass("active");
+                        jQuery(next).show("slide", {direction: "left"}, 500, function () {
+                            next.addClass("active");
+                        });
+                    });
+                    break;
+                case "slidebottom":
+                    jQuery(active).hide("slide", {direction: "bottom"}, 500, function () {
+                        active.removeClass("active");
+                        jQuery(next).show("slide", {direction: "top"}, 500, function () {
+                            next.addClass("active");
+                        });
+                    });
+                    break;
+                case "slidetop":
+                    jQuery(active).hide("slide", {direction: "top"}, 500, function () {
+                        active.removeClass("active");
+                        jQuery(next).show("slide", {direction: "bottom"}, 500, function () {
                             next.addClass("active");
                         });
                     });
