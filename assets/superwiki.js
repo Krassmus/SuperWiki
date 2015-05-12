@@ -106,18 +106,39 @@ STUDIP.SuperWiki = {
     },
     nextSlide: function () {
         var active = jQuery("#superwiki_presentation > .active");
-        if (active.next().length) {
-            var next = active.next();
-            active.removeClass("active");
-            next.addClass("active");
+        var next = active.next();
+        if (next.length) {
+            switch (next.data("transition")) {
+                case "instant":
+                    active.removeClass("active");
+                    next.addClass("active");
+                case "slide":
+                    jQuery(active).hide("slide", {direction: "left"}, 500, function () {
+                        active.removeClass("active");
+                        jQuery(next).show("slide", {direction: "right"}, 500, function () {
+                            next.addClass("active");
+                        });
+                    });
+                    break;
+                case "fade":
+                default:
+                    jQuery(active).fadeOut(200, function () {
+                        jQuery(next).fadeIn(300, function () {
+                            active.removeClass("active");
+                            next.addClass("active");
+                        });
+                    });
+                    break;
+
+            }
         }
     },
     previousSlide: function () {
         var active = jQuery("#superwiki_presentation > .active");
-        if (active.prev().length) {
-            var previous = active.prev();
-            active.removeClass("active");
-            previous.addClass("active");
+        var previous = active.prev();
+        if (previous.length) {
+            active.removeClass("active").hide();
+            previous.addClass("active").show();
         }
     }
 };
@@ -137,5 +158,8 @@ jQuery(function () {
                 STUDIP.SuperWiki.previousSlide();
             }
         }
+    });
+    jQuery("#superwiki_presentation").click(function (ui, event) {
+        STUDIP.SuperWiki.nextSlide();
     });
 });
