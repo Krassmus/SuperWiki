@@ -61,7 +61,18 @@ STUDIP.SuperWiki = {
         var presentation = jQuery("#superwiki_presentation")[0];
         var settings = jQuery(page).find(".superwiki_presentation.settings");
 
-        jQuery(presentation).find(".activeslide").html(jQuery(page).html());
+        var slides = jQuery(page).html().split(/<div class="superwiki_presentation newpage"[^>]*?><\/div>/);
+        var transitions = jQuery(page).find(".superwiki_presentation.newpage");
+        jQuery(presentation).html('');
+        for (var i in slides) {
+            var slide = jQuery('<div class="slide">' + slides[i] + '</div>');
+            if (i > 0) {
+                slide.data(jQuery(transitions[i - 1]).data());
+            }
+            jQuery(presentation).append(slide);
+        }
+
+        jQuery(presentation).children(":first-child").addClass("active");
         if (settings.data("background")) {
             jQuery(presentation).css('background-image', "url(" + settings.data("background") + ")");
         }
@@ -79,6 +90,9 @@ STUDIP.SuperWiki = {
         }
         if (settings.data("right")) {
             jQuery(presentation).css('padding-right', settings.data("right") + "px");
+        }
+        if (settings.data("align")) {
+            jQuery(presentation).css('text-align', settings.data("align"));
         }
         if (presentation.requestFullscreen) {
             presentation.requestFullscreen();

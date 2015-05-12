@@ -46,12 +46,14 @@
     &:fullscreen {
         display: block;
     }
-    > .activeslide {
-        padding: 10px;
-    }
-    > * {
+    > .slide {
         max-height: 100%;
         overflow: auto;
+        padding: 10px;
+        display: none;
+        &.active {
+            display: block;
+        }
     }
 }
 
