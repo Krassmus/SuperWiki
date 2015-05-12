@@ -13,6 +13,10 @@ class OverviewController extends PluginController {
         Navigation::activateItem("/course/superwiki/all");
         Navigation::getItem("/course/superwiki")->setImage(Assets::image_path("icons/16/black/".($this->settings['icon'] ?: "wiki")));
         PageLayout::setTitle($GLOBALS['SessSemName']["header_line"]." - ".$this->settings['name']);
+        Helpbar::Get()->addLink(_("Wikilinks und Navigation"), "https://github.com/Krassmus/SuperWiki/wiki/Wikilinks-und-Navigation", null, "_blank");
+        //Helpbar::Get()->addLink(_("SuperWiki für Gruppenaufgaben"), "https://github.com/Krassmus/SuperWiki/wiki/Wikilinks-und-Navigation", null, "_blank");
+        //Helpbar::Get()->addLink(_("Superwiki für Lernorganisation"), "https://github.com/Krassmus/SuperWiki/wiki/Wikilinks-und-Navigation", null, "_blank");
+        Helpbar::Get()->addLink(_("Präsentationen mit SuperWiki"), "https://github.com/Krassmus/SuperWiki/wiki/Pr%C3%A4sentationen-mit-SuperWiki", null, "_blank");
     }
 
     public function all_action()
