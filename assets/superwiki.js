@@ -171,6 +171,7 @@ STUDIP.SuperWiki = {
         var previous = active.prev();
         if (previous.length) {
             active.removeClass("active").hide();
+            active.find(".stoppoint").removeClass("processed").hide();
             previous.addClass("active").show();
             previous.find(".stoppoint").removeClass("processed").hide();
         }
@@ -179,7 +180,25 @@ STUDIP.SuperWiki = {
         var active = jQuery("#superwiki_presentation > .active");
         var stoppoint = jQuery("#superwiki_presentation > .active .stoppoint:not(.processed)");
         var point = stoppoint;
-        point.addClass("processed").show('fade');
+        switch (point.data("transition")) {
+            case "instant":
+                point.addClass("processed").show();
+                break;
+            case "puff":
+                point.addClass("processed").show('puff');
+                break;
+            case "slide":
+            case "slideleft":
+                point.addClass("processed").show('slide', {direction: "right"}, 500);
+                break;
+            case "slideright":
+                point.addClass("processed").show('slide', {direction: "left"}, 500);
+                break;
+            case "fade":
+            default:
+                point.addClass("processed").show('fade');
+                break;
+        }
     }
 };
 
