@@ -84,10 +84,10 @@ STUDIP.SuperWiki = {
         if (settings.data("fontcolor")) {
             jQuery(presentation).css('color', settings.data("fontcolor"));
         }
-        jQuery(presentation).css('padding-top', (settings.data("top") ? settings.data("top") : "100") + "px");
-        jQuery(presentation).css('padding-bottom', (settings.data("top") ? settings.data("bottom") : "30") + "px");
-        jQuery(presentation).css('padding-left', (settings.data("top") ? settings.data("left") : "30") + "px");
-        jQuery(presentation).css('padding-right', (settings.data("top") ? settings.data("right") : "30") + "px");
+        jQuery(presentation).css('padding-top', (settings.data("top") ? settings.data("top") : "20") + "vh");
+        jQuery(presentation).css('padding-bottom', (settings.data("top") ? settings.data("bottom") : "10") + "vh");
+        jQuery(presentation).css('padding-left', (settings.data("top") ? settings.data("left") : "10") + "vw");
+        jQuery(presentation).css('padding-right', (settings.data("top") ? settings.data("right") : "10") + "vw");
         if (settings.data("align")) {
             jQuery(presentation).css('text-align', settings.data("align"));
         } else {
