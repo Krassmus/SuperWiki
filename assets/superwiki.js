@@ -63,8 +63,14 @@ STUDIP.SuperWiki = {
 
         var slides = jQuery(page).html().split(/<div class="superwiki_presentation newpage"[^>]*?><\/div>/);
         var transitions = jQuery(page).find(".superwiki_presentation.newpage");
+
         jQuery(presentation).html('');
         for (var i in slides) {
+            var stoppoints = jQuery("<div/>").html(slides[i]).find(".superwiki_presentation.stoppoint");
+            slides[i] = slides[i].replace(/<div class="superwiki_presentation stoppoint"([^>]*?)><\/div>/, '<div class="superwiki_presentation stoppoint"$1>');
+            for (var j in stoppoints) {
+                slides[i] += "</div>";
+            }
             var slide = jQuery('<div class="slide">' + slides[i] + '</div>');
             if (i > 0) {
                 slide.data(jQuery(transitions[i - 1]).data());
@@ -166,7 +172,14 @@ STUDIP.SuperWiki = {
         if (previous.length) {
             active.removeClass("active").hide();
             previous.addClass("active").show();
+            previous.find(".stoppoint").removeClass("processed").hide();
         }
+    },
+    nextStoppoint: function () {
+        var active = jQuery("#superwiki_presentation > .active");
+        var stoppoint = jQuery("#superwiki_presentation > .active .stoppoint:not(.processed)");
+        var point = stoppoint;
+        point.addClass("processed").show('fade');
     }
 };
 
@@ -180,13 +193,22 @@ jQuery(function () {
     jQuery(document).on("keyup", function (ui, event) {
         if (window.fullScreen) {
             if ((ui.keyCode === 32) || (ui.keyCode === 39)) {
-                STUDIP.SuperWiki.nextSlide();
+                if (jQuery("#superwiki_presentation > .active .stoppoint:not(.processed)").length > 0) {
+                    STUDIP.SuperWiki.nextStoppoint();
+                } else {
+                    STUDIP.SuperWiki.nextSlide();
+                }
             } else if (ui.keyCode === 37) {
                 STUDIP.SuperWiki.previousSlide();
             }
         }
     });
     jQuery("#superwiki_presentation").click(function (ui, event) {
-        STUDIP.SuperWiki.nextSlide();
+        console.log(jQuery("#superwiki_presentation > .active .stoppoint:not(.processed)"));
+        if (jQuery("#superwiki_presentation > .active .stoppoint:not(.processed)").length > 0) {
+            STUDIP.SuperWiki.nextStoppoint();
+        } else {
+            STUDIP.SuperWiki.nextSlide();
+        }
     });
 });

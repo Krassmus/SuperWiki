@@ -12,6 +12,10 @@ class SuperWikiFormat extends StudipFormat
             'start'    => '{{newpage(.*?)}}',
             'callback' => 'SuperWikiFormat::markupSlideNewpage'
         ),
+        'presentation-stoppoint' => array(
+            'start'    => '{{stoppoint(.*?)}}',
+            'callback' => 'SuperWikiFormat::markupSlideStoppoint'
+        ),
         'wiki-links' => array(
             'start'    => '\[\[(.*?)(?:\|(.*?))?\]\]',
             'callback' => 'SuperWikiFormat::markupWikiLinks',
@@ -121,6 +125,19 @@ class SuperWikiFormat extends StudipFormat
             }
         }
         return '<div class="superwiki_presentation newpage" '.implode(" ", $data).'></div>';
+    }
+
+    protected static function markupSlideStoppoint($markup, $matches) {
+        $data = array();
+        if ($matches[1]) {
+            foreach (explode(" ", $matches[1]) as $parameter) {
+                list($name, $value) = explode("=", $parameter, 2);
+                if ($name && $value) {
+                    $data[] = 'data-'.htmlReady($name).'="'.htmlReady($value).'"';
+                }
+            }
+        }
+        return '<div class="superwiki_presentation stoppoint" '.implode(" ", $data).'></div>';
     }
 
 }
