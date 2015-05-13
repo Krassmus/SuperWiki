@@ -79,7 +79,7 @@ STUDIP.SuperWiki = {
             jQuery(presentation).css('background-image', "url(" + STUDIP.ABSOLUTE_URI_STUDIP + "plugins_packages/RasmusFuhse/SuperWiki/assets/presentation_background.svg)");
         }
         if (settings.data("font")) {
-            jQuery(presentation).css('font-family', settings.data("font"));
+            jQuery(presentation).css('font-family', settings.data("font").replace("_", " "));
         }
         if (settings.data("fontcolor")) {
             jQuery(presentation).css('color', settings.data("fontcolor"));
