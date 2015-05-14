@@ -67,7 +67,7 @@ STUDIP.SuperWiki = {
         jQuery(presentation).html('');
         for (var i in slides) {
             var stoppoints = jQuery("<div/>").html(slides[i]).find(".superwiki_presentation.stoppoint");
-            slides[i] = slides[i].replace(/<div class="superwiki_presentation stoppoint"([^>]*?)><\/div>/, '<div class="superwiki_presentation stoppoint"$1>');
+            slides[i] = slides[i].replace(/<div class="superwiki_presentation stoppoint"([^>]*?)><\/div>/g, '<div class="superwiki_presentation stoppoint"$1>');
             for (var j in stoppoints) {
                 slides[i] += "</div>";
             }
@@ -171,16 +171,25 @@ STUDIP.SuperWiki = {
         var previous = active.prev();
         if (previous.length) {
             active.removeClass("active").hide();
-            active.find(".stoppoint").removeClass("processed").hide();
+            active.find(".processed").removeClass("processed").hide();
             previous.addClass("active").show();
-            previous.find(".stoppoint").removeClass("processed").hide();
+            previous.find(".processed").removeClass("processed").hide();
         }
     },
     nextStoppoint: function () {
         var active = jQuery("#superwiki_presentation > .active");
-        var stoppoint = jQuery("#superwiki_presentation > .active .stoppoint:not(.processed)");
+        var stoppoint = jQuery("#superwiki_presentation > .active .stoppoint:not(.processed)").first();
+        var first_child = stoppoint.children(":not(br)").first();
         var point = stoppoint;
-        switch (point.data("transition")) {
+        if (first_child.is("ul, ol") && first_child.children("li:not(.processed)").length > 0) {
+            stoppoint.show();
+            stoppoint.find(".stoppoint").hide();
+
+            first_child.children("li:not(.processed)").hide();
+            point = first_child.children("li:not(.processed)").first();
+        }
+
+        switch (stoppoint.data("transition")) {
             case "instant":
                 point.addClass("processed").show();
                 break;
@@ -198,6 +207,9 @@ STUDIP.SuperWiki = {
             default:
                 point.addClass("processed").show('fade');
                 break;
+        }
+        if (first_child.is("ul, ol") && first_child.children("li:not(.processed)").length === 0) {
+            stoppoint.addClass("processed");
         }
     }
 };
