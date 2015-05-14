@@ -1,6 +1,6 @@
 pluginname=SuperWiki
 pluginclassname=SuperWiki
-version=1.1.1
+version=1.2.0
 origin=RasmusFuhse
 studipMinVersion=3.1
 summary=Wiki/CMS mit Rechtemanagement und Echtzeitsynchronisation

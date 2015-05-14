@@ -235,7 +235,6 @@ jQuery(function () {
         }
     });
     jQuery("#superwiki_presentation").click(function (ui, event) {
-        console.log(jQuery("#superwiki_presentation > .active .stoppoint:not(.processed)"));
         if (jQuery("#superwiki_presentation > .active .stoppoint:not(.processed)").length > 0) {
             STUDIP.SuperWiki.nextStoppoint();
         } else {
