@@ -39,12 +39,22 @@
             //var content = STUDIP.SuperWiki.merge(my_content, new_content, old_content);
             var content = TextMerger.get().merge(old_content, my_content, new_content);
             if (content !== my_content) {
+                var pos1 = null, pos2 = null;
+                if (jQuery("#superwiki_edit_content").is(":focus")) {
+                    var selection = window.getSelection();
+                    pos1 = selection.anchorOffset;
+                    pos2 = selection.focusOffset;
+                }
                 jQuery("#superwiki_edit_content").val(content);
+                if (pos1 !== null) {
+                    jQuery("#superwiki_edit_content")[0].setSelectionRange(pos1, pos2);
+                }
             }
             jQuery("#superwiki_edit_content").data("old_content", content);
             jQuery("#superwiki_edit_content").data("chdate", data.chdate);
         }
     };
+
 </script>
 <? endif ?>
 
