@@ -107,6 +107,9 @@ class SuperwikiPage extends SimpleORMap {
                 $text = preg_replace("/(\s)".$page['name']."/", '$1<a href="'.URLHelper::getLink("plugins.php/superwiki/page/view/".$page->getId(), array('cid' => $page['seminar_id'])).'">'.Assets::img("icons/16/blue/".$page->settings['icon'], array('class' => "text-bottom"))." ".htmlReady($page['name']).'</a>', $text);
             }
         }
+        if (strpos($text, '<div class="superwiki_presentation') !== false) {
+            $text = '<a class="superwiki_presentation starter" href="#" onClick="STUDIP.SuperWiki.requestFullscreen(); return false;" title="'._("Diese Wikiseite ist eine Präsentation. Klicken Sie hier, um sie im Vollbildmodus darzustellen.").'">'.Assets::img("icons/20/white/play")._("Präsentation starten").'</a>'.$text;
+        }
         return $text;
     }
 }
