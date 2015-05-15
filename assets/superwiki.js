@@ -196,6 +196,9 @@ STUDIP.SuperWiki = {
             case "puff":
                 point.addClass("processed").show('puff');
                 break;
+            case "bounce":
+                point.addClass("processed").show('bounce', 800);
+                break;
             case "slide":
             case "slideleft":
                 point.addClass("processed").show('slide', {direction: "right"}, 500);
