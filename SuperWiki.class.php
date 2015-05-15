@@ -59,7 +59,7 @@ class SuperWiki extends StudIPPlugin implements StandardPlugin, SystemPlugin {
     function getIconNavigation($course_id, $last_visit, $user_id) {
         $settings = SuperwikiSettings::find($course_id);
         $icon = new Navigation($settings ? $settings['name'] : _("SuperWiki"), PluginEngine::getURL($this, array(), "page/view"));
-        $new_changes = SuperwikiPage::countBySql("chdate > ? AND last_author != ?", array($last_visit, $user_id));
+        $new_changes = SuperwikiPage::countBySql("seminar_id = ? AND chdate > ? AND last_author != ?", array($course_id, $last_visit, $user_id));
         if ($new_changes) {
             $icon->setURL(PluginEngine::getURL($this, array(), "overview/latest_changes"), array('since' => $last_visit));
             $icon->setImage(Assets::image_path("icons/20/red/new/".($settings['icon'] ?: "wiki")), array('title' => sprintf(_("%s Seiten wurden verändert."), $new_changes)));
