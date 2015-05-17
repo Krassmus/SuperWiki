@@ -171,9 +171,9 @@ STUDIP.SuperWiki = {
         var previous = active.prev();
         if (previous.length) {
             active.removeClass("active").hide();
-            active.find(".processed").removeClass("processed").hide();
+            active.find(".processed").removeClass("processed").css('visibility', 'hidden');
             previous.addClass("active").show();
-            previous.find(".processed").removeClass("processed").hide();
+            previous.find(".processed").removeClass("processed").css('visibility', 'hidden');
         }
     },
     nextStoppoint: function () {
@@ -183,32 +183,32 @@ STUDIP.SuperWiki = {
         var point = stoppoint;
         if (first_child.is("ul, ol") && first_child.children("li:not(.processed)").length > 0) {
             stoppoint.show();
-            stoppoint.find(".stoppoint").hide();
+            stoppoint.find(".stoppoint").css('visibility', 'hidden');
 
-            first_child.children("li:not(.processed)").hide();
+            first_child.children("li:not(.processed)").css('visibility', 'hidden');
             point = first_child.children("li:not(.processed)").first();
         }
 
         switch (stoppoint.data("transition")) {
             case "instant":
-                point.addClass("processed").show();
+                point.addClass("processed").css('visibility', "visible").hide().show();
                 break;
             case "puff":
-                point.addClass("processed").show('puff');
+                point.addClass("processed").css('visibility', "visible").hide().show('puff');
                 break;
             case "bounce":
-                point.addClass("processed").show('bounce', 800);
+                point.addClass("processed").css('visibility', "visible").hide().show('bounce', 800);
                 break;
             case "slide":
             case "slideleft":
-                point.addClass("processed").show('slide', {direction: "right"}, 500);
+                point.addClass("processed").css('visibility', "visible").hide().show('slide', {direction: "right"}, 500);
                 break;
             case "slideright":
-                point.addClass("processed").show('slide', {direction: "left"}, 500);
+                point.addClass("processed").css('visibility', "visible").hide().show('slide', {direction: "left"}, 500);
                 break;
             case "fade":
             default:
-                point.addClass("processed").show('fade');
+                point.addClass("processed").css('visibility', "visible").hide().show('fade');
                 break;
         }
         if (first_child.is("ul, ol") && first_child.children("li:not(.processed)").length === 0) {
