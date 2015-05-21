@@ -22,11 +22,13 @@
 <script>
     STUDIP.SuperWiki = STUDIP.SuperWiki || {};
     STUDIP.SuperWiki.periodicalPushData = function () {
+        var old_content = jQuery("#superwiki_edit_content").data("old_content");
+        jQuery("#superwiki_edit_content").data("old_content", jQuery("#superwiki_edit_content").val());
         return {
             'seminar_id': jQuery("#seminar_id").val(),
             'page_id': jQuery("#page_id").val(),
             'content': jQuery("#superwiki_edit_content").val(),
-            'old_content': jQuery("#superwiki_edit_content").data("old_content"),
+            'old_content': old_content,
             'chdate': jQuery("#superwiki_edit_content").data("chdate"),
             'mode': "edit"
         };
