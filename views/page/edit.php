@@ -41,13 +41,12 @@
             if (content !== my_content) {
                 var pos1 = null, pos2 = null;
                 if (jQuery("#superwiki_edit_content").is(":focus")) {
-                    var selection = window.getSelection();
-                    pos1 = selection.anchorOffset;
-                    pos2 = selection.focusOffset;
+                    pos1 = document.getElementById("superwiki_edit_content").selectionStart;
+                    pos2 = document.getElementById("superwiki_edit_content").selectionEnd;
                 }
                 jQuery("#superwiki_edit_content").val(content);
                 if (pos1 !== null) {
-                    jQuery("#superwiki_edit_content")[0].setSelectionRange(pos1, pos2);
+                    document.getElementById("superwiki_edit_content").setSelectionRange(pos1, pos2);
                 }
             }
             jQuery("#superwiki_edit_content").data("old_content", content);
