@@ -15,6 +15,11 @@
     display: none;
 }
 
+.superwiki_presentation.stoppoint {
+    display: block;
+    visibility: hidden;
+}
+
 a.superwiki_presentation.starter {
     background-color: @content-color;
     display: flex;
@@ -86,6 +91,18 @@ a.superwiki_presentation.starter {
         text-align: left;
 
 
+    }
+    ul {
+        list-style-type: none;
+        padding: 0px;
+        li {
+            display: block;
+            padding-left: 2.5vw;
+            background-image: url(./dot.svg);
+            background-size: 2vw 2vw;
+            background-repeat: no-repeat;
+            background-position: left 0.5vw;
+        }
     }
     a.link-extern:before, a.link-intern:before {
         background-size: 2vw;

@@ -22,11 +22,13 @@
 <script>
     STUDIP.SuperWiki = STUDIP.SuperWiki || {};
     STUDIP.SuperWiki.periodicalPushData = function () {
+        var old_content = jQuery("#superwiki_edit_content").data("old_content");
+        jQuery("#superwiki_edit_content").data("old_content", jQuery("#superwiki_edit_content").val());
         return {
             'seminar_id': jQuery("#seminar_id").val(),
             'page_id': jQuery("#page_id").val(),
             'content': jQuery("#superwiki_edit_content").val(),
-            'old_content': jQuery("#superwiki_edit_content").data("old_content"),
+            'old_content': old_content,
             'chdate': jQuery("#superwiki_edit_content").data("chdate"),
             'mode': "edit"
         };
@@ -38,16 +40,24 @@
             var my_content = jQuery("#superwiki_edit_content").val();
             //var content = STUDIP.SuperWiki.merge(my_content, new_content, old_content);
             var content = TextMerger.get().merge(old_content, my_content, new_content);
+            var replacements = TextMerger.get()._getReplacements(my_content, content);
             if (content !== my_content) {
                 var pos1 = null, pos2 = null;
                 if (jQuery("#superwiki_edit_content").is(":focus")) {
-                    var selection = window.getSelection();
-                    pos1 = selection.anchorOffset;
-                    pos2 = selection.focusOffset;
+                    pos1 = document.getElementById("superwiki_edit_content").selectionStart;
+                    pos2 = document.getElementById("superwiki_edit_content").selectionEnd;
                 }
                 jQuery("#superwiki_edit_content").val(content);
+                for (var i in replacements) {
+                    if (replacements[i].end < pos1) {
+                        pos1 = pos1 - replacements[i].end + replacements[i].start + replacements[i].text.length;
+                    }
+                    if (replacements[i].end < pos2) {
+                        pos2 = pos2 - replacements[i].end + replacements[i].start + replacements[i].text.length;
+                    }
+                }
                 if (pos1 !== null) {
-                    jQuery("#superwiki_edit_content")[0].setSelectionRange(pos1, pos2);
+                    document.getElementById("superwiki_edit_content").setSelectionRange(pos1, pos2);
                 }
             }
             jQuery("#superwiki_edit_content").data("old_content", content);
