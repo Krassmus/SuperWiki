@@ -116,6 +116,9 @@ STUDIP.SuperWiki = {
         var active = jQuery("#superwiki_presentation > .active");
         var next = active.next();
         if (next.length) {
+            if (next.data("bullets")) {
+                next.find("li").css("background-image", next.data("bullets"));
+            }
             switch (next.data("transition")) {
                 case "instant":
                     active.removeClass("active");
