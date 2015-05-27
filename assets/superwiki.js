@@ -116,9 +116,6 @@ STUDIP.SuperWiki = {
         var active = jQuery("#superwiki_presentation > .active");
         var next = active.next();
         if (next.length) {
-            if (next.data("bullets")) {
-                next.find("li").css("background-image", next.data("bullets"));
-            }
             switch (next.data("transition")) {
                 case "instant":
                     active.removeClass("active");
@@ -190,6 +187,10 @@ STUDIP.SuperWiki = {
 
             first_child.children("li:not(.processed)").css('visibility', 'hidden');
             point = first_child.children("li:not(.processed)").first();
+        }
+
+        if (stoppoint.data("bullets")) {
+            stoppoint.find("li").css("background-image", "url(" + jQuery("<div/>").html(stoppoint.data("bullets")).text() + ")");
         }
 
         switch (stoppoint.data("transition")) {
