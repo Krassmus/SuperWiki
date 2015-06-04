@@ -18,6 +18,10 @@
     <?= \Studip\Button::create(_("Bearbeiten beenden")) ?>
 </form>
 
+<? if (class_exists("RTCRoom")) {
+    echo RTCRoom::get("SuperWiki.editing.".$page->getId(), $page['seminar_id'])->render();
+} ?>
+
 <? if (!$page->isNew()) : ?>
 <script>
     STUDIP.SuperWiki = STUDIP.SuperWiki || {};
