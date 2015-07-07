@@ -102,11 +102,11 @@ STUDIP.SuperWiki = {
         if (settings.data("valign")) {
             jQuery(presentation).css('align-self', settings.data("valign") === "top" ? "flex-start" : "flex-end");
         }
-        if (presentation.requestFullscreen && false) {
+        if (presentation.requestFullscreen) {
             presentation.requestFullscreen();
         } else if (presentation.msRequestFullscreen) {
             presentation.msRequestFullscreen();
-        } else if (presentation.mozRequestFullScreen && false) {
+        } else if (presentation.mozRequestFullScreen) {
             presentation.mozRequestFullScreen();
         } else if (presentation.webkitRequestFullscreen) {
             presentation.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
