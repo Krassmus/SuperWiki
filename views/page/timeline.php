@@ -79,6 +79,7 @@ $sidebar->addWidget($actions);
 
 $views = new ViewsWidget();
 $views->addLink(_("Aktuelle Seite"), PluginEngine::getLink($plugin, array(), "page/view/".$page->getId()));
+$views->addLink(_("Autorenänderungen"), PluginEngine::getLink($plugin, array(), "page/changes/".$page->getId()));
 $views->addLink(_("Historie"), PluginEngine::getLink($plugin, array(), "page/timeline/".$page->getId()))->setActive(true);
 
 $sidebar->addWidget($views);

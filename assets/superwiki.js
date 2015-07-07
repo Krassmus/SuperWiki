@@ -91,9 +91,9 @@ STUDIP.SuperWiki = {
             jQuery(presentation).css('color', settings.data("fontcolor"));
         }
         jQuery(presentation).css('padding-top', (settings.data("top") ? settings.data("top") : "20") + "vh");
-        jQuery(presentation).css('padding-bottom', (settings.data("top") ? settings.data("bottom") : "0") + "vh");
-        jQuery(presentation).css('padding-left', (settings.data("top") ? settings.data("left") : "10") + "vw");
-        jQuery(presentation).css('padding-right', (settings.data("top") ? settings.data("right") : "10") + "vw");
+        jQuery(presentation).css('padding-bottom', (settings.data("bottom") ? settings.data("bottom") : "0") + "vh");
+        jQuery(presentation).css('padding-left', (settings.data("left") ? settings.data("left") : "10") + "vw");
+        jQuery(presentation).css('padding-right', (settings.data("right") ? settings.data("right") : "10") + "vw");
         if (settings.data("align")) {
             jQuery(presentation).css('text-align', settings.data("align"));
         } else {
@@ -102,14 +102,20 @@ STUDIP.SuperWiki = {
         if (settings.data("valign")) {
             jQuery(presentation).css('align-self', settings.data("valign") === "top" ? "flex-start" : "flex-end");
         }
-        if (presentation.requestFullscreen) {
+        if (presentation.requestFullscreen && false) {
             presentation.requestFullscreen();
         } else if (presentation.msRequestFullscreen) {
             presentation.msRequestFullscreen();
-        } else if (presentation.mozRequestFullScreen) {
+        } else if (presentation.mozRequestFullScreen && false) {
             presentation.mozRequestFullScreen();
         } else if (presentation.webkitRequestFullscreen) {
             presentation.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+        } else {
+            jQuery("#layout_wrapper").hide();
+            jQuery(presentation).addClass("forced");
+            if (jQuery(presentation).parent().is("#layout_content")) {
+                jQuery(presentation).appendTo("body");
+            }
         }
     },
     nextSlide: function () {

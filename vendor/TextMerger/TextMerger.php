@@ -102,7 +102,7 @@ class TextMerger {
         return $text;
     }
 
-    protected function _getReplacements($original, $text)
+    public function _getReplacements($original, $text)
     {
         $replacements = array();
         $replacement = array();

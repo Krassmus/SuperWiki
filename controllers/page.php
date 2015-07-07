@@ -148,6 +148,19 @@ class PageController extends PluginController {
     }
 
     /**
+     * Displays the changes of this wiki-page.
+     * @param $page_id
+     * @throws AccessDeniedException if page is not readable
+     */
+    public function changes_action($page_id)
+    {
+        $this->page = new SuperwikiPage($page_id);
+        if (!$this->page->isReadable()) {
+            throw new AccessDeniedException("Keine Berechtigung.");
+        }
+    }
+
+    /**
      * Saves given files (dragged into the textarea) and returns the link to the
      * file to the user as json.
      * @throws AccessDeniedException
