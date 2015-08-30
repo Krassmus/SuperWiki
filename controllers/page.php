@@ -251,4 +251,23 @@ class PageController extends PluginController {
         $this->render_json($output);
     }
 
+    public function check_new_page_name_action() {
+        $output = array();
+        if (!$GLOBALS['perm']->have_studip_perm("user", Request::option("seminar_id"))) {
+            throw new AccessDeniedException("kein Zugriff");
+        }
+        $page = SuperwikiPage::findOneBySQL("seminar_id = ? and name = ?", array(Request::option("seminar_id"), Request::get("name")));
+        if ($page) {
+            if (!$page->isReadable()) {
+                $output['error'] = _("Es gibt bereits eine versteckte Wikiseite. Sie dürfen diese weder sehen noch bearbeiten. Suchen Sie sich einen anderen Namen aus.");
+            } elseif(!$page->isEditable()) {
+                $output['error'] = _("Es gibt diese Wikiseite bereits, aber Sie dürfen sie nicht bearbeiten. Suchen Sie sich einen anderen Namen aus.");
+            } else {
+                $output['error'] = _("Diese Wikiseite gibt es bereits. Bearbeiten Sie diese doch, anstatt eine neue zu erstellen.");
+            }
+        }
+
+        $this->render_json($output);
+    }
+
 }

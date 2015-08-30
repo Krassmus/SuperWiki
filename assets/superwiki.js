@@ -224,6 +224,25 @@ STUDIP.SuperWiki = {
         if (first_child.is("ul, ol") && first_child.children("li:not(.processed)").length === 0) {
             stoppoint.addClass("processed");
         }
+    },
+    checkPageName: function () {
+        var name = this.value;
+        var seminar_id = jQuery("#seminar_id").val();
+        jQuery.ajax({
+            "url": STUDIP.ABSOLUTE_URI_STUDIP + "plugins.php/superwiki/page/check_new_page_name",
+            "data": {
+                "name": name,
+                "seminar_id": seminar_id
+            },
+            "type": "get",
+            "dataType": "json",
+            "success": function (json) {
+                if (json.error) {
+                    window.alert(json.error);
+                }
+            }
+        });
+        console.log(name);
     }
 };
 
