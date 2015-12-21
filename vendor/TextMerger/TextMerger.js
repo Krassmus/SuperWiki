@@ -106,6 +106,15 @@ TextMerger.prototype.merge = function (original, text1, text2) {
         index_alteration += replacements[i].text.length - replacements[i].end + replacements[i].start;
     }
 
+    var difference = Math.floor(100 * (text.length >= original.length ? (text.length - original.length) : (original.length - text.length)) / original.length);
+    if (difference >= 50) {
+        console.log("Big difference!");
+        console.log("Original: " + original);
+        console.log("Text1: " + text1);
+        console.log("Text2: " + text2);
+        console.log("Ergebnis: " + text);
+    }
+
     return text;
 };
 
