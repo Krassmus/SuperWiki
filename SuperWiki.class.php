@@ -63,9 +63,8 @@ class SuperWiki extends StudIPPlugin implements StandardPlugin, SystemPlugin {
                         $onlineusers .= '<a href="'.URLHelper::getLink("dispatch.php/profile", array('username' => get_username($user_id))).'" title="'.htmlReady(get_fullname($user_id)).'">'.Avatar::getAvatar($user_id)->getImageTag(Avatar::SMALL).'</a> ';
                         $onlineusers_count++;
                     }
-                    if ($onlineusers_count > 1) {
-                        $output['onlineusers'] = $onlineusers;
-                    }
+                    $output['onlineusers_count'] = $onlineusers_count;
+                    $output['onlineusers'] = $onlineusers;
                 }
                 if (count($output)) {
                     UpdateInformation::setInformation("SuperWiki.updatePage", $output);

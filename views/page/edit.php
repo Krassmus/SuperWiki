@@ -75,11 +75,10 @@
             jQuery("#superwiki_edit_content").data("old_content", content);
             jQuery("#superwiki_edit_content").data("chdate", data.chdate);
         }
-        if (data.onlineusers) {
+        jQuery(".coworker .avatars").html(data.onlineusers);
+        if (data.onlineusers_count) {
             jQuery(".coworker").css("visibility", "visible");
-            jQuery(".coworker .avatars").html(data.onlineusers);
         } else {
-            jQuery(".coworker .avatars").html('');
             jQuery(".coworker").css("visibility", "hidden");
         }
     };
