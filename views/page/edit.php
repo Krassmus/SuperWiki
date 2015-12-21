@@ -1,19 +1,20 @@
 <input type="hidden" id="seminar_id" value="<?= htmlReady($page['seminar_id'] ?: $_SESSION['SessionSeminar']) ?>">
 <input type="hidden" id="page_id" value="<?= htmlReady($page->getId()) ?>">
 
-<div class="coworker" style="text-align: right;<?= $onlineusers && (count($onlineusers) > 1) ? "visibility: visible" : "visibility: hidden;" ?>">
-    <div class="avatars"><?
-        foreach ($onlineusers as $user_id) {
-            echo '<a href="'.URLHelper::getLink("dispatch.php/profile", array('username' => get_username($user_id))) .'">'.Avatar::getAvatar($user_id)->getImageTag(Avatar::SMALL).'</a> ';
-        }
-    ?></div>
-</div>
-
 <form action="<?= PluginEngine::getLink($plugin, array(), "page/edit/".$page->getId()) ?>" method="post" id="superwiki_edit_form">
     <? if ($page->isNew()) : ?>
         <input type="text" name="name" style="display: block; width: calc(100% - 8px); font-size: 1.3em; font-weight: bold;" required onChange="STUDIP.SuperWiki.checkPageName.call(this);">
     <? else : ?>
-        <h1><?= htmlReady($page['name']) ?></h1>
+        <h1>
+            <?= htmlReady($page['name']) ?>
+            <div class="coworker" style="float: right; margin-bottom: 5px; <?= $onlineusers && (count($onlineusers) > 1) ? "visibility: visible" : "visibility: hidden;" ?>">
+                <div class="avatars"><?
+                    foreach ($onlineusers as $user_id) {
+                        echo '<a href="'.URLHelper::getLink("dispatch.php/profile", array('username' => get_username($user_id))) .'">'.Avatar::getAvatar($user_id)->getImageTag(Avatar::SMALL).'</a> ';
+                    }
+                    ?></div>
+            </div>
+        </h1>
         <input type="hidden" name="page_id" value="<?= htmlReady($page->getId()) ?>">
     <? endif ?>
     <textarea
