@@ -35,6 +35,37 @@ class SuperWiki extends StudIPPlugin implements StandardPlugin, SystemPlugin {
                         $output['content'] = $page['content'];
                         $output['chdate'] = $page['chdate'];
                     }
+                    //Online users
+                    $statement = DBManager::get()->prepare("
+                        INSERT INTO superwiki_editors
+                        SET user_id = :me,
+                            page_id = :page_id,
+                            latest_change = UNIX_TIMESTAMP()
+                        ON DUPLICATE KEY UPDATE
+                            latest_change = UNIX_TIMESTAMP()
+                    ");
+                    $statement->execute(array(
+                        'me' => $GLOBALS['user']->id,
+                        'page_id' => $page->getId()
+                    ));
+                    $statement = DBManager::get()->prepare("
+                        SELECT user_id
+                        FROM superwiki_editors
+                        WHERE page_id = :page_id
+                            AND latest_change >= UNIX_TIMESTAMP() - 10
+                    ");
+                    $statement->execute(array(
+                        'page_id' => $page->getId()
+                    ));
+                    $onlineusers = "";
+                    $onlineusers_count = 0;
+                    foreach ($statement->fetchAll(PDO::FETCH_COLUMN, 0) as $user_id) {
+                        $onlineusers .= '<a href="'.URLHelper::getLink("dispatch.php/profile", array('username' => get_username($user_id))).'" title="'.htmlReady(get_fullname($user_id)).'">'.Avatar::getAvatar($user_id)->getImageTag(Avatar::SMALL).'</a> ';
+                        $onlineusers_count++;
+                    }
+                    if ($onlineusers_count > 0) {
+                        $output['onlineusers'] = $onlineusers;
+                    }
                 }
                 if (count($output)) {
                     UpdateInformation::setInformation("SuperWiki.updatePage", $output);

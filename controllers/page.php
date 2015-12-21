@@ -90,6 +90,30 @@ class PageController extends PluginController {
             }
             $this->redirect("page/view/".$this->page->getId());
         }
+        if (!$this->page->isNew()) {
+            $statement = DBManager::get()->prepare("
+                        INSERT INTO superwiki_editors
+                        SET user_id = :me,
+                            page_id = :page_id,
+                            latest_change = UNIX_TIMESTAMP()
+                        ON DUPLICATE KEY UPDATE
+                            latest_change = UNIX_TIMESTAMP()
+                    ");
+            $statement->execute(array(
+                'me' => $GLOBALS['user']->id,
+                'page_id' => $this->page->getId()
+            ));
+            $statement = DBManager::get()->prepare("
+                            SELECT user_id
+                            FROM superwiki_editors
+                            WHERE page_id = :page_id
+                                AND latest_change >= UNIX_TIMESTAMP() - 10
+                        ");
+            $statement->execute(array(
+                'page_id' => $this->page->getId()
+            ));
+            $this->onlineusers = $statement->fetchAll(PDO::FETCH_COLUMN, 0);
+        }
     }
 
     public function admin_action()

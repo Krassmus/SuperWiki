@@ -1,6 +1,14 @@
 <input type="hidden" id="seminar_id" value="<?= htmlReady($page['seminar_id'] ?: $_SESSION['SessionSeminar']) ?>">
 <input type="hidden" id="page_id" value="<?= htmlReady($page->getId()) ?>">
 
+<div class="coworker" style="text-align: right;<?= $onlineusers && (count($onlineusers) > 0) ? "visibility: visible" : "visibility: hidden;" ?>">
+    <div class="avatars"><?
+        foreach ($onlineusers as $user_id) {
+            echo '<a href="'.URLHelper::getLink("dispatch.php/profile", array('username' => get_username($user_id))) .'">'.Avatar::getAvatar($user_id)->getImageTag(Avatar::SMALL).'</a> ';
+        }
+    ?></div>
+</div>
+
 <form action="<?= PluginEngine::getLink($plugin, array(), "page/edit/".$page->getId()) ?>" method="post" id="superwiki_edit_form">
     <? if ($page->isNew()) : ?>
         <input type="text" name="name" style="display: block; width: calc(100% - 8px); font-size: 1.3em; font-weight: bold;" required onChange="STUDIP.SuperWiki.checkPageName.call(this);">
@@ -66,6 +74,13 @@
             }
             jQuery("#superwiki_edit_content").data("old_content", content);
             jQuery("#superwiki_edit_content").data("chdate", data.chdate);
+        }
+        if (data.onlineusers) {
+            jQuery(".coworker").css("visibility", "visible");
+            jQuery(".coworker .avatars").html(data.onlineusers);
+        } else {
+            jQuery(".coworker .avatars").html('');
+            jQuery(".coworker").css("visibility", "hidden");
         }
     };
 
