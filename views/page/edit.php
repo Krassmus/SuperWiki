@@ -76,7 +76,7 @@
             jQuery("#superwiki_edit_content").data("chdate", data.chdate);
         }
         jQuery(".coworker .avatars").html(data.onlineusers);
-        if (data.onlineusers_count) {
+        if (data.onlineusers_count > 1) {
             jQuery(".coworker").css("visibility", "visible");
         } else {
             jQuery(".coworker").css("visibility", "hidden");
