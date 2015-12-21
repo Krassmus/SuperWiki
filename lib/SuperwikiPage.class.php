@@ -108,7 +108,7 @@ class SuperwikiPage extends SimpleORMap {
             }
         }
         if (strpos($text, '<div class="superwiki_presentation') !== false) {
-            $text = '<a class="superwiki_presentation starter" href="#" onClick="STUDIP.SuperWiki.requestFullscreen(); return false;" title="'._("Diese Wikiseite ist eine Präsentation. Klicken Sie hier, um sie im Vollbildmodus darzustellen.").'">'.Assets::img("icons/20/white/play")._("Präsentation starten").'</a>'.$text;
+            $text = '<a class="superwiki_presentation starter" href="#" onClick="STUDIP.SuperWiki.requestFullscreen(); return false;" title="'._("Diese Wikiseite ist eine Präsentation. Klicken Sie hier, um sie im Vollbildmodus darzustellen.").'" style="background-image: url('."'".$GLOBALS['ABSOLUTE_URI_STUDIP']."plugins_packages/RasmusFuhse/SuperWiki/assets/presentation_white.svg'".')">'.Assets::img("icons/20/white/play")._("Präsentation starten").'</a>'.$text;
         }
         return $text;
     }
