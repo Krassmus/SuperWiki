@@ -1,7 +1,7 @@
 <input type="hidden" id="seminar_id" value="<?= htmlReady($page['seminar_id'] ?: $_SESSION['SessionSeminar']) ?>">
 <input type="hidden" id="page_id" value="<?= htmlReady($page->getId()) ?>">
 
-<div class="coworker" style="text-align: right;<?= $onlineusers && (count($onlineusers) > 0) ? "visibility: visible" : "visibility: hidden;" ?>">
+<div class="coworker" style="text-align: right;<?= $onlineusers && (count($onlineusers) > 1) ? "visibility: visible" : "visibility: hidden;" ?>">
     <div class="avatars"><?
         foreach ($onlineusers as $user_id) {
             echo '<a href="'.URLHelper::getLink("dispatch.php/profile", array('username' => get_username($user_id))) .'">'.Avatar::getAvatar($user_id)->getImageTag(Avatar::SMALL).'</a> ';
