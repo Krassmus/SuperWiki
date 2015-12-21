@@ -1,9 +1,9 @@
-<input type="hidden" id="seminar_id" value="<?= htmlReady($page['seminar_id']) ?>">
+<input type="hidden" id="seminar_id" value="<?= htmlReady($page['seminar_id'] ?: $_SESSION['SessionSeminar']) ?>">
 <input type="hidden" id="page_id" value="<?= htmlReady($page->getId()) ?>">
 
 <form action="<?= PluginEngine::getLink($plugin, array(), "page/edit/".$page->getId()) ?>" method="post" id="superwiki_edit_form">
     <? if ($page->isNew()) : ?>
-        <input type="text" name="name" style="display: block; width: calc(100% - 8px); font-size: 1.3em; font-weight: bold;" required>
+        <input type="text" name="name" style="display: block; width: calc(100% - 8px); font-size: 1.3em; font-weight: bold;" required onChange="STUDIP.SuperWiki.checkPageName.call(this);">
     <? else : ?>
         <h1><?= htmlReady($page['name']) ?></h1>
         <input type="hidden" name="page_id" value="<?= htmlReady($page->getId()) ?>">
