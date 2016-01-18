@@ -98,7 +98,11 @@ if ($GLOBALS['perm']->have_studip_perm("tutor", $_SESSION['SessionSeminar'])) {
         $actions->addLink(_("Seiten-Einstellungen"), PluginEngine::getURL($plugin, array(), "page/permissions/".$page->getId()), "icons/16/blue/roles", array('data-dialog' => "true"));
     }
 }
-$actions->addLink(_("Neue Seite anlegen"), PluginEngine::getURL($plugin, array(), "page/edit"), "icons/16/blue/add");
-
+if ($settings->haveRenamePermission()) {
+    $actions->addLink(_("Seite umbenennen"), PluginEngine::getURL($plugin, array(), "page/rename/".$page->getId()), "icons/16/blue/edit", array('data-dialog' => "true"));
+}
+if ($settings->haveCreatePermission()) {
+    $actions->addLink(_("Neue Seite anlegen"), PluginEngine::getURL($plugin, array(), "page/edit"), "icons/16/blue/add");
+}
 $sidebar->addWidget($actions);
 

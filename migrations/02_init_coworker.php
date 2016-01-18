@@ -1,6 +1,5 @@
 <?php
 
-
 class InitCoworker extends Migration {
     
     public function up() {

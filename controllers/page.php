@@ -116,6 +116,24 @@ class PageController extends PluginController {
         }
     }
 
+    public function rename_action($page_id)
+    {
+        $this->page = new SuperwikiPage($page_id);
+        if ($this->page['seminar_id'] !== $_SESSION['SessionSeminar']) {
+            throw new AccessDeniedException("Not in right course");
+        }
+        $this->settings = new SuperwikiSettings($this->page['seminar_id']);
+        if (!$this->settings->haveRenamePermission()) {
+            throw new AccessDeniedException("You have not enough permission.");
+        }
+        if (Request::isPost() && Request::get("new_name")) {
+            $this->page['name'] = Request::get("new_name");
+            $this->page->store();
+            PageLayout::postMessage(MessageBox::success(_("Seite wurde umbenannt.")));
+            $this->redirect("page/view/".$this->page->getId());
+        }
+    }
+
     public function admin_action()
     {
         if (!$GLOBALS['perm']->have_studip_perm("tutor", $_SESSION['SessionSeminar'])) {
@@ -127,8 +145,9 @@ class PageController extends PluginController {
             $this->settings['indexpage'] = Request::get("indexpage");
             $this->settings['icon'] = Request::get("icon", "wiki");
             $this->settings['create_permission'] = Request::get("create_permission");
+            $this->settings['rename_permission'] = Request::get("rename_permission");
             $this->settings->store();
-            PageLayout::postMessage(MessageBox::success(_("Daten wurden gespeichert")));
+            PageLayout::postMessage(MessageBox::success(_("Daten wurden gespeichert.")));
             $this->redirect("page/view/".Request::option("page_id"));
         }
     }

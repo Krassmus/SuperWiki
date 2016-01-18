@@ -1,4 +1,4 @@
-<form action="<?= PluginEngine::getLink($plugin, array(), "page/admin") ?>" method="post" class="studip_form">
+<form action="<?= PluginEngine::getLink($plugin, array(), "page/admin") ?>" method="post" class="default">
     <input type="hidden" name="page_id" value="<?= Request::option("page_id") ?>">
     <fieldset>
         <legend>
@@ -29,6 +29,19 @@
             </select>
         </label>
 
+        <label>
+            <?= _("Wer darf Seiten umbenennen?") ?>
+            <select name="rename_permission">
+                <option value="all"<?= $settings['create_permission'] === "all" ? " selected" : "" ?>><?= _("jeder") ?></option>
+                <option value="tutor"<?= $settings['create_permission'] === "tutor" ? " selected" : "" ?>><?= _("Tutoren und Dozenten") ?></option>
+                <option value="dozent"<?= $settings['create_permission'] === "dozent" ? " selected" : "" ?>><?= _("Nur Dozenten") ?></option>
+            </select>
+        </label>
+    </fieldset>
+    <fieldset>
+        <legend>
+            <?= _("Icon des Superwikis") ?>
+        </legend>
         <div>
             <? $icons = array("wiki", "info-circle", "info-small", "infopage", "exclaim", "link-intern", "literature", "log") ?>
             <? foreach ($icons as $icon) : ?>

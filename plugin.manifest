@@ -1,8 +1,8 @@
 pluginname=SuperWiki
 pluginclassname=SuperWiki
-version=1.2.1
+version=1.3.0
 origin=RasmusFuhse
-studipMinVersion=3.1
+studipMinVersion=3.4
 summary=Wiki/CMS mit Rechtemanagement und Echtzeitsynchronisation
 descriptionlong=Das SuperWiki ist ein Ersatz für das normale Wiki in Stud.IP mit vielen Vorteilen. Der wichtigste ist sicherlich das Rechtemanagement, mit dem man für jede einzelne Seite definieren kann, wer diese Seite bearbeiten oder gar nur lesen darf. Das ist ideal, um Informationen vorzubereiten und auf einen Schlag bereit zu stellen, aber auch um ein Wiki zu moderieren und auf anderen Seiten frei laufen zu lassen. \n\nZudem bietet das SuperWiki die Möglichkeit zum gleichzeitigen Bearbeiten derselben Seite durch mehrere Personen. Das ist vielleicht nicht so mächtig wie ein Etherpad (siehe StudiPad, wenn vorhanden), um mit dutzenden Personen an einem Dokument zu arbeiten, sollte aber die größten Konflikte des gleichzeitigen Bearbeitens auflösen. \n\nDas Wiki kann außerdem komplett an die Veranstaltung angepasst werden, es kann so zum Beispiel ein eigenes Icon bekommen statt des Wikingerhelms und der Reiter kann anders heißen - zum Beispiel "Enzyklopädie" oder "Quellensammlung". \n\nSo kann das Wiki einerseits als Wiki, aber auch als CMS frei verwendet werden. Links zu anderen Seiten des Wiki werden überdies automatisch über den Namen der anderen Seite erstellt und müssen nicht von Hand und mit komplizierter Formatierung eingegeben werden.
 homepage=https://github.com/Krassmus/SuperWiki

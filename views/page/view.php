@@ -67,6 +67,9 @@ if ($GLOBALS['perm']->have_studip_perm("tutor", $_SESSION['SessionSeminar'])) {
 if ($page->isEditable()) {
     $actions->addLink(_("Seite bearbeiten"), PluginEngine::getURL($plugin, array(), "page/edit/".$page->getId()), "icons/16/blue/edit");
 }
+if ($settings->haveRenamePermission()) {
+    $actions->addLink(_("Seite umbenennen"), PluginEngine::getURL($plugin, array(), "page/rename/".$page->getId()), "icons/16/blue/edit", array('data-dialog' => "true"));
+}
 if ($settings->haveCreatePermission()) {
     $actions->addLink(_("Neue Seite anlegen"), PluginEngine::getURL($plugin, array(), "page/edit"), "icons/16/blue/add");
 }
