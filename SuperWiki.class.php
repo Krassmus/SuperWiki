@@ -67,6 +67,7 @@ class SuperWiki extends StudIPPlugin implements StandardPlugin, SystemPlugin {
                     $output['onlineusers'] = $onlineusers;
                 }
                 if (count($output)) {
+                    sleep(3);
                     UpdateInformation::setInformation("SuperWiki.updatePage", $output);
                 }
             }

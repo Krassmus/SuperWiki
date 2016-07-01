@@ -1,28 +1,37 @@
-<ol class="clean">
-    <? $new_version = $page['content'] ?>
-    <? if (count($page->versions) === 0) : ?>
-        <li>
-            <?= _("Seite wurde angelegt.") ?>
-        </li>
-    <? else : ?>
-        <? foreach ($page->versions as $version) : ?>
-        <li>
-            <div class="header"></div>
-            <? $changes = TextMerger::get()->_getReplacements($version['content'], $new_version) ?>
-            <? foreach ($changes as $change) : ?>
-                <? $start = max($change['start'] - 10, 0) ?>
-                <? $start = substr($new_version, $start, $change['start'] - $start) ?>
-                <? $end = min($change['end'] + 10, strlen($new_version) - 1) ?>
-                <? $end = substr($new_version, $change['end'], $end - $change['start']) ?>
-                <div class="after"><span class="start"><?= htmlReady($start) ?></span><span class=""><?= htmlReady($change['text']) ?></span><span class="end"><?= htmlReady($end) ?></span></div>
-                <!--
+<table class="default nohover">
+    <thead>
+        <tr>
+            <th></th>
+            <th><?= _("Änderung") ?></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    <? foreach ($page->versions as $version) : ?>
+        <tr>
+            <td>
+                <a href="<?= URLHelper::getLink("dispatch.php/profile", array('username' => get_username($version['last_author']))) ?>" title="<?= htmlReady(get_fullname($version['last_author'])) ?>">
+                    <?= Avatar::getAvatar($version['last_author'])->getImageTag(Avatar::SMALL) ?>
+                </a>
+            </td>
+            <td>
+                <? $changes = TextMerger::get()->_getReplacements($version['content'], $new_version) ?>
+                <? foreach ($changes as $change) : ?>
+                    <? $start = max($change['start'] - 10, 0) ?>
+                    <? $start = substr($new_version, $start, $change['start'] - $start) ?>
+                    <? $end = min($change['end'] + 10, strlen($new_version) - 1) ?>
+                    <? $end = substr($new_version, $change['end'], $end - $change['start']) ?>
+                    <div class="after"><span class="start"><?= htmlReady($start) ?></span><span class=""><?= htmlReady($change['text']) ?></span><span class="end"><?= htmlReady($end) ?></span></div>
+                    <!--
                 <div class="before"><span class="start"><?= htmlReady($start) ?></span><span class=""><?= htmlReady(substr($new_version, $change['start'], $change['end'] - $change['start'])) ?></span><span class="end"><?= htmlReady($change['end']) ?></span></div>
                 -->
-            <? endforeach ?>
-            </li>
-        <? endforeach ?>
-    <? endif ?>
-</ol>
+                <? endforeach ?>
+            </td>
+            <td></td>
+        </tr>
+    <? endforeach ?>
+    </tbody>
+</table>
 
 
 <?
