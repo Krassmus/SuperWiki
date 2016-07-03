@@ -77,6 +77,8 @@ class TextMerger3 {
     protected $exceptionOnConflict = false;
     protected $levenshteinDelimiter = null;
 
+    static protected $replacement_hash = array();
+
     static public function get($params = array())
     {
         return new TextMerger($params);
@@ -114,11 +116,28 @@ class TextMerger3 {
         $index_alteration = 0;
         $text = $original;
         foreach ($replacements as $replacement) {
-            $replacement->ChangeIndexesBy($index_alteration);
+            $replacement->changeIndexesBy($index_alteration);
             $text = $replacement->applyTo($text);
-            $index_alteration += strlen($replacement['text']) - $replacement['end'] + $replacement['start'];
+            $index_alteration += strlen($replacement->text) - $replacement->end + $replacement->start;
         }
         return $text;
+    }
+
+    public function calculateCursor($cursor_position, $original, $text1, $text2)
+    {
+        $replacements = $this->getReplacements($original, $text1, $text2);
+
+        $index_alteration = 0;
+        foreach ($replacements as $replacement) {
+            $replacement->changeIndexesBy($index_alteration);
+            if ($replacement->start <= $cursor_position) {
+                $cursor_position += strlen($replacement->text) - $replacement->end + $replacement->start;
+                $index_alteration += strlen($replacement->text) - $replacement->end + $replacement->start;
+            } else {
+                break;
+            }
+        }
+        return $cursor_position;
     }
 
     /**
@@ -130,15 +149,25 @@ class TextMerger3 {
      */
     public function getReplacements($original, $text1, $text2)
     {
+        $hash_id = md5($original."___".$text1."____".$text2);
+        if (isset(self::$replacement_hash[$hash_id])) {
+            return self::$replacement_hash[$hash_id]
+        }
         //collect all major replacements:
         $replacements = array(
             $this->_getSimpleReplacement($original, $text1),
             $this->_getSimpleReplacement($original, $text2)
         );
         //sort them in order of their start-value:
-        usort($replacements, function ($a, $b) { return $a->start >= $b->start ? 1 : -1; });
+        usort($replacements, function ($a, $b) {
+            return $a->start >= $b->start ? 1 : -1;
+        });
 
         //discover conflicts:
+
+
+        self::$replacement_hash[$hash_id] = $replacements;
+        return $replacements;
     }
 
     /**
