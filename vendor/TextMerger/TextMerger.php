@@ -1,6 +1,10 @@
 <?php
 
-class TextMergerException extends Exception {
+/**
+ * Class TextmergerException
+ * Special Exception class for exceptions that are thrown when text-conflicts happen.
+ */
+class TextmergerException extends Exception {
 
     public $data = array();
 
@@ -15,11 +19,12 @@ class TextMergerException extends Exception {
  * Class TextMergerReplacement
  * An object of TextMergerReplacement represents a replacement of text for another text.
  */
-class TextMergerReplacement {
+class TextmergerReplacement {
 
     public $start;
     public $end;
     public $text;
+    public $origin_name;
 
     /**
      * TextMergerReplacement constructor.
@@ -28,12 +33,14 @@ class TextMergerReplacement {
      * @param integer $start
      * @param integer $end : must be bigger or equal than start.
      * @param string $text
+     * @param string|null $origin : the name of an origin
      */
-    public function __construct($start = 0, $end = 0, $text = "")
+    public function __construct($start = 0, $end = 0, $text = "", $origin = null)
     {
-        $this->start = $start;
-        $this->end   = $end;
-        $this->text  = $text;
+        $this->start   = $start;
+        $this->end     = $end;
+        $this->text    = $text;
+        $this->origin  = $origin;
     }
 
     /**
@@ -70,12 +77,26 @@ class TextMergerReplacement {
                     || ($this->end < $replacement->end && $this->end >= $replacement->start)
                     || ($this->start < $replacement->start && $this->end > $replacement->end);
     }
+
+    /**
+     * @param $delimiter
+     * @param $original
+     * @return array
+     */
+    public function breakApart($delimiter, $original)
+    {
+        $original_snippet = substr($original, $this->start, $this->end);
+        $parts = explode($delimiter, $this->text);
+        $original_parts = explode($delimiter, $original_snippet);
+        return array($this);
+    }
 }
 
-class TextMerger3 {
+class Textmerger3 {
 
+    protected $conflictBehaviour = "select_larger_difference"; // "throw_exception", "select_text1", "select_text2"
     protected $exceptionOnConflict = false;
-    protected $levenshteinDelimiter = null;
+    protected $levenshteinDelimiter = null; // something like array("\n", " ", "")
 
     static protected $replacement_hash = array();
 
@@ -108,9 +129,6 @@ class TextMerger3 {
      */
     public function merge($original, $text1, $text2)
     {
-        if (function_exists("xdiff_string_merge3")) {
-            return xdiff_string_merge3($original, $text1, $text2);
-        }
         $replacements = $this->getReplacements($original, $text1, $text2);
 
         $index_alteration = 0;
@@ -151,20 +169,62 @@ class TextMerger3 {
     {
         $hash_id = md5($original."___".$text1."____".$text2);
         if (isset(self::$replacement_hash[$hash_id])) {
-            return self::$replacement_hash[$hash_id]
+            return self::$replacement_hash[$hash_id];
         }
         //collect all major replacements:
         $replacements = array(
             $this->_getSimpleReplacement($original, $text1),
             $this->_getSimpleReplacement($original, $text2)
         );
-        //sort them in order of their start-value:
-        usort($replacements, function ($a, $b) {
-            return $a->start >= $b->start ? 1 : -1;
-        });
 
-        //discover conflicts:
+        $i = 0;
+        do {
+            //sort them in order of their start-value:
+            usort($replacements, function ($a, $b) {
+                return $a->start >= $b->start ? 1 : -1;
+            });
+            $conflicting = false;
+            foreach ($replacements as $key => $replacement) {
+                if ($key === count($replacements) - 1) {
+                    break;
+                }
+                if ($replacement->isConflictingWith($replacements[$key + 1])) {
+                    $delimiter = "\n";
+                    $parts = $replacement->breakApart($delimiter, $original);
+                    if (count($parts) >= 2) {
+                        $conflicting = true;
+                        unset($replacements[$key]);
+                        foreach ($parts as $new_replacement) {
+                            $replacements[] = $new_replacement;
+                        }
+                    }
+                    $parts = $replacements[$key + 1]->breakApart($delimiter, $original);
+                    if (count($parts) >= 2) {
+                        $conflicting = true;
+                        unset($replacements[$key]);
+                        foreach ($parts as $new_replacement) {
+                            $replacements[] = $new_replacement;
+                        }
+                    }
+                    break;
+                }
+            }
+            $i++;
+        } while ($conflicting && isset($this->levenshteinDelimiter[$i]));
 
+        if ($conflicting) {
+            if ($this->conflictBehaviour === "exceptionOnConflict") {
+                throw new TextmergerException("Texts have a conflict.", array(
+                    "original" => $original,
+                    "text1" => $text1,
+                    "text2" => $text2,
+                    "replacement1" => $replacements[$key],
+                    "replacement2" => $replacements[$key + 1]
+                ));
+            } elseif ($this->conflictBehaviour === "select_larger_difference") {
+                
+            }
+        }
 
         self::$replacement_hash[$hash_id] = $replacements;
         return $replacements;
@@ -180,7 +240,7 @@ class TextMerger3 {
      */
     public function _getSimpleReplacement($original, $text)
     {
-        $replacement = new TextMergerReplacement();
+        $replacement = new TextmergerReplacement();
         $text_start = $text_end = null;
         for($i = 0; $i < strlen($original); $i++) {
             if (($original[$i] !== $text[$i]) || ($i === strlen($original) - 1)) {
@@ -281,7 +341,7 @@ class TextMerger {
                         usort($replacements, function ($a, $b) { return $a['start'] >= $b['start'] ? 1 : -1; });
                     } else {
                         if ($this->exceptionOnConflict) {
-                            throw new TextMergerException("Texts have a conflict.", array(
+                            throw new TextmergerException("Texts have a conflict.", array(
                             "original" => $original,
                             "text1" => $text1,
                             "text2" => $text2,
