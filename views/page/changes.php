@@ -15,7 +15,7 @@
                 </a>
             </td>
             <td>
-                <? $changes = TextMerger::get()->_getReplacements($version['content'], $new_version) ?>
+                <? $changes = Textmerger::get()->_getReplacements($version['content'], $new_version) ?>
                 <? foreach ($changes as $change) : ?>
                     <? $start = max($change['start'] - 10, 0) ?>
                     <? $start = substr($new_version, $start, $change['start'] - $start) ?>

@@ -4,7 +4,7 @@ require_once __DIR__."/lib/SuperWikiFormat.php";
 require_once __DIR__."/lib/SuperwikiPage.class.php";
 require_once __DIR__."/lib/SuperwikiVersion.class.php";
 require_once __DIR__."/lib/SuperwikiSettings.class.php";
-require_once __DIR__ . "/vendor/TextMerger/TextMerger.php";
+require_once __DIR__ . "/vendor/Textmerger/Textmerger.php";
 require_once 'lib/classes/Markup.class.php';
 
 class SuperWiki extends StudIPPlugin implements StandardPlugin, SystemPlugin {
@@ -25,7 +25,7 @@ class SuperWiki extends StudIPPlugin implements StandardPlugin, SystemPlugin {
                     $content1 =  studip_utf8decode($data['SuperWiki']['content']);
                     $original_content =  studip_utf8decode($data['SuperWiki']['old_content']);
                     $content2 = $page['content'];
-                    $page['content'] = TextMerger::get()->merge($original_content, $content1, $content2);
+                    $page['content'] = Textmerger::get()->merge($original_content, $content1, $content2);
                     $output['debugcontent'] = $page['content'];
                     if ($page['content'] !== $content2) {
                         $page['last_author'] = $GLOBALS['user']->id;

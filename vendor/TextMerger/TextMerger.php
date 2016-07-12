@@ -81,14 +81,15 @@ class TextmergerReplacement {
     /**
      * @param $delimiter
      * @param $original
-     * @return array
+     * @return array of replacements
      */
     public function breakApart($delimiter, $original)
     {
+        return array($this);
+        //TODO levensthein-hirschberg
         $original_snippet = substr($original, $this->start, $this->end);
         $parts = explode($delimiter, $this->text);
         $original_parts = explode($delimiter, $original_snippet);
-        return array($this);
     }
 }
 
@@ -238,7 +239,7 @@ class TextmergerReplacementGroup implements ArrayAccess, Iterator, Countable{
     }
 }
 
-class Textmerger3 {
+class Textmerger {
 
     protected $conflictBehaviour = "select_larger_difference"; // "throw_exception", "select_text1", "select_text2"
     protected $levenshteinDelimiter = null; // something like array("\n", " ", "")
@@ -341,8 +342,8 @@ class Textmerger3 {
         }
         //collect all major replacements:
         $replacements = new TextmergerReplacementGroup();
-        $replacements[] = $this->_getSimpleReplacement($original, $text1);
-        $replacements[] = $this->_getSimpleReplacement($original, $text2);
+        $replacements[0] = $this->_getSimpleReplacement($original, $text1);
+        $replacements[1] = $this->_getSimpleReplacement($original, $text2);
 
         foreach ($this->levenshteinDelimiter as $delimiter) {
             if ($replacements->haveConflicts() === false) {
@@ -409,7 +410,7 @@ class Textmerger3 {
 
 
 
-class TextMerger {
+class TextMerger_old {
 
     protected $exceptionOnConflict = false;
     protected $levenshteinDelimiter = null;

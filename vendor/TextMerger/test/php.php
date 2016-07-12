@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__."/../TextMerger.php";
+require_once __DIR__ . "/../Textmerger.php";
 
     function escape($text) {
         return htmlentities($text);
@@ -109,7 +109,7 @@ require_once __DIR__."/../TextMerger.php";
 
     ?>
     <? foreach ($tests as $key => $test) : ?>
-        <? $result = TextMerger::get()->merge($test['original'], $test['mine'], $test['theirs']) ?>
+        <? $result = Textmerger::get()->merge($test['original'], $test['mine'], $test['theirs']) ?>
         <table class="test <?= $result === $test['expected'] ? "" : "failed" ?>">
             <caption><?= escape($test['title']) ?></caption>
             <tbody>

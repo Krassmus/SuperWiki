@@ -105,4 +105,3 @@ if ($settings->haveCreatePermission()) {
     $actions->addLink(_("Neue Seite anlegen"), PluginEngine::getURL($plugin, array(), "page/edit"), "icons/16/blue/add");
 }
 $sidebar->addWidget($actions);
-
