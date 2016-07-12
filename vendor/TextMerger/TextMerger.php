@@ -63,7 +63,7 @@ class TextmergerReplacement {
      */
     public function applyTo($text)
     {
-        return substr($text, 0, $this->start).$this->text.substr($text, $this->end);
+        return substr($text, 0, $this->start) . $this->text . substr($text, $this->end);
     }
 
     /**
@@ -73,8 +73,8 @@ class TextmergerReplacement {
      */
     public function isConflictingWith($replacement)
     {
-        return ($this->start < $replacement->end && $this->start >= $replacement->start)
-                    || ($this->end < $replacement->end && $this->end >= $replacement->start)
+        return ($this->start < $replacement->end && $this->start > $replacement->start)
+                    || ($this->end < $replacement->end && $this->end > $replacement->start)
                     || ($this->start < $replacement->start && $this->end > $replacement->end);
     }
 
@@ -296,7 +296,9 @@ class Textmerger {
         foreach ($replacements as $replacement) {
             $replacement->changeIndexesBy($index_alteration);
             $text = $replacement->applyTo($text);
-            $index_alteration += strlen($replacement->text) - $replacement->end + $replacement->start;
+            $alteration = strlen($replacement->text) - ($replacement->end - $replacement->start);
+            var_dump($alteration);
+            $index_alteration += $alteration;
         }
         return $text;
     }
