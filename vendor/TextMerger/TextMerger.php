@@ -155,6 +155,12 @@ class TextmergerReplacementGroup implements ArrayAccess, Iterator, Countable{
         return count($this->replacements);
     }
 
+    /**
+     * Tries to break all replacements apart into more smaller replacements. After that all replacements are still
+     * well ordered.
+     * @param string $delimiter : "" or " " or "\n" or any other string.
+     * @param $original
+     */
     public function breakApart($delimiter, $original)
     {
         foreach ($this->replacements as $replacement) {
@@ -163,23 +169,73 @@ class TextmergerReplacementGroup implements ArrayAccess, Iterator, Countable{
         $this->sort();
     }
 
+    /**
+     * Determains if there are any conflicts in this set of replacements.
+     * @return bool
+     */
     public function haveConflicts()
     {
-        foreach ($this->replacements as $key => $replacement) {
-            if ($key === $this->count() - 1) {
-                return false;
-            } elseif($replacement->isConflictingWith($this->replacements[$key + 1])) {
+        foreach ($this->replacements as $index => $replacement) {
+            if ($index === $this->count() - 1) {
+                break;
+            }
+            if ($replacement->isConflictingWith($this->replacements[$index + 1])) {
                 return true;
             }
         }
         return false;
     }
 
+    /**
+     * Looks through all conflicts and resolves them according to $conflictBehaviour.
+     * @param string $conflictBehaviour : "select_larger_difference", "throw_exception", "select_text1" or "select_text2"
+     * @throws TextmergerException : throws exception if there is a conflict and $conflictBehaviour === "throw_exception"
+     */
     public function resolveConflicts($conflictBehaviour)
     {
-
+        foreach ($this->replacements as $index => $replacement) {
+            if ($index === count($this->replacements) - 1) {
+                break;
+            }
+            if ($replacement->isConflictingWith($this->replacements[$index + 1])) {
+                switch ($conflictBehaviour) {
+                    case "throw_exception":
+                        throw new TextmergerException("Texts have a conflict.", array(
+                            "original" => $original,
+                            "text1" => $text1,
+                            "text2" => $text2,
+                            "replacement1" => $replacement,
+                            "replacement2" => $this->replacements[$index + 1]
+                        ));
+                        break;
+                    case "select_text1":
+                        if ($replacement->origin === "text1") {
+                            unset($this->replacements[$index]);
+                        } else {
+                            unset($this->replacements[$index + 1]);
+                        }
+                        break;
+                    case "select_text2":
+                        if ($replacement->origin === "text2") {
+                            unset($this->replacements[$index]);
+                        } else {
+                            unset($this->replacements[$index + 1]);
+                        }
+                        break;
+                    case "select_larger_difference":
+                    default:
+                        if ($replacement->end - $replacement->start > $this->replacements[$index + 1]->end - $this->replacements[$index + 1]->start) {
+                            unset($this->replacements[$index + 1]);
+                        } else {
+                            unset($this->replacements[$index]);
+                        }
+                        break;
+                }
+                $this->resolveConflicts($conflictBehaviour);
+                return;
+            }
+        }
     }
-
 }
 
 class Textmerger3 {
