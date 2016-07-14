@@ -91,10 +91,9 @@ class TextmergerReplacement {
         var_dump($original_snippet);
         var_dump($this->text);
         if (($this->start === $this->end && $this->text === "") || ($original_snippet === $this->text)) {
-            var_dump($this->text);
             return array($this);
         }
-        //levensthein-algorithm (maybe implement hirschberg later)
+
         if ($delimiter !== "") {
             $parts = explode($delimiter, $this->text);
             $original_parts = explode($delimiter, $original_snippet);
@@ -106,6 +105,38 @@ class TextmergerReplacement {
             return array($this);
         }
 
+        //levensthein-algorithm (maybe implement hirschberg later)
+        $backtrace = self::levenshteinBacktrace($original_parts, $parts);
+        echo implode("", $backtrace);
+
+        //use result to break this replacement into multiple smaller replacements:
+
+        $replacements = array();
+        $replacement = null;
+        $index = $this->start;
+        foreach ($backtrace as $operation) {
+            if ($operation === "=") {
+                if ($replacement !== null) {
+                    $replacement->end = $index - 1;
+                }
+            } else {
+
+            }
+        }
+
+        return array($this);
+    }
+
+    /**
+     * Determains the levenshtein backtrace to two arrays. The backtrace is an array
+     * containing i, d, r and = as characters. i for an insertion, d for a deletion, r for a replacement
+     * and = for equivalent character.
+     * @param array $original
+     * @param array $new
+     * @return string
+     */
+    public static function levenshteinBacktrace($original, $new)
+    {
         //create levenshtein-matrix:
         $matrix = array(array(0));
 
@@ -120,14 +151,15 @@ class TextmergerReplacement {
         // a 7       .
         // l 8       .
 
-        for ($k = 0; $k <= count($original_parts); $k++) {
-            for ($i = 0; $i <= count($parts); $i++) {
+        for ($k = 0; $k <= count($original); $k++) {
+            for ($i = 0; $i <= count($new); $i++) {
                 if (!isset($matrix[$k][$i])) {
                     $matrix[$k][$i] = min(
-                        isset($matrix[$k - 1][$i - 1]) && ($parts[$i] === $original_parts[$k]) ? $matrix[$k - 1][$i - 1] : 10000,     //identity
-                        isset($matrix[$k - 1][$i - 1]) ? $matrix[$k - 1][$i - 1] + 1 : 10000, //replace
-                        isset($matrix[$k][$i - 1]) ? $matrix[$k][$i - 1] + 1 : 10000,         //insert
-                        isset($matrix[$k - 1][$i]) ? $matrix[$k - 1][$i] + 1 : 10000          //delete
+                        isset($matrix[$k - 1][$i - 1]) && ($new[$i - 1] === $original[$k - 1])
+                            ? $matrix[$k - 1][$i - 1] : 10000,                                  //identity
+                        isset($matrix[$k - 1][$i - 1]) ? $matrix[$k - 1][$i - 1] + 1 : 10000,   //replace
+                        isset($matrix[$k][$i - 1]) ? $matrix[$k][$i - 1] + 1 : 10000,           //insert
+                        isset($matrix[$k - 1][$i]) ? $matrix[$k - 1][$i] + 1 : 10000            //delete
                     );
                 }
             }
@@ -136,51 +168,53 @@ class TextmergerReplacement {
         echo "<table>";
         foreach ($matrix as $key => $line) {
             if ($key === 0) {
-                echo "<tr><td></td><td>e</td>";
-                foreach ($original_parts as $part) {
-                    echo "<td>.</td>";
+                echo "<tr><td></td><td>#</td>";
+                foreach ($new as $part) {
+                    echo "<td>".(strlen($part) === 1 ? $part : ".")."</td>";
                 }
                 echo "</tr>";
             }
             echo "<tr>";
             if ($key === 0) {
-                echo "<td>e</td>";
+                echo "<td>#</td>";
             } else {
-                echo "<td>.</td>";
+                echo "<td>".(strlen($original[$key - 1]) === 1 ? $original[$key - 1] : ".")."</td>";
             }
             foreach ($line as $value) {
                 echo "<td>".$value."</td>";
             }
             echo "</tr>";
         }
-        echo "</table>">
+        echo "</table><br> \n";
         //var_dump($matrix);
 
-        $backtrace = $this->backtrace($i, $k, $matrix);
-        var_dump($backtrace);
-        //$backtrace_this = array_reverse($backtrace_this);
-
-        //use result to break this replacement into multiple smaller replacements:
-
-        return array($this);
+        //now create the backtrace to the matrix:
+        $k = count($original);
+        $i = count($new);
+        $backtrace = array();
+        while ($k > 0 && $i > 0) {
+            if ($k > 0 && ($matrix[$k - 1][$i] + 1 == $matrix[$k][$i])) {
+                array_unshift($backtrace, "d");
+                $k--;
+            }
+            if ($i > 0 && ($matrix[$k][$i - 1] + 1 == $matrix[$k][$i])) {
+                array_unshift($backtrace, "i");
+                $i--;
+            }
+            if ($i > 0 && $k > 0 && ($matrix[$k - 1][$i - 1] + 1 == $matrix[$k][$i])) {
+                array_unshift($backtrace, "r");
+                $i--;
+                $k--;
+            }
+            if ($i > 0 && $k > 0 && ($matrix[$k - 1][$i - 1] == $matrix[$k][$i])) {
+                array_unshift($backtrace, "=");
+                $i--;
+                $k--;
+            }
+        }
+        return $backtrace;
     }
 
-    protected function backtrace($i, $k, $matrix)
-    {
-        if ($i > 0 && ($matrix[$i - 1][$k] + 1 == $matrix[$i][$k])) {
-            return $this->backtrace($i - 1, $k, $matrix) . "d";
-        }
-        if ($k > 0 && ($matrix[$i][$k - 1] + 1 == $matrix[$i][$k])) {
-            return $this->backtrace($i, $k - 1, $matrix) . "i";
-        }
-        if ($i > 0 && $k > 0 && ($matrix[$i - 1][$k - 1] + 1 == $matrix[$i][$k])) {
-            return $this->backtrace($i - 1, $k - 1, $matrix) . "r";
-        }
-        if ($i > 0 && $k > 0 && ($matrix[$i - 1][$k - 1] == $matrix[$i][$k])) {
-            return $this->backtrace($i - 1, $k - 1, $matrix) . "=";
-        }
-        return "";
-    }
 }
 
 class TextmergerReplacementGroup implements ArrayAccess, Iterator, Countable{

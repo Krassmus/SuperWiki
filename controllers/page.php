@@ -70,6 +70,7 @@ class PageController extends PluginController {
             throw new AccessDeniedException("Keine Berechtigung.");
         }
 
+
         if (Request::isPost()
                 && (!$this->page->isNew() || $this->settings->haveCreatePermission())
                 && ($this->page->isNew() || $this->page->isEditable())) {
