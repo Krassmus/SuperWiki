@@ -93,7 +93,7 @@ require_once __DIR__ . "/../Textmerger.php";
         'original' => "Hi,",
         'mine' => "Hi, I'm Ras!",
         'theirs' => "Hi, call me John.",
-        'expected' => "Hi, I'm Ras!, call me John."
+        'expected' => "Hi, I'm Ras! call me John."
     );
     $tests[] = array(
         'title' => "Complicated Merging",

@@ -85,11 +85,101 @@ class TextmergerReplacement {
      */
     public function breakApart($delimiter, $original)
     {
-        return array($this);
-        //TODO levensthein-hirschberg
+        echo "<br><br>\n\n";
         $original_snippet = substr($original, $this->start, $this->end);
-        $parts = explode($delimiter, $this->text);
-        $original_parts = explode($delimiter, $original_snippet);
+        var_dump(str_replace("\n", "\\n", $delimiter));
+        var_dump($original_snippet);
+        var_dump($this->text);
+        if (($this->start === $this->end && $this->text === "") || ($original_snippet === $this->text)) {
+            var_dump($this->text);
+            return array($this);
+        }
+        //levensthein-algorithm (maybe implement hirschberg later)
+        if ($delimiter !== "") {
+            $parts = explode($delimiter, $this->text);
+            $original_parts = explode($delimiter, $original_snippet);
+        } else {
+            $parts = str_split($this->text);
+            $original_parts = str_split($original_snippet);
+        }
+        if (count($parts) === 1 || count($original_parts) === 1) {
+            return array($this);
+        }
+
+        //create levenshtein-matrix:
+        $matrix = array(array(0));
+
+        //   ? m i n e
+        // ? 0 1 2 3 4
+        // o 1 .
+        // r 2   .
+        // i 3     .
+        // g 4       .
+        // i 5       .
+        // n 6       .
+        // a 7       .
+        // l 8       .
+
+        for ($k = 0; $k <= count($original_parts); $k++) {
+            for ($i = 0; $i <= count($parts); $i++) {
+                if (!isset($matrix[$k][$i])) {
+                    $matrix[$k][$i] = min(
+                        isset($matrix[$k - 1][$i - 1]) && ($parts[$i] === $original_parts[$k]) ? $matrix[$k - 1][$i - 1] : 10000,     //identity
+                        isset($matrix[$k - 1][$i - 1]) ? $matrix[$k - 1][$i - 1] + 1 : 10000, //replace
+                        isset($matrix[$k][$i - 1]) ? $matrix[$k][$i - 1] + 1 : 10000,         //insert
+                        isset($matrix[$k - 1][$i]) ? $matrix[$k - 1][$i] + 1 : 10000          //delete
+                    );
+                }
+            }
+        }
+
+        echo "<table>";
+        foreach ($matrix as $key => $line) {
+            if ($key === 0) {
+                echo "<tr><td></td><td>e</td>";
+                foreach ($original_parts as $part) {
+                    echo "<td>.</td>";
+                }
+                echo "</tr>";
+            }
+            echo "<tr>";
+            if ($key === 0) {
+                echo "<td>e</td>";
+            } else {
+                echo "<td>.</td>";
+            }
+            foreach ($line as $value) {
+                echo "<td>".$value."</td>";
+            }
+            echo "</tr>";
+        }
+        echo "</table>">
+        //var_dump($matrix);
+
+        $backtrace = $this->backtrace($i, $k, $matrix);
+        var_dump($backtrace);
+        //$backtrace_this = array_reverse($backtrace_this);
+
+        //use result to break this replacement into multiple smaller replacements:
+
+        return array($this);
+    }
+
+    protected function backtrace($i, $k, $matrix)
+    {
+        if ($i > 0 && ($matrix[$i - 1][$k] + 1 == $matrix[$i][$k])) {
+            return $this->backtrace($i - 1, $k, $matrix) . "d";
+        }
+        if ($k > 0 && ($matrix[$i][$k - 1] + 1 == $matrix[$i][$k])) {
+            return $this->backtrace($i, $k - 1, $matrix) . "i";
+        }
+        if ($i > 0 && $k > 0 && ($matrix[$i - 1][$k - 1] + 1 == $matrix[$i][$k])) {
+            return $this->backtrace($i - 1, $k - 1, $matrix) . "r";
+        }
+        if ($i > 0 && $k > 0 && ($matrix[$i - 1][$k - 1] == $matrix[$i][$k])) {
+            return $this->backtrace($i - 1, $k - 1, $matrix) . "=";
+        }
+        return "";
     }
 }
 
@@ -297,7 +387,6 @@ class Textmerger {
             $replacement->changeIndexesBy($index_alteration);
             $text = $replacement->applyTo($text);
             $alteration = strlen($replacement->text) - ($replacement->end - $replacement->start);
-            var_dump($alteration);
             $index_alteration += $alteration;
         }
         return $text;
@@ -348,7 +437,7 @@ class Textmerger {
         $replacements[1] = $this->_getSimpleReplacement($original, $text2);
 
         foreach ($this->levenshteinDelimiter as $delimiter) {
-            if ($replacements->haveConflicts() === false) {
+            if ($replacements->haveConflicts() !== false) {
                 $replacements->breakApart($delimiter, $original);
             } else {
                 break;
@@ -376,9 +465,13 @@ class Textmerger {
         $replacement = new TextmergerReplacement();
         $text_start = $text_end = null;
         for($i = 0; $i < strlen($original); $i++) {
-            if (($original[$i] !== $text[$i]) || ($i === strlen($original) - 1)) {
+            if ($original[$i] !== $text[$i]) {
                 $replacement->start = $i;
                 $text_start = $i;
+                break;
+            } elseif ($i === strlen($original) - 1) {
+                $replacement->start = $i + 1;
+                $text_start = $i + 1;
                 break;
             }
         }
@@ -391,155 +484,7 @@ class Textmerger {
             }
         }
         $replacement->text = substr($text, $text_start, $text_end - $text_start);
-        /**if ($replacement->start !== null && $replacement->end !== null) {
-            if ($replacement->text || ($replacement->start !== $replacement->end)) {
-                $replacements[] = $replacement;
-            } else {
-
-            }
-        }*/
         return $replacement;
     }
 
-}
-
-
-
-
-
-
-
-
-
-
-class TextMerger_old {
-
-    protected $exceptionOnConflict = false;
-    protected $levenshteinDelimiter = null;
-
-    static public function get($params = array())
-    {
-        return new TextMerger($params);
-    }
-
-    public function __construct($params = array())
-    {
-        $this->exceptionOnConflict = isset($params['exceptionOnConflict'])
-            ? $params['exceptionOnConflict']
-            : false;
-        $this->levenshteinDelimiter = isset($params['levenshteinDelimiter'])
-            ? $params['levenshteinDelimiter']
-            : array("\n", " ", "");
-    }
-
-    public function merge($original, $text1, $text2)
-    {
-        if (function_exists("xdiff_string_merge3")) {
-            return xdiff_string_merge3($original, $text1, $text2);
-        }
-        $replacements = array_merge(
-            $this->_getReplacements($original, $text1),
-            $this->_getReplacements($original, $text2)
-        );
-        usort($replacements, function ($a, $b) { return $a['start'] >= $b['start'] ? 1 : -1; });
-        //reduce conflicts
-        //var_dump($replacements);
-        $i = 1;
-        while ($i < count($replacements)) {
-            if (($replacements[$i]['start'] > $replacements[$i - 1]['end']
-            || $replacements[$i - 1]['start'] > $replacements[$i]['end'])) {
-                //no conflict
-                $i++;
-            } else {
-                //we have conflict!
-                $subreplacements1 = array();
-                $subreplacements2 = array();
-                foreach ($this->levenshteinDelimiter as $delimiter) {
-                    if ($delimiter === "" || (strpos($replacements[$i]['text'], $delimiter) !== false
-                                && strpos($replacements[$i - 1]['text'], $delimiter) !== false)) {
-                        $parts = $delimiter !== ""
-                            ? explode($delimiter, $replacements[$i]['text'])
-                            : $replacements[$i]['text'];
-                        $last_parts = $delimiter !== ""
-                            ? explode($delimiter, $replacements[$i - 1]['text'])
-                            : $replacements[$i - 1]['text'];
-                        if (count($parts) < 100 && count($last_parts) < 100) {
-                            $subreplacements1 = $this->_getSubReplacements($original, $replacements[$i - 1], $delimiter);
-                            $subreplacements2 = $this->_getSubReplacements($original, $replacements[$i], $delimiter);
-                            break;
-                        }
-                    }
-                }
-                if (count($subreplacements1) > 1 || count($subreplacements2) > 1) {
-                        usort($replacements, function ($a, $b) { return $a['start'] >= $b['start'] ? 1 : -1; });
-                    } else {
-                        if ($this->exceptionOnConflict) {
-                            throw new TextmergerException("Texts have a conflict.", array(
-                            "original" => $original,
-                            "text1" => $text1,
-                            "text2" => $text2,
-                            "conflictReplacement1" => $replacements[$i - 1],
-                            "conflictReplacement2" => $replacements[$i]
-                        ));
-                    } else {
-                        //now replace old replacement if this bigger
-                        if (strlen($replacements[$i - 1]['text']) < strlen($replacements[i]['text'])) {
-                            $replacements = array_splice($replacements, $i - 1);
-                        } else {
-                            $replacements = array_splice($replacements, $i);
-                        }
-                    }
-                }
-                //important: no i++ here
-            }
-        }
-
-        //and now we alter the original text by all replacements one after another
-        $index_alteration = 0;
-        $text = $original;
-        foreach ($replacements as $replacement) {
-            $text = substr($text, 0, $replacement['start'] + $index_alteration)
-                . $replacement['text']
-                . substr($text, $replacement['end'] + $index_alteration);
-            $index_alteration += strlen($replacement['text']) - $replacement['end'] + $replacement['start'];
-        }
-        return $text;
-    }
-
-    public function _getReplacements($original, $text)
-    {
-        $replacements = array();
-        $replacement = array();
-        $text_start = $text_end = null;
-        for($i = 0; $i < strlen($original); $i++) {
-            if (($original[$i] !== $text[$i]) || ($i === strlen($original) - 1)) {
-                $replacement['start'] = $i;
-                $text_start = $i;
-                break;
-            }
-        }
-        for($i = 0; $i < strlen($original); $i++) {
-            if (($original[strlen($original) - 1 - $i] !== $text[strlen($text) - 1 - $i])
-                    || (strlen($original) - $i === $replacement['start'])) {
-                $replacement['end'] = strlen($original) - $i;
-                $text_end = strlen($text) - $i;
-                break;
-            }
-        }
-        $replacement['text'] = substr($text, $text_start, $text_end - $text_start);
-        //We could be more specific and find sub-changes with the levenshtein-algorithm,
-        //but we only do this when a conflict occurs (see above).
-        if ($replacement['start'] !== null && $replacement['end'] !== null) {
-            if ($replacement['text'] || ($replacement['start'] !== $replacement['end'])) {
-                $replacements[] = $replacement;
-            }
-        }
-        return $replacements;
-    }
-
-    protected function _getSubReplacements($original, $replacement, $delimiter) {
-        return array($replacement);
-        //Of course we need to implement some more here.
-        //But first let's wait until the JS is final.
-    }
 }
