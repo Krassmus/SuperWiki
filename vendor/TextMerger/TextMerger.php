@@ -85,11 +85,11 @@ class TextmergerReplacement {
      */
     public function breakApart($delimiter, $original)
     {
-        echo "<br><br>\n\n";
+        //echo "<br><br>\n\n";
         $original_snippet = substr($original, $this->start, $this->end);
-        var_dump(str_replace("\n", "\\n", $delimiter));
-        var_dump($original_snippet);
-        var_dump($this->text);
+        //var_dump(str_replace("\n", "\\n", $delimiter));
+        //var_dump($original_snippet);
+        //var_dump($this->text);
         if (($this->start === $this->end && $this->text === "") || ($original_snippet === $this->text)) {
             return array($this);
         }
@@ -107,25 +107,95 @@ class TextmergerReplacement {
 
         //levensthein-algorithm (maybe implement hirschberg later)
         $backtrace = self::levenshteinBacktrace($original_parts, $parts);
-        echo implode("", $backtrace);
+        //echo implode("", $backtrace)." ";
+
+        if (!in_array("=", $backtrace)) {
+            return array($this);
+        }
 
         //use result to break this replacement into multiple smaller replacements:
 
         $replacements = array();
         $replacement = null;
-        $index = $this->start;
-        foreach ($backtrace as $operation) {
+
+        $originaltext_index = $this->start;
+        $originalpartsindex = 0;
+
+        $replacetext_index = 0;
+        $replacetext_start = 0;
+        $replacetext_end = 0;
+
+        foreach ($backtrace as $key => $operation) {
+            if ($key > 0) {
+                $replacetext_end += strlen($delimiter);
+                $originaltext_index += strlen($delimiter);
+            }
             if ($operation === "=") {
                 if ($replacement !== null) {
-                    $replacement->end = $index - 1;
+                    $replacement->end = $originaltext_index - strlen($delimiter);
+                    $replacement->text = substr($this->text, $replacetext_start, $replacetext_end - $replacetext_start - strlen($delimiter));
+                    $replacements[] = $replacement;
+                    $replacement = null;
                 }
             } else {
+                if ($replacement === null) {
+                    $replacement = new TextmergerReplacement();
+                    $replacement->origin = $this->origin;
+                    $replacement->start = $originaltext_index;
+                    $replacetext_start = $replacetext_end;
+                }
+            }
+            switch ($operation) {
+                case "=":
+                    $originaltext_index += strlen($original_parts[$originalpartsindex]);
+                    $originalpartsindex++;
+                    break;
+                case "r":
+                    $originaltext_index += strlen($original_parts[$originalpartsindex]);
+                    $originalpartsindex++;
+                    break;
+                case "i":
+                    break;
+                case "d":
+                    break;
+            }
 
+            switch ($operation) {
+                case "=":
+                    $replacetext_end += strlen($parts[$replacetext_index]);
+                    $replacetext_index++;
+                    break;
+                case "r":
+                    $replacetext_end += strlen($parts[$replacetext_index]);
+                    $replacetext_index++;
+                    break;
+                case "i":
+                    $replacetext_end += strlen($parts[$replacetext_index]);
+                    $replacetext_index++;
+                    break;
+                case "d":
+                    break;
             }
         }
+        if ($replacement !== null) {
+            $replacement->end = $this->end;
+            $replacement->text = substr($this->text, $replacetext_start, $replacetext_end - $replacetext_start);
+            $replacements[] = $replacement;
+        }
 
-        return array($this);
+        //var_dump($replacements);
+        $index_alteration = 0;
+        $text = $original;
+        foreach ($replacements as $replacement) {
+            $replacement->changeIndexesBy($index_alteration);
+            $text = $replacement->applyTo($text);
+            $alteration = strlen($replacement->text) - ($replacement->end - $replacement->start);
+            $index_alteration += $alteration;
+        }
+        //var_dump($text);
+        return $replacements;
     }
+
 
     /**
      * Determains the levenshtein backtrace to two arrays. The backtrace is an array
@@ -156,16 +226,16 @@ class TextmergerReplacement {
                 if (!isset($matrix[$k][$i])) {
                     $matrix[$k][$i] = min(
                         isset($matrix[$k - 1][$i - 1]) && ($new[$i - 1] === $original[$k - 1])
-                            ? $matrix[$k - 1][$i - 1] : 10000,                                  //identity
-                        isset($matrix[$k - 1][$i - 1]) ? $matrix[$k - 1][$i - 1] + 1 : 10000,   //replace
-                        isset($matrix[$k][$i - 1]) ? $matrix[$k][$i - 1] + 1 : 10000,           //insert
-                        isset($matrix[$k - 1][$i]) ? $matrix[$k - 1][$i] + 1 : 10000            //delete
+                            ? $matrix[$k - 1][$i - 1] : 100000,                                  //identity
+                        isset($matrix[$k - 1][$i - 1]) ? $matrix[$k - 1][$i - 1] + 1 : 100000,   //replace
+                        isset($matrix[$k][$i - 1]) ? $matrix[$k][$i - 1] + 1 : 100000,           //insert
+                        isset($matrix[$k - 1][$i]) ? $matrix[$k - 1][$i] + 1 : 100000            //delete
                     );
                 }
             }
         }
 
-        echo "<table>";
+        /*echo "<table>";
         foreach ($matrix as $key => $line) {
             if ($key === 0) {
                 echo "<tr><td></td><td>#</td>";
@@ -185,14 +255,13 @@ class TextmergerReplacement {
             }
             echo "</tr>";
         }
-        echo "</table><br> \n";
-        //var_dump($matrix);
+        echo "</table><br> \n";*/
 
         //now create the backtrace to the matrix:
         $k = count($original);
         $i = count($new);
         $backtrace = array();
-        while ($k > 0 && $i > 0) {
+        while ($k > 0 || $i > 0) {
             if ($k > 0 && ($matrix[$k - 1][$i] + 1 == $matrix[$k][$i])) {
                 array_unshift($backtrace, "d");
                 $k--;
@@ -288,9 +357,11 @@ class TextmergerReplacementGroup implements ArrayAccess, Iterator, Countable{
      */
     public function breakApart($delimiter, $original)
     {
+        $replacements = array();
         foreach ($this->replacements as $replacement) {
-            $replacement->breakApart($delimiter, $original);
+            $replacements = array_merge($replacements, $replacement->breakApart($delimiter, $original));
         }
+        $this->replacements = $replacements;
         $this->sort();
     }
 
@@ -361,6 +432,23 @@ class TextmergerReplacementGroup implements ArrayAccess, Iterator, Countable{
             }
         }
     }
+
+    /**
+     * Applies the replacements to the given text.
+     * @param $text
+     * @return string
+     */
+    public function applyTo($text)
+    {
+        $index_alteration = 0;
+        foreach ($this->replacements as $replacement) {
+            $replacement->changeIndexesBy($index_alteration);
+            $text = $replacement->applyTo($text);
+            $alteration = strlen($replacement->text) - ($replacement->end - $replacement->start);
+            $index_alteration += $alteration;
+        }
+        return $text;
+    }
 }
 
 class Textmerger {
@@ -414,16 +502,7 @@ class Textmerger {
     public function merge($original, $text1, $text2)
     {
         $replacements = $this->getReplacements($original, $text1, $text2);
-
-        $index_alteration = 0;
-        $text = $original;
-        foreach ($replacements as $replacement) {
-            $replacement->changeIndexesBy($index_alteration);
-            $text = $replacement->applyTo($text);
-            $alteration = strlen($replacement->text) - ($replacement->end - $replacement->start);
-            $index_alteration += $alteration;
-        }
-        return $text;
+        return $replacements->applyTo($original);
     }
 
     /**
