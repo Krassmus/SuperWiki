@@ -54,7 +54,7 @@ require_once __DIR__ . "/../Textmerger.php";
     <h2>
         Tests
         <? if (isset($_REQUEST['only']) && $_REQUEST['only'] !== "") : ?>
-            <a href="?only=" style="font-size: 0.5em;">All tests</a>
+            <a href="?" style="font-size: 0.5em;">All tests</a>
         <? endif ?>
     </h2>
 
@@ -94,6 +94,13 @@ require_once __DIR__ . "/../Textmerger.php";
         'mine' => "Hi, I'm Ras!",
         'theirs' => "Hi, call me John.",
         'expected' => "Hi, I'm Ras! call me John."
+    );
+    $tests[] = array(
+        'title' => "Merge deletions",
+        'original' => "Nebbukadnezzaroverloord",
+        'mine' => "Nebbukadnezaroverloord",
+        'theirs' => "Nebukadnezzaroverlord",
+        'expected' => "Nebukadnezaroverlord"
     );
     $tests[] = array(
         'title' => "Complicated Merging",
@@ -137,7 +144,9 @@ require_once __DIR__ . "/../Textmerger.php";
             <tfoot>
                 <tr>
                     <td colspan="2">
+                        <? if (!isset($_REQUEST['only'])) : ?>
                         <a href="?only=<?= $key ?>">Execute test independently.</a>
+                        <? endif ?>
                     </td>
                 </tr>
             </tfoot>

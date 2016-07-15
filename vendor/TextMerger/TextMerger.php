@@ -85,11 +85,11 @@ class TextmergerReplacement {
      */
     public function breakApart($delimiter, $original)
     {
-        //echo "<br><br>\n\n";
+        echo "<br><br>\n\n";
         $original_snippet = substr($original, $this->start, $this->end);
-        //var_dump(str_replace("\n", "\\n", $delimiter));
-        //var_dump($original_snippet);
-        //var_dump($this->text);
+        var_dump(str_replace("\n", "\\n", $delimiter));
+        var_dump($original_snippet);
+        var_dump($this->text);
         if (($this->start === $this->end && $this->text === "") || ($original_snippet === $this->text)) {
             return array($this);
         }
@@ -107,7 +107,7 @@ class TextmergerReplacement {
 
         //levensthein-algorithm (maybe implement hirschberg later)
         $backtrace = self::levenshteinBacktrace($original_parts, $parts);
-        //echo implode("", $backtrace)." ";
+        echo implode("", $backtrace)." ";
 
         if (!in_array("=", $backtrace)) {
             return array($this);
@@ -183,7 +183,7 @@ class TextmergerReplacement {
             $replacements[] = $replacement;
         }
 
-        //var_dump($replacements);
+        var_dump($replacements);
         $index_alteration = 0;
         $text = $original;
         foreach ($replacements as $replacement) {
@@ -192,7 +192,7 @@ class TextmergerReplacement {
             $alteration = strlen($replacement->text) - ($replacement->end - $replacement->start);
             $index_alteration += $alteration;
         }
-        //var_dump($text);
+        var_dump($text);
         return $replacements;
     }
 
