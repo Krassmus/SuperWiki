@@ -235,7 +235,7 @@ class TextmergerReplacement {
             }
         }
 
-        /*echo "<table>";
+        echo "<table>";
         foreach ($matrix as $key => $line) {
             if ($key === 0) {
                 echo "<tr><td></td><td>#</td>";
@@ -255,7 +255,7 @@ class TextmergerReplacement {
             }
             echo "</tr>";
         }
-        echo "</table><br> \n";*/
+        echo "</table><br> \n";
 
         //now create the backtrace to the matrix:
         $k = count($original);
@@ -596,7 +596,13 @@ class Textmerger {
                 break;
             }
         }
-        $replacement->text = substr($text, $text_start, $text_end - $text_start);
+        if ($text_end - $text_start < 0) {
+            $replacement->end++;
+            $length = 0;
+        } else {
+            $length = $text_end - $text_start;
+        }
+        $replacement->text = (string) substr($text, $text_start, $length);
         return $replacement;
     }
 

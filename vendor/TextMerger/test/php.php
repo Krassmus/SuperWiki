@@ -82,6 +82,13 @@ require_once __DIR__ . "/../Textmerger.php";
         'expected' => "Yeah World!"
     );
     $tests[] = array(
+        'title' => "Simple deletion",
+        'original' => "Hello wworld!",
+        'mine' => "Hello wworld!",
+        'theirs' => "Hello world!",
+        'expected' => "Hello world!"
+    );
+    $tests[] = array(
         'title' => "Distinct changes",
         'original' => "Hello World!",
         'mine' => "Hi World!",
