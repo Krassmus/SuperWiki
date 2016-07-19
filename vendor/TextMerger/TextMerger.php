@@ -75,7 +75,8 @@ class TextmergerReplacement {
     {
         return ($this->start < $replacement->end && $this->start > $replacement->start)
                     || ($this->end < $replacement->end && $this->end > $replacement->start)
-                    || ($this->start < $replacement->start && $this->end > $replacement->end);
+                    || ($this->start < $replacement->start && $this->end > $replacement->end)
+                    || ($this->start === $replacement->start && $this->end === $replacement->end && $this->end - $this->start > 0);
     }
 
     /**
@@ -544,10 +545,43 @@ class Textmerger {
         if (isset(self::$replacement_hash[$hash_id])) {
             return self::$replacement_hash[$hash_id];
         }
+        //Make texts smaller
+        for($offset = 0; $offset < strlen($original); $offset++) {
+            if ($original[$offset] !== $text1[$offset] || $original[$offset] !== $text2[$offset]) {
+                break;
+            }
+        }
+        for($backoffset = 0; $backoffset < strlen($original); $backoffset++) {
+            if ($original[strlen($original) - $backoffset - 1] !== $text1[strlen($text1) - $backoffset - 1]
+                    || $original[strlen($original) - $backoffset - 1] !== $text2[strlen($text2) - $backoffset - 1]) {
+                break;
+            }
+        }
+        //$backoffset = 0;
+        $original = (string) substr($original, $offset, strlen($original) - $offset - $backoffset);
+        $text1 = (string) substr($text1, $offset, strlen($text1) - $offset - $backoffset);
+        $text2 = (string) substr($text2, $offset, strlen($text2) - $offset - $backoffset);
+
+        var_dump($original);
+        var_dump($text1);
+        var_dump($text2);
+
         //collect all major replacements:
         $replacements = new TextmergerReplacementGroup();
         $replacements[0] = $this->_getSimpleReplacement($original, $text1);
         $replacements[1] = $this->_getSimpleReplacement($original, $text2);
+        var_dump($replacements);
+
+        if (!$replacements->haveConflicts()) {
+            foreach ($replacements as $replacement) {
+                $replacement->start += $offset;
+                $replacement->end += $offset;
+            }
+            self::$replacement_hash[$hash_id] = $replacements;
+            return $replacements;
+        }
+        $replacements[0] = new TextmergerReplacement(0, strlen($original) - 1, $text1, "text1");
+        $replacements[1] = new TextmergerReplacement(0, strlen($original) - 1, $text2, "text2");
 
         foreach ($this->levenshteinDelimiter as $delimiter) {
             if ($replacements->haveConflicts() !== false) {
@@ -559,6 +593,11 @@ class Textmerger {
         $have_conflicts = $replacements->haveConflicts();
         if ($have_conflicts !== false) {
             $replacements->resolveConflicts($this->conflictBehaviour);
+        }
+
+        foreach ($replacements as $replacement) {
+            $replacement->start += $offset;
+            $replacement->end += $offset;
         }
 
         self::$replacement_hash[$hash_id] = $replacements;
@@ -576,26 +615,29 @@ class Textmerger {
     public function _getSimpleReplacement($original, $text)
     {
         $replacement = new TextmergerReplacement();
-        $text_start = $text_end = null;
-        for($i = 0; $i < strlen($original); $i++) {
+        $text_start = 0;
+        $text_end = strlen($text);
+        for($i = 0; $i <= strlen($original); $i++) {
             if ($original[$i] !== $text[$i]) {
                 $replacement->start = $i;
                 $text_start = $i;
                 break;
             } elseif ($i === strlen($original) - 1) {
-                $replacement->start = $i + 1;
-                $text_start = $i + 1;
+                $replacement->start = strlen($original);
+                $text_start = strlen($original);
                 break;
             }
         }
+
         for($i = 0; $i < strlen($original); $i++) {
             if (($original[strlen($original) - 1 - $i] !== $text[strlen($text) - 1 - $i])
-                || (strlen($original) - $i === $replacement->start)) {
+                    || (strlen($original) - $i === $replacement->start)) {
                 $replacement->end = strlen($original) - $i;
                 $text_end = strlen($text) - $i;
                 break;
             }
         }
+
         if ($text_end - $text_start < 0) {
             $replacement->end++;
             $length = 0;
