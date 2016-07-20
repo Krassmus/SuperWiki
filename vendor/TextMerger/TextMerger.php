@@ -24,7 +24,7 @@ class TextmergerReplacement {
     public $start;
     public $end;
     public $text;
-    public $origin_name;
+    public $origin;
 
     /**
      * TextMergerReplacement constructor.
@@ -553,23 +553,27 @@ class Textmerger {
         }
         for($backoffset = 0; $backoffset < strlen($original); $backoffset++) {
             if ($original[strlen($original) - $backoffset - 1] !== $text1[strlen($text1) - $backoffset - 1]
-                    || $original[strlen($original) - $backoffset - 1] !== $text2[strlen($text2) - $backoffset - 1]) {
+                    || $original[strlen($original) - $backoffset - 1] !== $text2[strlen($text2) - $backoffset - 1]
+                    || (strlen($original) - $backoffset === $offset)) {
                 break;
             }
         }
         //$backoffset = 0;
-        $original = (string) substr($original, $offset, strlen($original) - $offset - $backoffset);
-        $text1 = (string) substr($text1, $offset, strlen($text1) - $offset - $backoffset);
-        $text2 = (string) substr($text2, $offset, strlen($text2) - $offset - $backoffset);
+        var_dump($offset);
+        var_dump(strlen($text1) - $offset - $backoffset + 1);
+        //TODO: find out why and when we need the +1 here:
+        $original = (string) substr($original, $offset, strlen($original) - $offset - $backoffset + 1);
+        $text1 = (string) substr($text1, $offset, strlen($text1) - $offset - $backoffset + 1);
+        $text2 = (string) substr($text2, $offset, strlen($text2) - $offset - $backoffset + 1);
 
         var_dump($original);
         var_dump($text1);
         var_dump($text2);
 
-        //collect all major replacements:
+        //collect the two major replacements:
         $replacements = new TextmergerReplacementGroup();
-        $replacements[0] = $this->_getSimpleReplacement($original, $text1);
-        $replacements[1] = $this->_getSimpleReplacement($original, $text2);
+        $replacements[0] = $this->_getSimpleReplacement($original, $text1, "text1");
+        $replacements[1] = $this->_getSimpleReplacement($original, $text2, "text2");
         var_dump($replacements);
 
         if (!$replacements->haveConflicts()) {
@@ -580,6 +584,9 @@ class Textmerger {
             self::$replacement_hash[$hash_id] = $replacements;
             return $replacements;
         }
+
+        //Now if this didn't work we try it with levenshtein. The old simple replacements won't help us, wo we create
+        //a new pair of replacements:
         $replacements[0] = new TextmergerReplacement(0, strlen($original) - 1, $text1, "text1");
         $replacements[1] = new TextmergerReplacement(0, strlen($original) - 1, $text2, "text2");
 
@@ -612,9 +619,10 @@ class Textmerger {
      * @param string $text : the derived text
      * @return TextMergerReplacement
      */
-    public function _getSimpleReplacement($original, $text)
+    public function _getSimpleReplacement($original, $text, $origin)
     {
         $replacement = new TextmergerReplacement();
+        $replacement->origin = $origin;
         $text_start = 0;
         $text_end = strlen($text);
         for($i = 0; $i <= strlen($original); $i++) {
