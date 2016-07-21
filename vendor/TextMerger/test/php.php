@@ -104,9 +104,9 @@ require_once __DIR__ . "/../Textmerger.php";
     );
     $tests[] = array(
         'title' => "Merge deletions",
-        'original' => "Nebbukadnezzaroverloord",
+        'original' => "Nebbukadnezlaroverloord",
         'mine' => "Nebbukadnezaroverloord",
-        'theirs' => "Nebukadnezzaroverlord",
+        'theirs' => "Nebukadnezlaroverlord",
         'expected' => "Nebukadnezaroverlord"
     );
     $tests[] = array(

@@ -87,7 +87,8 @@ class TextmergerReplacement {
     public function breakApart($delimiter, $original)
     {
         echo "<br><br>\n\n";
-        $original_snippet = substr($original, $this->start, $this->end);
+        var_dump($original);
+        $original_snippet = substr($original, $this->start, $this->end - $this->start + 1);
         var_dump(str_replace("\n", "\\n", $delimiter));
         var_dump($original_snippet);
         var_dump($this->text);
@@ -111,6 +112,7 @@ class TextmergerReplacement {
         echo implode("", $backtrace)." ";
 
         if (!in_array("=", $backtrace)) {
+            //Merging can be interesting, but still pointless. So just:
             return array($this);
         }
 
@@ -127,37 +129,6 @@ class TextmergerReplacement {
         $replacetext_end = 0;
 
 
-        /*$start = 0;
-        $originalpartsindex = 0;
-        foreach ($backtrace as $key => $operation) {
-            if ($key > 0) {
-                $start += strlen($delimiter);
-            }
-            $replacement = new TextmergerReplacement($start);
-            switch ($operation) {
-                case "=":
-                    $start += strlen($original_parts[$originalpartsindex]);
-                    $originalpartsindex++;
-                    break;
-                case "r":
-                    $start += strlen($original_parts[$originalpartsindex]);
-                    $originalpartsindex++;
-                    break;
-                case "i":
-                    break;
-                case "d":
-                    $start += strlen($original_parts[$originalpartsindex]);
-                    $originalpartsindex++;
-                    break;
-            }
-            if ($replacement->end !== null) {
-                $replacements[] = $replacement;
-            }
-        }*/
-
-
-
-        $originalpartsindex = 0;
         foreach ($backtrace as $key => $operation) {
             if ($key > 0) {
                 $replacetext_end += strlen($delimiter);
@@ -166,7 +137,11 @@ class TextmergerReplacement {
             if ($operation === "=") {
                 if ($replacement !== null) {
                     $replacement->end = $originaltext_index - strlen($delimiter);
-                    $replacement->text = substr($this->text, $replacetext_start, $replacetext_end - $replacetext_start - strlen($delimiter));
+                    $replacement->text = substr(
+                        $this->text,
+                        $replacetext_start,
+                        $replacetext_end - strlen($delimiter) - $replacetext_start
+                    );
                     $replacements[] = $replacement;
                     $replacement = null;
                 }
@@ -213,8 +188,14 @@ class TextmergerReplacement {
             }
         }
         if ($replacement !== null) {
-            $replacement->end = $this->end;
-            $replacement->text = substr($this->text, $replacetext_start, $replacetext_end - $replacetext_start);
+            //TODO: why +1 ????
+            $replacement->end = $originaltext_index + 1;
+            $replacement->start += 1;
+            $replacement->text = substr(
+                $this->text,
+                $replacetext_start,
+                $replacetext_end - strlen($delimiter) - $replacetext_start
+            );
             $replacements[] = $replacement;
         }
 
@@ -230,6 +211,7 @@ class TextmergerReplacement {
         }
         var_dump($text);
         //end debugging
+
         return $replacements;
     }
 
@@ -587,30 +569,23 @@ class Textmerger {
                 break;
             }
         }
+
         for($backoffset = 0; $backoffset < strlen($original); $backoffset++) {
-            if ($original[strlen($original) - $backoffset - 1] !== $text1[strlen($text1) - $backoffset - 1]
-                    || $original[strlen($original) - $backoffset - 1] !== $text2[strlen($text2) - $backoffset - 1]
-                    || (strlen($original) - $backoffset === $offset)) {
+            if (($original[strlen($original) - 1 - $backoffset] !== $text1[strlen($text1) - 1 - $backoffset])
+                    || ($original[strlen($original) - 1 - $backoffset] !== $text2[strlen($text2) - 1 - $backoffset])
+                    || (strlen($original) - 1 - $backoffset <= $offset)) {
                 break;
             }
         }
-        //$backoffset = 0;
-        var_dump($offset);
-        var_dump(strlen($text1) - $offset - $backoffset + 1);
-        //TODO: find out why and when we need the +1 here:
-        $original = (string) substr($original, $offset, strlen($original) - $offset - $backoffset + 1);
-        $text1 = (string) substr($text1, $offset, strlen($text1) - $offset - $backoffset + 1);
-        $text2 = (string) substr($text2, $offset, strlen($text2) - $offset - $backoffset + 1);
-
-        var_dump($original);
-        var_dump($text1);
-        var_dump($text2);
+        $original = (string) substr($original, $offset, strlen($original) - $offset - $backoffset);
+        $text1 = (string) substr($text1, $offset, strlen($text1) - $offset - $backoffset);
+        $text2 = (string) substr($text2, $offset, strlen($text2) - $offset - $backoffset);
 
         //collect the two major replacements:
         $replacements = new TextmergerReplacementGroup();
         $replacements[0] = $this->_getSimpleReplacement($original, $text1, "text1");
         $replacements[1] = $this->_getSimpleReplacement($original, $text2, "text2");
-        var_dump($replacements);
+        //var_dump($replacements);
 
         if (!$replacements->haveConflicts()) {
             foreach ($replacements as $replacement) {
@@ -623,6 +598,9 @@ class Textmerger {
 
         //Now if this didn't work we try it with levenshtein. The old simple replacements won't help us, wo we create
         //a new pair of replacements:
+        var_dump($original);
+        var_dump($text1);
+        var_dump($text2);
         $replacements[0] = new TextmergerReplacement(0, strlen($original) - 1, $text1, "text1");
         $replacements[1] = new TextmergerReplacement(0, strlen($original) - 1, $text2, "text2");
 
