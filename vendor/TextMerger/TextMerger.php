@@ -126,6 +126,38 @@ class TextmergerReplacement {
         $replacetext_start = 0;
         $replacetext_end = 0;
 
+
+        /*$start = 0;
+        $originalpartsindex = 0;
+        foreach ($backtrace as $key => $operation) {
+            if ($key > 0) {
+                $start += strlen($delimiter);
+            }
+            $replacement = new TextmergerReplacement($start);
+            switch ($operation) {
+                case "=":
+                    $start += strlen($original_parts[$originalpartsindex]);
+                    $originalpartsindex++;
+                    break;
+                case "r":
+                    $start += strlen($original_parts[$originalpartsindex]);
+                    $originalpartsindex++;
+                    break;
+                case "i":
+                    break;
+                case "d":
+                    $start += strlen($original_parts[$originalpartsindex]);
+                    $originalpartsindex++;
+                    break;
+            }
+            if ($replacement->end !== null) {
+                $replacements[] = $replacement;
+            }
+        }*/
+
+
+
+        $originalpartsindex = 0;
         foreach ($backtrace as $key => $operation) {
             if ($key > 0) {
                 $replacetext_end += strlen($delimiter);
@@ -158,6 +190,8 @@ class TextmergerReplacement {
                 case "i":
                     break;
                 case "d":
+                    $originaltext_index += strlen($original_parts[$originalpartsindex]);
+                    $originalpartsindex++;
                     break;
             }
 
@@ -184,6 +218,7 @@ class TextmergerReplacement {
             $replacements[] = $replacement;
         }
 
+        //debugging:
         var_dump($replacements);
         $index_alteration = 0;
         $text = $original;
@@ -194,6 +229,7 @@ class TextmergerReplacement {
             $index_alteration += $alteration;
         }
         var_dump($text);
+        //end debugging
         return $replacements;
     }
 
