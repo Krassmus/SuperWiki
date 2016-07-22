@@ -188,13 +188,11 @@ class TextmergerReplacement {
             }
         }
         if ($replacement !== null) {
-            //TODO: why +1 ????
-            $replacement->end = $originaltext_index + 1;
-            $replacement->start += 1;
+            $replacement->end = $originaltext_index;
             $replacement->text = substr(
                 $this->text,
                 $replacetext_start,
-                $replacetext_end - strlen($delimiter) - $replacetext_start
+                $replacetext_end - strlen($delimiter) - $replacetext_start + 1 //TODO: why +1 ??
             );
             $replacements[] = $replacement;
         }
@@ -206,6 +204,7 @@ class TextmergerReplacement {
         foreach ($replacements as $replacement) {
             $replacement->changeIndexesBy($index_alteration);
             $text = $replacement->applyTo($text);
+            $replacement->changeIndexesBy(-$index_alteration);
             $alteration = strlen($replacement->text) - ($replacement->end - $replacement->start);
             $index_alteration += $alteration;
         }
@@ -307,7 +306,7 @@ class TextmergerReplacement {
 
 class TextmergerReplacementGroup implements ArrayAccess, Iterator, Countable{
 
-    protected $replacements = array();
+    public $replacements = array();
     private $position = 0;
 
     public function offsetExists($offset)
@@ -378,7 +377,10 @@ class TextmergerReplacementGroup implements ArrayAccess, Iterator, Countable{
     {
         $replacements = array();
         foreach ($this->replacements as $replacement) {
-            $replacements = array_merge($replacements, $replacement->breakApart($delimiter, $original));
+            $replacements = array_merge(
+                $replacements,
+                $replacement->breakApart($delimiter, $original)
+            );
         }
         $this->replacements = $replacements;
         $this->sort();
@@ -463,6 +465,7 @@ class TextmergerReplacementGroup implements ArrayAccess, Iterator, Countable{
         foreach ($this->replacements as $replacement) {
             $replacement->changeIndexesBy($index_alteration);
             $text = $replacement->applyTo($text);
+            $replacement->changeIndexesBy(- $index_alteration);
             $alteration = strlen($replacement->text) - ($replacement->end - $replacement->start);
             $index_alteration += $alteration;
         }
@@ -577,14 +580,14 @@ class Textmerger {
                 break;
             }
         }
-        $original = (string) substr($original, $offset, strlen($original) - $offset - $backoffset);
-        $text1 = (string) substr($text1, $offset, strlen($text1) - $offset - $backoffset);
-        $text2 = (string) substr($text2, $offset, strlen($text2) - $offset - $backoffset);
+        $original_trimmed = (string) substr($original, $offset, strlen($original) - $offset - $backoffset);
+        $text1_trimmed = (string) substr($text1, $offset, strlen($text1) - $offset - $backoffset);
+        $text2_trimmed = (string) substr($text2, $offset, strlen($text2) - $offset - $backoffset);
 
         //collect the two major replacements:
         $replacements = new TextmergerReplacementGroup();
-        $replacements[0] = $this->_getSimpleReplacement($original, $text1, "text1");
-        $replacements[1] = $this->_getSimpleReplacement($original, $text2, "text2");
+        $replacements[0] = $this->_getSimpleReplacement($original_trimmed, $text1_trimmed, "text1");
+        $replacements[1] = $this->_getSimpleReplacement($original_trimmed, $text2_trimmed, "text2");
         //var_dump($replacements);
 
         if (!$replacements->haveConflicts()) {
@@ -598,19 +601,20 @@ class Textmerger {
 
         //Now if this didn't work we try it with levenshtein. The old simple replacements won't help us, wo we create
         //a new pair of replacements:
-        var_dump($original);
-        var_dump($text1);
-        var_dump($text2);
-        $replacements[0] = new TextmergerReplacement(0, strlen($original) - 1, $text1, "text1");
-        $replacements[1] = new TextmergerReplacement(0, strlen($original) - 1, $text2, "text2");
+        var_dump($original_trimmed);
+        var_dump($text1_trimmed);
+        var_dump($text2_trimmed);
+        $replacements[0] = new TextmergerReplacement(0, strlen($original_trimmed) - 1, $text1_trimmed, "text1");
+        $replacements[1] = new TextmergerReplacement(0, strlen($original_trimmed) - 1, $text2_trimmed, "text2");
 
         foreach ($this->levenshteinDelimiter as $delimiter) {
             if ($replacements->haveConflicts() !== false) {
-                $replacements->breakApart($delimiter, $original);
+                $replacements->breakApart($delimiter, $original_trimmed);
             } else {
                 break;
             }
         }
+
         $have_conflicts = $replacements->haveConflicts();
         if ($have_conflicts !== false) {
             $replacements->resolveConflicts($this->conflictBehaviour);
