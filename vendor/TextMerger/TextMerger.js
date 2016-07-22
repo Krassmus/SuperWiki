@@ -62,11 +62,11 @@ Textmerger.Replacement = function (start, end, text, origin) {
 
 Textmerger.Replacement.prototype.changeIndexesBy = function (add) {
     this.start += add;
-    this.end += end;
+    this.end += add;
 };
 
 Textmerger.Replacement.prototype.applyTo = function (text) {
-    return text.substr(0, this.start) + this.text . text.substr(this.end);
+    return text.substr(0, this.start) + this.text + text.substr(this.end);
 };
 
 Textmerger.Replacement.prototype.isConflictingWith = function (replacement) {
@@ -304,12 +304,12 @@ Textmerger.ReplacementGroup.prototype.resolveConflicts = function (conflictBehav
 };
 
 Textmerger.ReplacementGroup.prototype.applyTo = function (text) {
-    index_alteration = 0;
-    for (var index = 0; index < this.replacements; index++) {
+    var index_alteration = 0;
+    for (var index = 0; index < this.replacements.length; index++) {
         this.replacements[index].changeIndexesBy(index_alteration);
-        var text = this.replacements[index].applyTo(text);
+        text = this.replacements[index].applyTo(text);
         this.replacements[index].changeIndexesBy(- index_alteration);
-        var alteration = this.replacements[index].text.length - this.replacements[index].end - this.replacements[index].start;
+        var alteration = this.replacements[index].text.length - (this.replacements[index].end - this.replacements[index].start);
         index_alteration += alteration;
     }
     return text;
@@ -357,7 +357,7 @@ Textmerger.prototype.calculateCursor = function (cursor_position, original, text
 Textmerger.prototype.getReplacements = function(original, text1, text2) {
     var hash_id = Textmerger.hash(original + "___".text1 + "____" + text2);
     if (Textmerger.replacement_hash && typeof Textmerger.replacement_hash[hash_id] !== "undefined") {
-        return Textmerger.replacement_hash[hash_id];
+        //return Textmerger.replacement_hash[hash_id];
     }
     //Make texts smaller
     for(var offset = 0; offset < original.length; offset++) {
@@ -457,6 +457,7 @@ Textmerger.prototype.getSimpleReplacement = function (original, text, origin) {
     } else {
         length = text_end - text_start;
     }
+    replacement.text = text.substr(text_start, length);
     return replacement;
 };
 
