@@ -86,12 +86,7 @@ class TextmergerReplacement {
      */
     public function breakApart($delimiter, $original)
     {
-        echo "<br><br>\n\n";
-        var_dump($original);
         $original_snippet = substr($original, $this->start, $this->end - $this->start + 1);
-        var_dump(str_replace("\n", "\\n", $delimiter));
-        var_dump($original_snippet);
-        var_dump($this->text);
         if (($this->start === $this->end && $this->text === "") || ($original_snippet === $this->text)) {
             return array($this);
         }
@@ -108,8 +103,7 @@ class TextmergerReplacement {
         }
 
         //levensthein-algorithm (maybe implement hirschberg later)
-        $backtrace = self::levenshteinBacktrace($original_parts, $parts);
-        echo implode("", $backtrace)." ";
+        $backtrace = self::getLevenshteinBacktrace($original_parts, $parts);
 
         if (!in_array("=", $backtrace)) {
             //Merging can be interesting, but still pointless. So just:
@@ -196,21 +190,6 @@ class TextmergerReplacement {
             );
             $replacements[] = $replacement;
         }
-
-        //debugging:
-        var_dump($replacements);
-        $index_alteration = 0;
-        $text = $original;
-        foreach ($replacements as $replacement) {
-            $replacement->changeIndexesBy($index_alteration);
-            $text = $replacement->applyTo($text);
-            $replacement->changeIndexesBy(-$index_alteration);
-            $alteration = strlen($replacement->text) - ($replacement->end - $replacement->start);
-            $index_alteration += $alteration;
-        }
-        var_dump($text);
-        //end debugging
-
         return $replacements;
     }
 
@@ -223,7 +202,7 @@ class TextmergerReplacement {
      * @param array $new
      * @return string
      */
-    public static function levenshteinBacktrace($original, $new)
+    public static function getLevenshteinBacktrace($original, $new)
     {
         //create levenshtein-matrix:
         $matrix = array(array(0));
@@ -253,7 +232,7 @@ class TextmergerReplacement {
             }
         }
 
-        echo "<table>";
+        /**echo "<table>";
         foreach ($matrix as $key => $line) {
             if ($key === 0) {
                 echo "<tr><td></td><td>#</td>";
@@ -273,7 +252,7 @@ class TextmergerReplacement {
             }
             echo "</tr>";
         }
-        echo "</table><br> \n";
+        echo "</table><br> \n";**/
 
         //now create the backtrace to the matrix:
         $k = count($original);
@@ -488,7 +467,7 @@ class Textmerger {
      */
     static public function get($params = array())
     {
-        return new TextMerger($params);
+        return new Textmerger($params);
     }
 
     /**
@@ -586,9 +565,8 @@ class Textmerger {
 
         //collect the two major replacements:
         $replacements = new TextmergerReplacementGroup();
-        $replacements[0] = $this->_getSimpleReplacement($original_trimmed, $text1_trimmed, "text1");
-        $replacements[1] = $this->_getSimpleReplacement($original_trimmed, $text2_trimmed, "text2");
-        //var_dump($replacements);
+        $replacements[0] = $this->getSimpleReplacement($original_trimmed, $text1_trimmed, "text1");
+        $replacements[1] = $this->getSimpleReplacement($original_trimmed, $text2_trimmed, "text2");
 
         if (!$replacements->haveConflicts()) {
             foreach ($replacements as $replacement) {
@@ -601,9 +579,6 @@ class Textmerger {
 
         //Now if this didn't work we try it with levenshtein. The old simple replacements won't help us, wo we create
         //a new pair of replacements:
-        var_dump($original_trimmed);
-        var_dump($text1_trimmed);
-        var_dump($text2_trimmed);
         $replacements[0] = new TextmergerReplacement(0, strlen($original_trimmed) - 1, $text1_trimmed, "text1");
         $replacements[1] = new TextmergerReplacement(0, strlen($original_trimmed) - 1, $text2_trimmed, "text2");
 
@@ -637,7 +612,7 @@ class Textmerger {
      * @param string $text : the derived text
      * @return TextMergerReplacement
      */
-    public function _getSimpleReplacement($original, $text, $origin)
+    public function getSimpleReplacement($original, $text, $origin)
     {
         $replacement = new TextmergerReplacement();
         $replacement->origin = $origin;
