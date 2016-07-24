@@ -180,7 +180,14 @@ Textmerger.Replacement.prototype.breakApart = function (delimiter, original) {
 
 Textmerger.Replacement.getLevenshteinBacktrace = function (original, newtext) {
     //create levenshtein-matrix:
-    matrix = [[0]];
+    var matrix = [];
+    for (var k = 0; k <= original.length; k++) {
+        matrix.push([]);
+        for (var i = 0; i <= newtext.length; i++) {
+            matrix[k].push(-1);
+        }
+    }
+    matrix[0][0] = 0;
 
     //   ? m i n e
     // ? 0 1 2 3 4
@@ -195,13 +202,13 @@ Textmerger.Replacement.getLevenshteinBacktrace = function (original, newtext) {
 
     for (var k = 0; k <= original.length; k++) {
         for (var i = 0; i <= newtext.length; i++) {
-            if (typeof matrix[k][i] === "undefined") {
+            if (k + i > 0) {
                 matrix[k][i] = Math.min(
-                    typeof matrix[k - 1][i - 1] !== "undefined" && (newtext[i - 1] === original[k - 1])
-                        ? matrix[k - 1][i - 1] : 100000,                                  //identity
-                    typeof matrix[k - 1][i - 1] !== "undefined" ? matrix[k - 1][i - 1] + 1 : 100000,   //replace
-                    typeof matrix[k][i - 1] !== "undefined" ? matrix[k][i - 1] + 1 : 100000,           //insert
-                    typeof matrix[k - 1][i] !== "undefined" ? matrix[k - 1][i] + 1 : 100000            //delete
+                    (k >= 1) && (i >= 1) && (newtext[i - 1] === original[k - 1])
+                        ? matrix[k - 1][i - 1] : 100000,                                               //identity
+                    (k >= 1) && (i >= 1) ? matrix[k - 1][i - 1] + 1 : 100000,   //replace
+                    i >= 1 ? matrix[k][i - 1] + 1 : 100000,           //insert
+                    k >= 1 ? matrix[k - 1][i] + 1 : 100000            //delete
                 );
             }
         }
@@ -238,8 +245,8 @@ Textmerger.ReplacementGroup = function () {
     this.replacements = [];
 };
 Textmerger.ReplacementGroup.prototype.breakApart = function (delimiter, original) {
-    for (var i in this) {
-        this.replacements.concat(this[i].breakApart(delimiter, original));
+    for (var i in this.replacements) {
+        this.replacements.concat(this.replacements[i].breakApart(delimiter, original));
     }
     this.replacements.sort(function (a, b) {
         return a.start >= b.start ? 1 : -1;
@@ -247,7 +254,7 @@ Textmerger.ReplacementGroup.prototype.breakApart = function (delimiter, original
 };
 
 Textmerger.ReplacementGroup.prototype.haveConflicts = function () {
-    for (var index = 0; index < this.replacements; index++) {
+    for (var index = 0; index < this.replacements.length; index++) {
         if (index == this.replacements.length - 1) {
             break;
         }
@@ -259,10 +266,13 @@ Textmerger.ReplacementGroup.prototype.haveConflicts = function () {
 };
 
 Textmerger.ReplacementGroup.prototype.resolveConflicts = function (conflictBehaviour) {
-    for (var index in this) {
+    for (var index = 0; index < this.replacements.length; index++) {
         if (index === this.replacements.length - 1) {
             break;
         }
+        console.log(this.replacements);
+        console.log(this.replacements[index]);
+        console.log(this.replacements[index + 1]);
         if (this.replacements[index].isConflictingWith(this.replacements[index + 1])) {
             switch (conflictBehaviour) {
                 case "throw_exception":

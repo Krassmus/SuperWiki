@@ -195,7 +195,40 @@
         </tr>
         <tr>
             <td>Expected Result</td>
-            <td class="expected">Hi, call me John. I'm Ras!</td>
+            <td class="expected">Hi, I'm Ras! call me John.</td>
+        </tr>
+        <tr>
+            <td>Result</td>
+            <td class="result"></td>
+        </tr>
+        </tbody>
+        <tfoot>
+        <tr>
+            <td colspan="2">
+                <a onClick="run(this.closest('.test'));">Execute test independently</a>
+            </td>
+        </tr>
+        </tfoot>
+    </table>
+
+    <table class="test failed">
+        <caption>Merge deletions</caption>
+        <tbody>
+        <tr>
+            <td>Original</td>
+            <td class="original">Nebbukadnezlaroverloord</td>
+        </tr>
+        <tr>
+            <td>Mine</td>
+            <td class="mine">Nebbukadnezaroverloord</td>
+        </tr>
+        <tr>
+            <td>Theirs</td>
+            <td class="theirs">Nebukadnezlaroverlord</td>
+        </tr>
+        <tr>
+            <td>Expected Result</td>
+            <td class="expected">Nebukadnezaroverlord</td>
         </tr>
         <tr>
             <td>Result</td>
