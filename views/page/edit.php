@@ -27,6 +27,9 @@
     <?= \Studip\Button::create(_("Bearbeiten beenden")) ?>
 </form>
 
+<textarea id="fromserver" readonly style="width: calc(100% - 8px); height: 300px;"></textarea>
+<textarea id="afterjsmerge" readonly style="width: calc(100% - 8px); height: 300px;"></textarea>
+
 <? if (class_exists("RTCRoom")) {
     echo RTCRoom::get("SuperWiki.editing.".$page->getId(), $page['seminar_id'])->render();
 } ?>
@@ -50,9 +53,11 @@
         if (data.content) {
             var old_content = jQuery("#superwiki_edit_content").data("old_content");
             var new_content = data.content;
+            jQuery("#fromserver").val(data.content);
             var my_content = jQuery("#superwiki_edit_content").val();
             //var content = STUDIP.SuperWiki.merge(my_content, new_content, old_content);
             var content = TextMerger.get().merge(old_content, my_content, new_content);
+            jQuery("#afterjsmerge").val(content);
             var replacements = TextMerger.get()._getReplacements(my_content, content);
             if (content !== my_content) {
                 var pos1 = null, pos2 = null;

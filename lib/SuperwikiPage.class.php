@@ -66,6 +66,9 @@ class SuperwikiPage extends SimpleORMap {
             case "dozent":
                 return $GLOBALS['perm']->have_studip_perm("dozent", $this['seminar_id'], $user_id);
             default:
+                if ($GLOBALS['perm']->have_studip_perm("tutor", $this['seminar_id'], $user_id)) {
+                    return true;
+                }
                 //statusgruppe_id
                 return Statusgruppen::find($this['read_permission'])->isMember($user_id);
         }
@@ -89,6 +92,9 @@ class SuperwikiPage extends SimpleORMap {
             case "dozent":
                 return $GLOBALS['perm']->have_studip_perm("dozent", $this['seminar_id'], $user_id);
             default:
+                if ($GLOBALS['perm']->have_studip_perm("tutor", $this['seminar_id'], $user_id)) {
+                    return true;
+                }
                 //statusgruppe_id
                 $statusgruppe = Statusgruppen::find($this['read_permission']);
                 return $statusgruppe && $statusgruppe->isMember($user_id);

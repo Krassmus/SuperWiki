@@ -245,12 +245,18 @@ Textmerger.ReplacementGroup = function () {
     this.replacements = [];
 };
 Textmerger.ReplacementGroup.prototype.breakApart = function (delimiter, original) {
+    var replacements = Array();
+    var repl = Array();
     for (var i in this.replacements) {
-        this.replacements.concat(this.replacements[i].breakApart(delimiter, original));
+        repl = this.replacements[i].breakApart(delimiter, original);
+        for (var j in repl) {
+            replacements.push(repl[j]);
+        }
     }
-    this.replacements.sort(function (a, b) {
+    replacements.sort(function (a, b) {
         return a.start >= b.start ? 1 : -1;
     });
+    this.replacements = replacements;
 };
 
 Textmerger.ReplacementGroup.prototype.haveConflicts = function () {
@@ -270,9 +276,6 @@ Textmerger.ReplacementGroup.prototype.resolveConflicts = function (conflictBehav
         if (index === this.replacements.length - 1) {
             break;
         }
-        console.log(this.replacements);
-        console.log(this.replacements[index]);
-        console.log(this.replacements[index + 1]);
         if (this.replacements[index].isConflictingWith(this.replacements[index + 1])) {
             switch (conflictBehaviour) {
                 case "throw_exception":
@@ -286,24 +289,30 @@ Textmerger.ReplacementGroup.prototype.resolveConflicts = function (conflictBehav
                     break;
                 case "select_text1":
                     if (this.replacements[index].origin === "text1") {
-                        delete this.replacements[index];
+                        //delete this.replacements[index];
+                        this.replacements = this.replacements.splice(index, 1);
                     } else {
-                        delete this[index + 1];
+                        //delete this.replacements[index + 1];
+                        this.replacements = this.replacements.splice(index + 1, 1);
                     }
                     break;
                 case "select_text2":
                     if (this.replacements[index].origin === "text2") {
-                        delete this.replacements[index];
+                        //delete this.replacements[index];
+                        this.replacements = this.replacements.splice(index, 1);
                     } else {
-                        delete this.replacements[index + 1];
+                        //delete this.replacements[index + 1];
+                        this.replacements = this.replacements.splice(index + 1, 1);
                     }
                     break;
                 case "select_larger_difference":
                 default:
                     if (this.replacements[index].end - this.replacements[index].start > this.replacements[index + 1].end - this.replacements[index + 1].start) {
-                        delete this.replacements[index + 1];
+                        //delete this.replacements[index + 1];
+                        this.replacements = this.replacements.splice(index + 1, 1);
                     } else {
-                        delete this.replacements[index];
+                        //delete this.replacements[index];
+                        this.replacements = this.replacements.splice(index, 1);
                     }
                     break;
             }
@@ -392,6 +401,7 @@ Textmerger.prototype.getReplacements = function(original, text1, text2) {
     replacements.replacements[0] = this.getSimpleReplacement(original_trimmed, text1_trimmed, "text1");
     replacements.replacements[1] = this.getSimpleReplacement(original_trimmed, text2_trimmed, "text2");
 
+
     if (!replacements.haveConflicts()) {
         for (var i in replacements.replacements) {
             replacements.replacements[i].start += offset;
@@ -416,7 +426,6 @@ Textmerger.prototype.getReplacements = function(original, text1, text2) {
             break;
         }
     }
-
 
     var have_conflicts = replacements.haveConflicts();
     if (have_conflicts !== false) {
