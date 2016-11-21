@@ -11,7 +11,11 @@ class PageController extends PluginController {
         parent::before_filter($action, $args);
         $this->settings = new SuperwikiSettings($_SESSION['SessionSeminar']);
         Navigation::activateItem("/course/superwiki/wiki");
-        Navigation::getItem("/course/superwiki")->setImage(Assets::image_path("icons/16/black/".($this->settings['icon'] ?: "wiki")));
+        Navigation::getItem("/course/superwiki")->setImage(
+            version_compare($GLOBALS['SOFTWARE_VERSION'], "3.4", ">=")
+                ? Icon::create(($this->settings['icon'] ?: "wiki"), "info")
+                : Assets::image_path("icons/16/black/".($this->settings['icon'] ?: "wiki"))
+        );
         PageLayout::addScript($this->plugin->getPluginURL()."/vendor/Textmerger/Textmerger.js");
         PageLayout::addScript($this->plugin->getPluginURL()."/assets/superwiki.js");
         PageLayout::setTitle($GLOBALS['SessSemName']["header_line"]." - ".$this->settings['name']);

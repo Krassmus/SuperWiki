@@ -98,15 +98,33 @@ $sidebar->setImage('sidebar/wiki-sidebar.png');
 
 $actions = new ActionsWidget();
 if ($GLOBALS['perm']->have_studip_perm("tutor", $_SESSION['SessionSeminar'])) {
-    $actions->addLink(_("Wiki-Einstellungen"), PluginEngine::getURL($plugin, array(), "page/admin"), "icons/16/blue/admin", array('data-dialog' => "true"));
+    $actions->addLink(
+        _("Wiki-Einstellungen"),
+        PluginEngine::getURL($plugin, array(), "page/admin"),
+        version_compare($GLOBALS['SOFTWARE_VERSION'], "3.4", ">=") ? Icon::create("admin", "clickable") : "icons/16/blue/admin",
+        array('data-dialog' => "true")
+    );
     if (!$page->isNew()) {
-        $actions->addLink(_("Seiten-Einstellungen"), PluginEngine::getURL($plugin, array(), "page/permissions/".$page->getId()), "icons/16/blue/roles", array('data-dialog' => "true"));
+        $actions->addLink(
+            _("Seiten-Einstellungen"),
+            PluginEngine::getURL($plugin, array(), "page/permissions/".$page->getId()),
+            version_compare($GLOBALS['SOFTWARE_VERSION'], "3.4", ">=") ? Icon::create("roles", "clickable") : "icons/16/blue/roles",
+            array('data-dialog' => "true")
+        );
     }
 }
-if ($settings->haveRenamePermission()) {
-    $actions->addLink(_("Seite umbenennen"), PluginEngine::getURL($plugin, array(), "page/rename/".$page->getId()), "icons/16/blue/edit", array('data-dialog' => "true"));
+if (!$page->isNew() && $settings->haveRenamePermission()) {
+    $actions->addLink(
+        _("Seite umbenennen"),
+        PluginEngine::getURL($plugin, array(), "page/rename/".$page->getId()),
+        version_compare($GLOBALS['SOFTWARE_VERSION'], "3.4", ">=") ? Icon::create("edit", "clickable") : "icons/16/blue/edit",
+        array('data-dialog' => "true")
+    );
 }
 if ($settings->haveCreatePermission()) {
-    $actions->addLink(_("Neue Seite anlegen"), PluginEngine::getURL($plugin, array(), "page/edit"), "icons/16/blue/add");
+    $actions->addLink(
+        _("Neue Seite anlegen"),
+        PluginEngine::getURL($plugin, array(), "page/edit"),
+        version_compare($GLOBALS['SOFTWARE_VERSION'], "3.4", ">=") ? Icon::create("add", "clickable") : "icons/16/blue/add");
 }
 $sidebar->addWidget($actions);
