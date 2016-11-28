@@ -74,9 +74,10 @@ class TextmergerReplacement {
     public function isConflictingWith($replacement)
     {
         return ($this->start < $replacement->end && $this->start > $replacement->start)
-                    || ($this->end < $replacement->end && $this->end > $replacement->start)
-                    || ($this->start < $replacement->start && $this->end > $replacement->end)
-                    || ($this->start === $replacement->start && $this->end === $replacement->end && $this->end - $this->start > 0);
+            || ($this->end < $replacement->end && $this->end > $replacement->start)
+            || ($this->start < $replacement->end && $this->end > $replacement->end)
+            || ($this->start < $replacement->start && $this->end > $replacement->end)
+            || ($this->start === $replacement->start && ($this->end === $replacement->end) && ($this->end - $this->start > 0));
     }
 
     /**
@@ -333,13 +334,6 @@ class TextmergerReplacementGroup implements ArrayAccess, Iterator, Countable{
         return isset($this->replacements[$this->position]);
     }
 
-    public function sort()
-    {
-        usort($this->replacements, function ($a, $b) {
-            return $a->start >= $b->start ? 1 : -1;
-        });
-        $this->rewind();
-    }
 
     public function count()
     {
@@ -449,6 +443,14 @@ class TextmergerReplacementGroup implements ArrayAccess, Iterator, Countable{
             $index_alteration += $alteration;
         }
         return $text;
+    }
+
+    public function sort()
+    {
+        usort($this->replacements, function ($a, $b) {
+            return $a->start >= $b->start ? 1 : -1;
+        });
+        $this->rewind();
     }
 }
 
@@ -576,6 +578,7 @@ class Textmerger {
                 $replacement->start += $offset;
                 $replacement->end += $offset;
             }
+            $replacements->sort();
             self::$replacement_hash[$hash_id] = $replacements;
             return $replacements;
         }
@@ -586,6 +589,7 @@ class Textmerger {
         $replacements[1] = new TextmergerReplacement(0, strlen($original_trimmed) - 1, $text2_trimmed, "text2");
 
         foreach ($this->levenshteinDelimiter as $delimiter) {
+            var_dump($replacements);
             if ($replacements->haveConflicts() !== false) {
                 $replacements->breakApart($delimiter, $original_trimmed);
             } else {
@@ -602,7 +606,7 @@ class Textmerger {
             $replacement->start += $offset;
             $replacement->end += $offset;
         }
-
+        $replacements->sort();
         self::$replacement_hash[$hash_id] = $replacements;
         return $replacements;
     }
