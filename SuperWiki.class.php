@@ -93,9 +93,9 @@ class SuperWiki extends StudIPPlugin implements StandardPlugin, SystemPlugin {
         $new_changes = SuperwikiPage::countBySql("seminar_id = ? AND chdate > ? AND last_author != ?", array($course_id, $last_visit, $user_id));
         if ($new_changes) {
             $icon->setURL(PluginEngine::getURL($this, array(), "overview/latest_changes"), array('since' => $last_visit));
-            $icon->setImage(Assets::image_path("icons/20/red/new/".($settings['icon'] ?: "wiki")), array('title' => sprintf(_("%s Seiten wurden verändert."), $new_changes)));
+            $icon->setImage(class_exists("Icon") ? Icon::create($settings['icon']."+new", "new") : Assets::image_path("icons/20/red/new/".($settings['icon'] ?: "wiki")), array('title' => sprintf(_("%s Seiten wurden verändert."), $new_changes)));
         } else {
-            $icon->setImage(Assets::image_path("icons/20/grey/".($settings['icon'] ?: "wiki")), array('title' => $settings ? $settings['name'] : _("SuperWiki")));
+            $icon->setImage(class_exists("Icon") ? Icon::create($settings['icon'], "inactive") : Assets::image_path("icons/20/grey/".($settings['icon'] ?: "wiki")), array('title' => $settings ? $settings['name'] : _("SuperWiki")));
         }
         return $icon;
     }
@@ -103,7 +103,7 @@ class SuperWiki extends StudIPPlugin implements StandardPlugin, SystemPlugin {
     function getTabNavigation($course_id) {
         $settings = SuperwikiSettings::find($course_id);
         $tab = new Navigation($settings ? $settings['name'] : _("SuperWiki"), PluginEngine::getURL($this, array(), "page/view"));
-        $tab->setImage(Assets::image_path("icons/16/white/".($settings['icon'] ?: "wiki")));
+        $tab->setImage(class_exists("Icon") ? Icon::create($settings['icon'], "info_alt") : Assets::image_path("icons/16/white/".($settings['icon'] ?: "wiki")));
         $tab->addSubNavigation("wiki", new Navigation($settings ? $settings['name'] : _("SuperWiki"), PluginEngine::getURL($this, array(), "page/view")));
         $tab->addSubNavigation("all", new Navigation(_("Alle Seiten"), PluginEngine::getURL($this, array(), "overview/all")));
         return array('superwiki' => $tab);
