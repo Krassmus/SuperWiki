@@ -75,9 +75,8 @@ class TextmergerReplacement {
     {
         return ($this->start < $replacement->end && $this->start > $replacement->start)
             || ($this->end < $replacement->end && $this->end > $replacement->start)
-            || ($this->start < $replacement->end && $this->end > $replacement->end)
             || ($this->start < $replacement->start && $this->end > $replacement->end)
-            || ($this->start === $replacement->start && ($this->end === $replacement->end) && ($this->end - $this->start > 0));
+            || ($this->start === $replacement->start && $this->end === $replacement->end && $this->end - $this->start > 0);
     }
 
     /**
@@ -235,23 +234,23 @@ class TextmergerReplacement {
 
         /**echo "<table>";
         foreach ($matrix as $key => $line) {
-            if ($key === 0) {
-                echo "<tr><td></td><td>#</td>";
-                foreach ($new as $part) {
-                    echo "<td>".(strlen($part) === 1 ? $part : ".")."</td>";
-                }
-                echo "</tr>";
-            }
-            echo "<tr>";
-            if ($key === 0) {
-                echo "<td>#</td>";
-            } else {
-                echo "<td>".(strlen($original[$key - 1]) === 1 ? $original[$key - 1] : ".")."</td>";
-            }
-            foreach ($line as $value) {
-                echo "<td>".$value."</td>";
-            }
-            echo "</tr>";
+        if ($key === 0) {
+        echo "<tr><td></td><td>#</td>";
+        foreach ($new as $part) {
+        echo "<td>".(strlen($part) === 1 ? $part : ".")."</td>";
+        }
+        echo "</tr>";
+        }
+        echo "<tr>";
+        if ($key === 0) {
+        echo "<td>#</td>";
+        } else {
+        echo "<td>".(strlen($original[$key - 1]) === 1 ? $original[$key - 1] : ".")."</td>";
+        }
+        foreach ($line as $value) {
+        echo "<td>".$value."</td>";
+        }
+        echo "</tr>";
         }
         echo "</table><br> \n";**/
 
@@ -334,6 +333,13 @@ class TextmergerReplacementGroup implements ArrayAccess, Iterator, Countable{
         return isset($this->replacements[$this->position]);
     }
 
+    public function sort()
+    {
+        usort($this->replacements, function ($a, $b) {
+            return $a->start >= $b->start ? 1 : -1;
+        });
+        $this->rewind();
+    }
 
     public function count()
     {
@@ -444,14 +450,6 @@ class TextmergerReplacementGroup implements ArrayAccess, Iterator, Countable{
         }
         return $text;
     }
-
-    public function sort()
-    {
-        usort($this->replacements, function ($a, $b) {
-            return $a->start >= $b->start ? 1 : -1;
-        });
-        $this->rewind();
-    }
 }
 
 class Textmerger {
@@ -549,18 +547,17 @@ class Textmerger {
         }
         //Make texts smaller
         for($offset = 0; $offset < strlen($original); $offset++) {
-            if ($original[$offset] !== $text1[$offset] || $original[$offset] !== $text2[$offset]) {
-                if ($offset > 0) {
-                    $offset--;
-                }
+            if (($original[$offset] !== $text1[$offset]) || ($original[$offset] !== $text2[$offset])) {
                 break;
             }
         }
 
         for($backoffset = 0; $backoffset < strlen($original); $backoffset++) {
-            if (($original[strlen($original) - 1 - $backoffset] !== $text1[strlen($text1) - 1 - $backoffset])
-                    || ($original[strlen($original) - 1 - $backoffset] !== $text2[strlen($text2) - 1 - $backoffset])
-                    || (strlen($original) - $backoffset <= $offset)) {
+            if (($original[strlen($original) - $backoffset - 1] !== $text1[strlen($text1) - $backoffset - 1])
+                || ($original[strlen($original) - $backoffset - 1] !== $text2[strlen($text2) - $backoffset - 1])
+                || (strlen($original) - $backoffset <= $offset)
+                || (strlen($text1) - $backoffset <= $offset)
+                || (strlen($text2) - $backoffset <= $offset)) {
                 break;
             }
         }
@@ -572,13 +569,13 @@ class Textmerger {
         $replacements = new TextmergerReplacementGroup();
         $replacements[0] = $this->getSimpleReplacement($original_trimmed, $text1_trimmed, "text1");
         $replacements[1] = $this->getSimpleReplacement($original_trimmed, $text2_trimmed, "text2");
+        $replacements->sort();
 
         if (!$replacements->haveConflicts()) {
             foreach ($replacements as $replacement) {
                 $replacement->start += $offset;
                 $replacement->end += $offset;
             }
-            $replacements->sort();
             self::$replacement_hash[$hash_id] = $replacements;
             return $replacements;
         }
@@ -589,7 +586,6 @@ class Textmerger {
         $replacements[1] = new TextmergerReplacement(0, strlen($original_trimmed) - 1, $text2_trimmed, "text2");
 
         foreach ($this->levenshteinDelimiter as $delimiter) {
-            var_dump($replacements);
             if ($replacements->haveConflicts() !== false) {
                 $replacements->breakApart($delimiter, $original_trimmed);
             } else {
@@ -606,7 +602,7 @@ class Textmerger {
             $replacement->start += $offset;
             $replacement->end += $offset;
         }
-        $replacements->sort();
+
         self::$replacement_hash[$hash_id] = $replacements;
         return $replacements;
     }
@@ -625,7 +621,7 @@ class Textmerger {
         $replacement->origin = $origin;
         $text_start = 0;
         $text_end = strlen($text);
-        for($i = 0; $i <= strlen($original); $i++) {
+        for($i = 0; $i <= max(strlen($original), strlen($text)); $i++) {
             if ($original[$i] !== $text[$i]) {
                 $replacement->start = $i;
                 $text_start = $i;
@@ -637,14 +633,15 @@ class Textmerger {
             }
         }
 
-        for($i = 0; $i < strlen($original); $i++) {
+        for($i = 0; $i < max(strlen($original), strlen($text)); $i++) {
             if (($original[strlen($original) - 1 - $i] !== $text[strlen($text) - 1 - $i])
-                    || (strlen($original) - $i === $replacement->start)) {
+                || (strlen($original) - $i === $replacement->start)) {
                 $replacement->end = strlen($original) - $i;
                 $text_end = strlen($text) - $i;
                 break;
             }
         }
+
 
         if ($text_end - $text_start < 0) {
             $replacement->end++;
@@ -653,6 +650,7 @@ class Textmerger {
             $length = $text_end - $text_start;
         }
         $replacement->text = (string) substr($text, $text_start, $length);
+
         return $replacement;
     }
 

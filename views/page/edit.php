@@ -80,7 +80,7 @@
                     document.getElementById("superwiki_edit_content").setSelectionRange(pos1, pos2);
                 }
             }
-            jQuery("#superwiki_edit_content").data("old_content", content);
+            jQuery("#superwiki_edit_content").data("old_content", data.content);
             jQuery("#superwiki_edit_content").data("chdate", data.chdate);
         }
         jQuery(".coworker .avatars").html(data.onlineusers);
