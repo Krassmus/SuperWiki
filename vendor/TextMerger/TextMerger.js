@@ -378,24 +378,26 @@ Textmerger.prototype.calculateCursor = function (cursor_position, original, text
 };
 
 Textmerger.prototype.getReplacements = function(original, text1, text2) {
-    var hash_id = Textmerger.hash(original + "___".text1 + "____" + text2);
+    var hash_id = Textmerger.hash(original + "___".text1 + "___" + text2);
     if (Textmerger.replacement_hash && typeof Textmerger.replacement_hash[hash_id] !== "undefined") {
         //return Textmerger.replacement_hash[hash_id];
     }
     //Make texts smaller
     for(var offset = 0; offset < original.length; offset++) {
-        if (original[offset] !== text1[offset] || original[offset] !== text2[offset]) {
+        if ((original[offset] !== text1[offset]) || (original[offset] !== text2[offset])) {
             if (offset > 0) {
-                offset--;
+                //offset--;
             }
             break;
         }
     }
 
     for(var backoffset = 0; backoffset <= original.length; backoffset++) {
-        if ((original[original.length - 1 - backoffset] !== text1[text1.length - 1 - backoffset])
-            || (original[original.length - 1 - backoffset] !== text2[text2.length - 1 - backoffset])
-            || (original.length - backoffset <= offset)) {
+        if ((original[original.length - backoffset - 1] !== text1[text1.length - backoffset - 1])
+            || (original[original.length - backoffset - 1] !== text2[text2.length - backoffset - 1])
+            || (original.length - backoffset <= offset)
+            || (text1.length - backoffset <= offset)
+            || (text2.length - backoffset <= offset)) {
             break;
         }
     }
@@ -407,6 +409,7 @@ Textmerger.prototype.getReplacements = function(original, text1, text2) {
     var replacements = new Textmerger.ReplacementGroup();
     replacements.replacements[0] = this.getSimpleReplacement(original_trimmed, text1_trimmed, "text1");
     replacements.replacements[1] = this.getSimpleReplacement(original_trimmed, text2_trimmed, "text2");
+    replacements.sort();
 
     if (!replacements.haveConflicts()) {
         for (var i in replacements.replacements) {
@@ -416,12 +419,11 @@ Textmerger.prototype.getReplacements = function(original, text1, text2) {
         if (!Textmerger.replacement_hash) {
             Textmerger.replacement_hash = {};
         }
-        replacements.sort();
         Textmerger.replacement_hash[hash_id] = replacements;
         return replacements;
     }
 
-    //Now if this didn't work we try it with levenshtein. The old simple replacements won't help us, wo we create
+    //Now if this didn't work we try it with levenshtein. The old simple replacements won't help us, so we create
     //a new pair of replacements:
     replacements.replacements[0] = new Textmerger.Replacement(0, original_trimmed.length - 1, text1_trimmed, "text1");
     replacements.replacements[1] = new Textmerger.Replacement(0, original_trimmed.length - 1, text2_trimmed, "text2");
@@ -454,10 +456,10 @@ Textmerger.prototype.getReplacements = function(original, text1, text2) {
 
 Textmerger.prototype.getSimpleReplacement = function (original, text, origin) {
     replacement = new Textmerger.Replacement(0, 0, "", origin);
-    //replacement.origin = origin;
+    replacement.origin = origin;
     var text_start = 0;
     var text_end = text.length;
-    for(var i = 0; i <= original.length; i++) {
+    for(var i = 0; i <= Math.max(original.length, text.length); i++) {
         if (original[i] !== text[i]) {
             replacement.start = i;
             text_start = i;
@@ -469,7 +471,7 @@ Textmerger.prototype.getSimpleReplacement = function (original, text, origin) {
         }
     }
 
-    for(i = 0; i < original.length; i++) {
+    for(i = 0; i < Math.max(original.length, text.length); i++) {
         if ((original[original.length - 1 - i] !== text[text.length - 1 - i])
             || (original.length - i === replacement.start)) {
             replacement.end = original.length - i;

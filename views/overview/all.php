@@ -1,5 +1,13 @@
 <? if (count($pages)) : ?>
 <table class="default">
+    <head>
+        <tr>
+            <th></th>
+            <th><?= _("Seitenname") ?></th>
+            <th><?= _("Letzte Änderung") ?></th>
+            <th></th>
+        </tr>
+    </head>
     <tbody>
     <? foreach ($pages as $page) : ?>
         <? if ($page->isReadable()) : ?>
@@ -13,6 +21,9 @@
                     <a href="<?= PluginEngine::getLink($plugin, array(), "page/view/".$page->getId()) ?>">
                         <?= htmlReady($page['name']) ?>
                     </a>
+                </td>
+                <td>
+                    <?= date("d.m.Y", $page['chdate']) ?>
                 </td>
                 <td>
                     <? if ($GLOBALS['perm']->have_studip_perm("tutor", $_SESSION['SessionSeminar']) && $page['write_permission'] !== "all") : ?>

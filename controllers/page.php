@@ -152,6 +152,7 @@ class PageController extends PluginController {
             $this->settings['name'] = Request::get("name");
             $this->settings['indexpage'] = Request::get("indexpage");
             $this->settings['icon'] = Request::get("icon", "wiki");
+            $this->settings['link_icon'] = Request::get("link_icon", "wiki");
             $this->settings['create_permission'] = Request::get("create_permission");
             $this->settings['rename_permission'] = Request::get("rename_permission");
             $this->settings->store();

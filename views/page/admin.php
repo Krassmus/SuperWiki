@@ -52,6 +52,20 @@
             <? endforeach ?>
         </div>
     </fieldset>
+    <fieldset>
+        <legend>
+            <?= _("Icon der Links") ?>
+        </legend>
+        <div>
+            <? $icons = array("wiki", "info-circle", "info-small", "infopage", "exclaim", "link-intern", "literature", "log") ?>
+            <? foreach ($icons as $icon) : ?>
+                <label>
+                    <input type="radio" name="link_icon" value="<?= htmlReady($icon) ?>"<?= $icon === $settings['link_icon'] ? " checked" : "" ?>>
+                    <?= Assets::img("icons/20/black/".$icon, array('class' => "text-bottom")) ?>
+                </label>
+            <? endforeach ?>
+        </div>
+    </fieldset>
     <div data-dialog-button>
         <?= \Studip\Button::create(_("speichern")) ?>
     </div>
