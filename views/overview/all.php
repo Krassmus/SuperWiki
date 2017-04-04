@@ -14,7 +14,9 @@
             <tr>
                 <td style="width: 20px;">
                     <? if ($page->getId() === $page->settings['indexpage']) : ?>
-                        <?= Assets::img("icons/16/black/arr_2right", array('class' => "text-bottom", 'title' => _("Startseite"))) ?>
+                        <?= version_compare($GLOBALS['SOFTWARE_VERSION'], "3.4", ">=")
+                            ? Icon::create("arr_2right", "info")->asImg(20, array('class' => "text-bottom", 'title' => _("Startseite")))
+                            : Assets::image_path("icons/20/black/arr_2right", array('class' => "text-bottom", 'title' => _("Startseite"))) ?>
                     <? endif ?>
                 </td>
                 <td>
@@ -25,7 +27,7 @@
                 <td>
                     <?= date("d.m.Y", $page['chdate']) ?>
                 </td>
-                <td>
+                <td class="actions">
                     <? if ($GLOBALS['perm']->have_studip_perm("tutor", $_SESSION['SessionSeminar']) && $page['write_permission'] !== "all") : ?>
                         <?= Assets::img("icons/20/black/lock-locked", array('class' => "text-bottom", 'title' => _("Seite ist schreibgeschützt."))) ?>
                     <? endif ?>
@@ -34,7 +36,9 @@
                     <? endif ?>
                     <? if ($page->isEditable()) : ?>
                         <a href="<?= PluginEngine::getLink($plugin, array(), "page/edit/".$page->getId()) ?>">
-                            <?= Assets::img("icons/20/blue/edit", array('class' => "text-bottom")) ?>
+                            <?= version_compare($GLOBALS['SOFTWARE_VERSION'], "3.4", ">=")
+                                ? Icon::create("edit", "clickable")->asImg(20, array('class' => "text-bottom"))
+                                : Assets::image_path("icons/20/blue/edit", array('class' => "text-bottom")) ?>
                         </a>
                     <? endif ?>
                 </td>

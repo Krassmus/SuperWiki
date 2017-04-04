@@ -11,7 +11,11 @@ class OverviewController extends PluginController {
         parent::before_filter($action, $args);
         $this->settings = new SuperwikiSettings($_SESSION['SessionSeminar']);
         Navigation::activateItem("/course/superwiki/all");
-        Navigation::getItem("/course/superwiki")->setImage(Assets::image_path("icons/16/black/".($this->settings['icon'] ?: "wiki")));
+        Navigation::getItem("/course/superwiki")->setImage(
+            version_compare($GLOBALS['SOFTWARE_VERSION'], "3.4", ">=")
+                ? Icon::create(($this->settings['icon'] ?: "wiki"), "info")
+                : Assets::image_path("icons/16/black/".($this->settings['icon'] ?: "wiki"))
+        );
         PageLayout::setTitle($GLOBALS['SessSemName']["header_line"]." - ".$this->settings['name']);
         Helpbar::Get()->addLink(_("Wikilinks und Navigation"), "https://github.com/Krassmus/SuperWiki/wiki/Wikilinks-und-Navigation", null, "_blank");
         Helpbar::Get()->addLink(_("Unsichtbare Wikiseiten"), "https://github.com/Krassmus/SuperWiki/wiki/Unsichtbare-Wikiseiten", null, "_blank");
