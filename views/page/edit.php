@@ -60,7 +60,7 @@
             //var content = STUDIP.SuperWiki.merge(my_content, new_content, old_content);
             var content = Textmerger.get().merge(old_content, my_content, new_content);
             jQuery("#afterjsmerge").val(content);
-            var replacements = Textmerger.get().getReplacements(my_content, my_content, content);
+            var replacements = Textmerger.get().getReplacements(old_content, old_content, content);
             if (content !== my_content) {
                 var pos1 = null, pos2 = null;
                 if (jQuery("#superwiki_edit_content").is(":focus")) {
