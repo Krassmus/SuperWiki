@@ -7,30 +7,17 @@
     <? else : ?>
         <h1>
             <?= htmlReady($page['name']) ?>
-            <div class="coworker" style="float: right; margin-bottom: 5px; <?= $onlineusers && (count($onlineusers) > 1) ? "visibility: visible" : "visibility: hidden;" ?>">
-                <div class="avatars"><?
-                    foreach ($onlineusers as $user_id) {
-                        echo '<a href="'.URLHelper::getLink("dispatch.php/profile", array('username' => get_username($user_id))) .'">'.Avatar::getAvatar($user_id)->getImageTag(Avatar::SMALL).'</a> ';
-                    }
-                    ?></div>
-            </div>
         </h1>
         <input type="hidden" name="page_id" value="<?= htmlReady($page->getId()) ?>">
     <? endif ?>
     <textarea
         name="content"
         id="superwiki_edit_content"
-        data-old_content="<?= htmlReady($page['content']) ?>"
-        data-chdate="<?= htmlReady($page['chdate']) ?>"
         style="width: calc(100% - 8px); height: 300px;"
         ><?= htmlReady($page['content']) ?></textarea>
     <?= \Studip\Button::create(_("Bearbeiten beenden")) ?>
 </form>
 
-<!--
-<textarea id="fromserver" readonly style="width: calc(100% - 8px); height: 300px;"></textarea>
-<textarea id="afterjsmerge" readonly style="width: calc(100% - 8px); height: 300px;"></textarea>
--->
 
 <? if (class_exists("RTCRoom")) {
     echo RTCRoom::get("SuperWiki.editing.".$page->getId(), $page['seminar_id'])->render();
@@ -40,27 +27,28 @@
 <script>
     STUDIP.SuperWiki = STUDIP.SuperWiki || {};
     STUDIP.SuperWiki.periodicalPushData = function () {
-        var old_content = jQuery("#superwiki_edit_content").data("old_content");
-        jQuery("#superwiki_edit_content").data("old_content", jQuery("#superwiki_edit_content").val());
-        return {
+        var push = {
             'seminar_id': jQuery("#seminar_id").val(),
             'page_id': jQuery("#page_id").val(),
-            'content': jQuery("#superwiki_edit_content").val(),
-            'old_content': old_content,
-            'chdate': jQuery("#superwiki_edit_content").data("chdate"),
             'mode': "edit"
         };
+        if (jQuery("#superwiki_edit_content").val() !== STUDIP.SuperWiki.oldVersion) {
+            push.content = jQuery("#superwiki_edit_content").val();
+            push.old_content = STUDIP.SuperWiki.oldVersion;
+        }
+        STUDIP.SuperWiki.oldVersion = jQuery("#superwiki_edit_content").val();
+        return push;
     };
+    jQuery(function () {
+        STUDIP.SuperWiki.oldVersion = jQuery("#superwiki_edit_content").val();
+    });
     STUDIP.SuperWiki.updatePage = function (data) {
-        if (data.content) {
-            var old_content = jQuery("#superwiki_edit_content").data("old_content");
+        if (typeof data.content !== "undefined") {
+            var old_content = STUDIP.SuperWiki.oldVersion;
             var new_content = data.content;
-            jQuery("#fromserver").val(data.content);
             var my_content = jQuery("#superwiki_edit_content").val();
-            //var content = STUDIP.SuperWiki.merge(my_content, new_content, old_content);
             var content = Textmerger.get().merge(old_content, my_content, new_content);
-            jQuery("#afterjsmerge").val(content);
-            var replacements = Textmerger.get().getReplacements(old_content, old_content, content);
+            var replacements = Textmerger.get().getReplacements(old_content, my_content, new_content);
             if (content !== my_content) {
                 var pos1 = null, pos2 = null;
                 if (jQuery("#superwiki_edit_content").is(":focus")) {
@@ -68,27 +56,25 @@
                     pos2 = document.getElementById("superwiki_edit_content").selectionEnd;
                 }
                 jQuery("#superwiki_edit_content").val(content);
-                for (var i in replacements) {
-                    if (replacements[i].end < pos1) {
-                        pos1 = pos1 - replacements[i].end + replacements[i].start + replacements[i].text.length;
-                    }
-                    if (replacements[i].end < pos2) {
-                        pos2 = pos2 - replacements[i].end + replacements[i].start + replacements[i].text.length;
+                for (var i in replacements.replacements) {
+                    var replacement = replacements.replacements[i];
+                    if (replacement.origin === "text2") {
+                        if (replacements[i].end < pos1) {
+                            pos1 = pos1 - replacements[i].end + replacements[i].start + replacements[i].text.length;
+                        }
+                        if (replacements[i].end < pos2) {
+                            pos2 = pos2 - replacements[i].end + replacements[i].start + replacements[i].text.length;
+                        }
                     }
                 }
                 if (pos1 !== null) {
                     document.getElementById("superwiki_edit_content").setSelectionRange(pos1, pos2);
                 }
             }
-            jQuery("#superwiki_edit_content").data("old_content", data.content);
-            jQuery("#superwiki_edit_content").data("chdate", data.chdate);
+            STUDIP.SuperWiki.oldVersion = data.content;
         }
-        jQuery(".coworker .avatars").html(data.onlineusers);
-        if (data.onlineusers_count > 1) {
-            jQuery(".coworker").css("visibility", "visible");
-        } else {
-            jQuery(".coworker").css("visibility", "hidden");
-        }
+        //Mitarbeiter aktualisieren:
+        jQuery(".coworkerlist").html(data.onlineusers);
     };
 
 </script>
@@ -130,3 +116,17 @@ if ($settings->haveCreatePermission()) {
         version_compare($GLOBALS['SOFTWARE_VERSION'], "3.4", ">=") ? Icon::create("add", "clickable") : "icons/16/blue/add");
 }
 $sidebar->addWidget($actions);
+
+if (!$page->isNew() && $page->isEditable()) {
+    $cowriter = new Widget();
+    $cowriter->title = _("Aktuelle Mitarbeiter");
+    $coworker = "";
+    foreach ($onlineusers as $user) {
+        $coworker .= $this->render_partial("page/_online_user.php", array(
+            'user_id' => $user['user_id'],
+            'writing' => $user['latest_change'] >= time() - 3)
+        );
+    }
+    $cowriter->addElement(new WidgetElement('<ul class="clean coworkerlist">'.$coworker.'</ul>'));
+    $sidebar->addWidget($cowriter);
+}

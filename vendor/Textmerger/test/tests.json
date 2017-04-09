@@ -71,10 +71,10 @@
   },
   {
     "title": "jbuddha-example",
-    "original": "Twinkle Twinle Little Star\nHow I what you are\nUp the world so high\nLike a diamond in the sky",
-    "mine": "Twinkle Twinle Little Star\nHow I what you are\nUp above the world so high\nLike a diamond in the sky",
-    "theirs": "Twinkle Twinle Little Star\nHow I wonder what you are\nUp the world so high\nLike a diamond in the sky",
-    "expected": "Twinkle Twinle Little Star\nHow I wonder what you are\nUp above the world so high\nLike a diamond in the sky"
+    "original": "Twinkle Twinkle Little Star\nHow I what you are\nUp the world so high\nLike a diamond in the sky",
+    "mine": "Twinkle Twinkle Little Star\nHow I what you are\nUp above the world so high\nLike a diamond in the sky",
+    "theirs": "Twinkle Twinkle Little Star\nHow I wonder what you are\nUp the world so high\nLike a diamond in the sky",
+    "expected": "Twinkle Twinkle Little Star\nHow I wonder what you are\nUp above the world so high\nLike a diamond in the sky"
   },
   {
     "title": "Levenshtein-Test",

@@ -358,7 +358,15 @@ Textmerger.hash = function (text) {
 
 Textmerger.prototype.merge = function (original, text1, text2) {
     replacements = this.getReplacements(original, text1, text2);
-    return replacements.applyTo(original);
+    var result = replacements.applyTo(original);
+    if (result.length > original.length + Math.max(0, text1.length - original.length) + Math.max(0, text2.length - original.length)) {
+        console.log("Fehler im Merging! Ergebnis ist zu lang geworden. (original, text1, text2, ergebnis)");
+        console.log(original);
+        console.log(text1);
+        console.log(text2);
+        console.log(result);
+    }
+    return result;
 }
 
 Textmerger.prototype.calculateCursor = function (cursor_position, original, text1, text2) {

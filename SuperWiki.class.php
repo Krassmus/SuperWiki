@@ -12,7 +12,7 @@ class SuperWiki extends StudIPPlugin implements StandardPlugin, SystemPlugin {
     public function __construct() {
         parent::__construct();
         if (UpdateInformation::isCollecting()) {
-            $data = Request::getArray("page_info");
+            $data = studip_utf8decode(Request::getArray("page_info"));
             if (stripos(Request::get("page"), "plugins.php/superwiki") !== false && isset($data['SuperWiki'])) {
                 $output = array();
                 $page = SuperwikiPage::find($data['SuperWiki']['page_id']);
@@ -22,56 +22,61 @@ class SuperWiki extends StudIPPlugin implements StandardPlugin, SystemPlugin {
                         $output['chdate'] = $page['chdate'];
                     }
                 } elseif ($data['SuperWiki']['mode'] === "edit" && $page->isEditable()) {
-                    $content1 = str_replace("\r", "", studip_utf8decode($data['SuperWiki']['content']));
-                    $original_content = str_replace("\r", "", studip_utf8decode($data['SuperWiki']['old_content']));
+                    $content1 = str_replace("\r", "", $data['SuperWiki']['content']);
+                    $original_content = str_replace("\r", "", $data['SuperWiki']['old_content']);
                     $content2 = str_replace("\r", "", $page['content']);
-                    $page['content'] = Textmerger::get()->merge(
-                        $original_content,
-                        $content1,
-                        $content2
-                    );
-                    $output['debugcontent'] = $page['content'];
-                    if ($page['content'] !== $content2) {
-                        $page['last_author'] = $GLOBALS['user']->id;
-                        $page->store();
+                    if ($original_content || $content1) {
+                        $page['content'] = Textmerger::get()->merge(
+                            $original_content,
+                            $content1,
+                            $content2
+                        );
+                        if ($page['content'] !== $content2) {
+                            $page['last_author'] = $GLOBALS['user']->id;
+                            $page->store();
+                        }
                     }
-                    if ($data['SuperWiki']['chdate'] < $page['chdate']) {
+                    if ($content1 !== $page['content']) {
                         $output['content'] = $page['content'];
-                        $output['chdate'] = $page['chdate'];
                     }
                     //Online users
                     $statement = DBManager::get()->prepare("
                         INSERT INTO superwiki_editors
                         SET user_id = :me,
                             page_id = :page_id,
-                            latest_change = UNIX_TIMESTAMP()
+                            online = UNIX_TIMESTAMP()
                         ON DUPLICATE KEY UPDATE
-                            latest_change = UNIX_TIMESTAMP()
+                            online = UNIX_TIMESTAMP(),
+                            latest_change = IF(:changed, UNIX_TIMESTAMP(), latest_change)
                     ");
                     $statement->execute(array(
                         'me' => $GLOBALS['user']->id,
-                        'page_id' => $page->getId()
+                        'page_id' => $page->getId(),
+                        'changed' => ($content1 !== $original_content) ? 1 : 0
                     ));
                     $statement = DBManager::get()->prepare("
-                        SELECT user_id
+                        SELECT user_id, latest_change
                         FROM superwiki_editors
                         WHERE page_id = :page_id
-                            AND latest_change >= UNIX_TIMESTAMP() - 10
+                            AND online >= UNIX_TIMESTAMP() - 10
                     ");
                     $statement->execute(array(
                         'page_id' => $page->getId()
                     ));
                     $onlineusers = "";
                     $onlineusers_count = 0;
-                    foreach ($statement->fetchAll(PDO::FETCH_COLUMN, 0) as $user_id) {
-                        $onlineusers .= '<a href="'.URLHelper::getLink("dispatch.php/profile", array('username' => get_username($user_id))).'" title="'.htmlReady(get_fullname($user_id)).'">'.Avatar::getAvatar($user_id)->getImageTag(Avatar::SMALL).'</a> ';
+                    $tf = new Flexi_TemplateFactory(__DIR__."/views");
+                    $template = $tf->open("page/_online_user.php");
+                    foreach ($statement->fetchAll(PDO::FETCH_ASSOC) as $user) {
+                        $template->set_attribute("user_id", $user['user_id']);
+                        $template->set_attribute("writing", $user['latest_change'] >= time() - 4);
+                        $onlineusers .= $template->render();
                         $onlineusers_count++;
                     }
                     $output['onlineusers_count'] = $onlineusers_count;
                     $output['onlineusers'] = $onlineusers;
                 }
                 if (count($output)) {
-                    //sleep(3);
                     UpdateInformation::setInformation("SuperWiki.updatePage", $output);
                 }
             }

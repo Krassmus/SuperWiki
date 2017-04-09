@@ -137,4 +137,18 @@ class SuperwikiPage extends SimpleORMap {
         }
         return $text;
     }
+
+    public function getActiveUsers()
+    {
+        $statement = DBManager::get()->prepare("
+            SELECT user_id, latest_change
+            FROM superwiki_editors
+            WHERE page_id = :page_id
+                AND online >= UNIX_TIMESTAMP() - 6
+        ");
+        $statement->execute(array(
+            'page_id' => $this->getId()
+        ));
+        return $statement->fetchAll(PDO::FETCH_ASSOC);
+    }
 }
