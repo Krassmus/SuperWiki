@@ -358,6 +358,7 @@ Textmerger.hash = function (text) {
 
 Textmerger.prototype.merge = function (original, text1, text2) {
     replacements = this.getReplacements(original, text1, text2);
+    console.log(replacements);
     var result = replacements.applyTo(original);
     if (result.length > original.length + Math.max(0, text1.length - original.length) + Math.max(0, text2.length - original.length)) {
         console.log("Fehler im Merging! Ergebnis ist zu lang geworden. (original, text1, text2, ergebnis)");
@@ -436,8 +437,10 @@ Textmerger.prototype.getReplacements = function(original, text1, text2) {
     replacements.replacements[0] = new Textmerger.Replacement(0, original_trimmed.length - 1, text1_trimmed, "text1");
     replacements.replacements[1] = new Textmerger.Replacement(0, original_trimmed.length - 1, text2_trimmed, "text2");
 
+    var original_replacements = Object.assign(new Textmerger.ReplacementGroup(), replacements);
     for (i in this.levenshteinDelimiter) {
         if (replacements.haveConflicts() !== false) {
+            replacements = Object.assign(new Textmerger.ReplacementGroup(), original_replacements);
             replacements.breakApart(this.levenshteinDelimiter[i], original_trimmed);
         } else {
             break;

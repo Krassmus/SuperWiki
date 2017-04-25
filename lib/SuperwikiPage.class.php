@@ -111,8 +111,7 @@ class SuperwikiPage extends SimpleORMap {
         foreach ($pages as $page) {
             if (($page->getId() !== $this->getId()) && $page->isReadable()) {
                 $text = preg_replace(
-                    "/(\s)".preg_quote($page['name'],
-                    "/")."/",
+                    "/(\b)".preg_quote($page['name'],"/")."/",
                     '$1<a href="'.URLHelper::getLink("plugins.php/superwiki/page/view/".$page->getId(), array('cid' => $page['seminar_id'])).'">'
                         .(version_compare($GLOBALS['SOFTWARE_VERSION'], "3.4", ">=")
                             ? Icon::create($page->settings['link_icon'], "clickable")->asImg(20, array('class' => "text-bottom"))

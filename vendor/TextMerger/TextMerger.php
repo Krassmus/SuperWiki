@@ -87,7 +87,7 @@ class TextmergerReplacement {
     public function breakApart($delimiter, $original)
     {
         $original_snippet = substr($original, $this->start, $this->end - $this->start + 1);
-        if (($this->start === $this->end && $this->text === "") || ($original_snippet === $this->text)) {
+        if ((($this->start === $this->end) && $this->text === "") || ($original_snippet === $this->text)) {
             return array($this);
         }
 
@@ -503,6 +503,7 @@ class Textmerger {
     public function merge($original, $text1, $text2)
     {
         $replacements = $this->getReplacements($original, $text1, $text2);
+        var_dump($replacements);
         return $replacements->applyTo($original);
     }
 
@@ -585,13 +586,17 @@ class Textmerger {
         $replacements[0] = new TextmergerReplacement(0, strlen($original_trimmed) - 1, $text1_trimmed, "text1");
         $replacements[1] = new TextmergerReplacement(0, strlen($original_trimmed) - 1, $text2_trimmed, "text2");
 
+        $original_replacements = clone $replacements;
         foreach ($this->levenshteinDelimiter as $delimiter) {
             if ($replacements->haveConflicts() !== false) {
+                $replacements = clone $original_replacements;
                 $replacements->breakApart($delimiter, $original_trimmed);
             } else {
                 break;
             }
         }
+
+
 
         $have_conflicts = $replacements->haveConflicts();
         if ($have_conflicts !== false) {

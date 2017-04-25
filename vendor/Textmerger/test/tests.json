@@ -78,9 +78,9 @@
   },
   {
     "title": "Levenshtein-Test",
-    "original": "One tre four five seven.",
-    "mine": "One thre four five six seven.",
-    "theirs": "One two tree four five seven.",
-    "expected": "One two three four five six seven."
+    "original": "One Two Three\nFour Five Six\nSeven Eight Nine",
+    "mine": "One Two YYY Three\nFour Five YYY Six\nSeven Eight Nine",
+    "theirs": "One Two Three\nFour ZZZ Five Six\nSeven Eight ZZZ Nine",
+    "expected": "One Two YYY Three\nFour ZZZ Five YYY Six\nSeven Eight ZZZ Nine"
   }
 ]
