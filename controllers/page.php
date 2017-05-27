@@ -74,19 +74,21 @@ class PageController extends PluginController {
             throw new AccessDeniedException("Keine Berechtigung.");
         }
 
-        $statement = DBManager::get()->prepare("
-                INSERT INTO superwiki_editors
-                SET user_id = :me,
-                    page_id = :page_id,
-                    online = UNIX_TIMESTAMP(),
-                    latest_change = '0'
-                ON DUPLICATE KEY UPDATE
-                    online = UNIX_TIMESTAMP()
-            ");
-        $statement->execute(array(
-            'me' => $GLOBALS['user']->id,
-            'page_id' => $page_id
-        ));
+        if (!$this->page->isNew()) {
+            $statement = DBManager::get()->prepare("
+                    INSERT INTO superwiki_editors
+                    SET user_id = :me,
+                        page_id = :page_id,
+                        online = UNIX_TIMESTAMP(),
+                        latest_change = '0'
+                    ON DUPLICATE KEY UPDATE
+                        online = UNIX_TIMESTAMP()
+                ");
+            $statement->execute(array(
+                'me' => $GLOBALS['user']->id,
+                'page_id' => $page_id
+            ));
+        }
 
 
         if (Request::isPost()
