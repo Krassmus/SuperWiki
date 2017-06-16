@@ -548,7 +548,7 @@ class Textmerger {
             return self::$replacement_hash[$hash_id];
         }
         //Make texts smaller
-        for($offset = 0; $offset < strlen($original); $offset++) {
+        for ($offset = 0; $offset < strlen($original); $offset++) {
             if ($original[$offset] !== $text1[$offset] || $original[$offset] !== $text2[$offset]) {
                 if ($offset > 0) {
                     $offset--;
@@ -557,7 +557,7 @@ class Textmerger {
             }
         }
 
-        for($backoffset = 0; $backoffset < strlen($original); $backoffset++) {
+        for ($backoffset = 0; $backoffset < strlen($original); $backoffset++) {
             if (($original[strlen($original) - 1 - $backoffset] !== $text1[strlen($text1) - 1 - $backoffset])
                     || ($original[strlen($original) - 1 - $backoffset] !== $text2[strlen($text2) - 1 - $backoffset])
                     || (strlen($original) - $backoffset <= $offset)) {
@@ -625,7 +625,7 @@ class Textmerger {
         $replacement->origin = $origin;
         $text_start = 0;
         $text_end = strlen($text);
-        for($i = 0; $i <= strlen($original); $i++) {
+        for ($i = 0; $i <= strlen($original); $i++) {
             if ($original[$i] !== $text[$i]) {
                 $replacement->start = $i;
                 $text_start = $i;
@@ -637,7 +637,7 @@ class Textmerger {
             }
         }
 
-        for($i = 0; $i < strlen($original); $i++) {
+        for ($i = 0; $i < strlen($original); $i++) {
             if (($original[strlen($original) - 1 - $i] !== $text[strlen($text) - 1 - $i])
                     || (strlen($original) - $i === $replacement->start)) {
                 $replacement->end = strlen($original) - $i;

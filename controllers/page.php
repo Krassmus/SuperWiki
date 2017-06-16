@@ -18,7 +18,7 @@ class PageController extends PluginController {
         );
         PageLayout::addScript($this->plugin->getPluginURL()."/vendor/Textmerger/Textmerger.js");
         PageLayout::addScript($this->plugin->getPluginURL()."/assets/superwiki.js");
-        PageLayout::setTitle($GLOBALS['SessSemName']["header_line"]." - ".$this->settings['name']);
+        PageLayout::setTitle((class_exists("Context") ? Context::getHeaderLine() : $GLOBALS['SessSemName']["header_line"]) . " - ".$this->settings['name']);
         Helpbar::Get()->addLink(_("Wikilinks und Navigation"), "https://github.com/Krassmus/SuperWiki/wiki/Wikilinks-und-Navigation", null, "_blank");
         Helpbar::Get()->addLink(_("Unsichtbare Wikiseiten"), "https://github.com/Krassmus/SuperWiki/wiki/Unsichtbare-Wikiseiten", null, "_blank");
         Helpbar::Get()->addLink(_("SuperWiki für Gruppenaufgaben"), "https://github.com/Krassmus/SuperWiki/wiki/SuperWiki-f%C3%BCr-Gruppenaufgaben", null, "_blank");
@@ -38,17 +38,17 @@ class PageController extends PluginController {
     {
         if ($page_id) {
             $this->page = new SuperwikiPage($page_id);
-            if ($this->page['seminar_id'] !== $_SESSION['SessionSeminar']) {
+            if ($this->page['seminar_id'] !== (class_exists("Context") ? Context::getId() : $_SESSION['SessionSeminar'])) {
                 throw new AccessDeniedException("Not in right course");
             }
-            $history = $_SESSION['SuperWiki_History'][$_SESSION['SessionSeminar']];
+            $history = $_SESSION['SuperWiki_History'][class_exists("Context") ? Context::getId() : $_SESSION['SessionSeminar']];
             if ($history[count($history) - 1] !== $page_id) {
                 $history[] = $page_id;
                 if (count($history) > 6) {
                     array_shift($history);
                 }
             }
-            $_SESSION['SuperWiki_History'][$_SESSION['SessionSeminar']] = $history;
+            $_SESSION['SuperWiki_History'][class_exists("Context") ? Context::getId() : $_SESSION['SessionSeminar']] = $history;
         } else {
             $this->page = new SuperwikiPage($this->settings['indexpage'] ?: null);
         }
@@ -61,11 +61,11 @@ class PageController extends PluginController {
     {
         if ($page_id) {
             $this->page = new SuperwikiPage($page_id);
-            if ($this->page['seminar_id'] !== $_SESSION['SessionSeminar']) {
+            if ($this->page['seminar_id'] !== (class_exists("Context") ? Context::getId() : $_SESSION['SessionSeminar'])) {
                 throw new AccessDeniedException("Not in right course");
             }
         } else {
-            $this->page = SuperwikiPage::findByName(Request::get("name"), $_SESSION['SessionSeminar']);
+            $this->page = SuperwikiPage::findByName(Request::get("name"), class_exists("Context") ? Context::getId() : $_SESSION['SessionSeminar']);
             if (!$this->page) {
                 $this->page = new SuperwikiPage();
             }
@@ -84,10 +84,10 @@ class PageController extends PluginController {
             }
             if ($this->page->isNew()) {
                 $this->page['name'] = Request::get("name");
-                $this->page['seminar_id'] = $_SESSION['SessionSeminar'];
+                $this->page['seminar_id'] = class_exists("Context") ? Context::getId() : $_SESSION['SessionSeminar'];
             }
             $success = $this->page->store();
-            if (count(SuperwikiPage::findAll($_SESSION['SessionSeminar'])) === 1) {
+            if (count(SuperwikiPage::findAll(class_exists("Context") ? Context::getId() : $_SESSION['SessionSeminar'])) === 1) {
                 $this->settings['indexpage'] = $this->page->getId();
                 $this->settings->store();
             }
@@ -127,7 +127,7 @@ class PageController extends PluginController {
     public function rename_action($page_id)
     {
         $this->page = new SuperwikiPage($page_id);
-        if ($this->page['seminar_id'] !== $_SESSION['SessionSeminar']) {
+        if ($this->page['seminar_id'] !== (class_exists("Context") ? Context::getId() : $_SESSION['SessionSeminar'])) {
             throw new AccessDeniedException("Not in right course");
         }
         $this->settings = new SuperwikiSettings($this->page['seminar_id']);
@@ -218,7 +218,7 @@ class PageController extends PluginController {
      */
     public function post_files_action() {
         if (!Request::isPost()
-            || !$GLOBALS['perm']->have_studip_perm("autor", $_SESSION['SessionSeminar'])) {
+            || !$GLOBALS['perm']->have_studip_perm("autor", class_exists("Context") ? Context::getId() : $_SESSION['SessionSeminar'])) {
             throw new AccessDeniedException("Kein Zugriff");
         }
         //check folders

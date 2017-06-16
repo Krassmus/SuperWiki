@@ -11,8 +11,12 @@ class OverviewController extends PluginController {
         parent::before_filter($action, $args);
         $this->settings = new SuperwikiSettings($_SESSION['SessionSeminar']);
         Navigation::activateItem("/course/superwiki/all");
-        Navigation::getItem("/course/superwiki")->setImage(Assets::image_path("icons/16/black/".($this->settings['icon'] ?: "wiki")));
-        PageLayout::setTitle($GLOBALS['SessSemName']["header_line"]." - ".$this->settings['name']);
+        Navigation::getItem("/course/superwiki")->setImage(
+            version_compare($GLOBALS['SOFTWARE_VERSION'], "3.4", ">=")
+                ? Icon::create(($this->settings['icon'] ?: "wiki"), "info_alt")
+                : Assets::image_path("icons/white/16/".($this->settings['icon'] ?: "wiki"))
+        );
+        PageLayout::setTitle((class_exists("Context") ? Context::getHeaderLine() : $GLOBALS['SessSemName']["header_line"]) . " - ".$this->settings['name']);
         Helpbar::Get()->addLink(_("Wikilinks und Navigation"), "https://github.com/Krassmus/SuperWiki/wiki/Wikilinks-und-Navigation", null, "_blank");
         Helpbar::Get()->addLink(_("Unsichtbare Wikiseiten"), "https://github.com/Krassmus/SuperWiki/wiki/Unsichtbare-Wikiseiten", null, "_blank");
         Helpbar::Get()->addLink(_("SuperWiki für Gruppenaufgaben"), "https://github.com/Krassmus/SuperWiki/wiki/SuperWiki-f%C3%BCr-Gruppenaufgaben", null, "_blank");
