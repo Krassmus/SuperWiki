@@ -547,33 +547,19 @@ class Textmerger {
             return self::$replacement_hash[$hash_id];
         }
         //Make texts smaller
-<<<<<<< HEAD
         for ($offset = 0; $offset < strlen($original); $offset++) {
             if ($original[$offset] !== $text1[$offset] || $original[$offset] !== $text2[$offset]) {
                 if ($offset > 0) {
                     $offset--;
                 }
-=======
-        for($offset = 0; $offset < strlen($original); $offset++) {
-            if (($original[$offset] !== $text1[$offset]) || ($original[$offset] !== $text2[$offset])) {
->>>>>>> af4e865f8095b07366b36abcb3d6a175526223ec
                 break;
             }
         }
 
-<<<<<<< HEAD
         for ($backoffset = 0; $backoffset < strlen($original); $backoffset++) {
             if (($original[strlen($original) - 1 - $backoffset] !== $text1[strlen($text1) - 1 - $backoffset])
                     || ($original[strlen($original) - 1 - $backoffset] !== $text2[strlen($text2) - 1 - $backoffset])
                     || (strlen($original) - $backoffset <= $offset)) {
-=======
-        for($backoffset = 0; $backoffset < strlen($original); $backoffset++) {
-            if (($original[strlen($original) - $backoffset - 1] !== $text1[strlen($text1) - $backoffset - 1])
-                || ($original[strlen($original) - $backoffset - 1] !== $text2[strlen($text2) - $backoffset - 1])
-                || (strlen($original) - $backoffset <= $offset)
-                || (strlen($text1) - $backoffset <= $offset)
-                || (strlen($text2) - $backoffset <= $offset)) {
->>>>>>> af4e865f8095b07366b36abcb3d6a175526223ec
                 break;
             }
         }
