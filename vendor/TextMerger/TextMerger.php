@@ -627,11 +627,7 @@ class Textmerger {
         $replacement->origin = $origin;
         $text_start = 0;
         $text_end = strlen($text);
-<<<<<<< HEAD
-        for ($i = 0; $i <= strlen($original); $i++) {
-=======
         for($i = 0; $i <= max(strlen($original), strlen($text)); $i++) {
->>>>>>> af4e865f8095b07366b36abcb3d6a175526223ec
             if ($original[$i] !== $text[$i]) {
                 $replacement->start = $i;
                 $text_start = $i;
@@ -643,11 +639,7 @@ class Textmerger {
             }
         }
 
-<<<<<<< HEAD
-        for ($i = 0; $i < strlen($original); $i++) {
-=======
         for($i = 0; $i < max(strlen($original), strlen($text)); $i++) {
->>>>>>> af4e865f8095b07366b36abcb3d6a175526223ec
             if (($original[strlen($original) - 1 - $i] !== $text[strlen($text) - 1 - $i])
                     || (strlen($original) - $i === $replacement->start)) {
                 $replacement->end = strlen($original) - $i;
