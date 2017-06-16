@@ -38,7 +38,7 @@
             </select>
         </label>
     </fieldset>
-    <fieldset>
+    <fieldset style="display: inline-block; width: calc(50% - 2px);">
         <legend>
             <?= _("Icon des Superwikis") ?>
         </legend>
@@ -47,8 +47,26 @@
             <? foreach ($icons as $icon) : ?>
             <label>
                 <input type="radio" name="icon" value="<?= htmlReady($icon) ?>"<?= $icon === $settings['icon'] ? " checked" : "" ?>>
-                <?= Assets::img("icons/20/black/".$icon, array('class' => "text-bottom")) ?>
+                <?= version_compare($GLOBALS['SOFTWARE_VERSION'], "3.4", ">=")
+                    ? Icon::create($icon, "info")->asImg(20, array('class' => "text-bottom"))
+                    : Assets::image_path("icons/20/black/".$icon, array('class' => "text-bottom")) ?>
             </label>
+            <? endforeach ?>
+        </div>
+    </fieldset>
+    <fieldset style="display: inline-block; width: calc(50% - 1px);">
+        <legend>
+            <?= _("Icon der Links") ?>
+        </legend>
+        <div>
+            <? $icons = array("wiki", "info-circle", "info-small", "infopage", "exclaim", "link-intern", "literature", "log") ?>
+            <? foreach ($icons as $icon) : ?>
+                <label>
+                    <input type="radio" name="link_icon" value="<?= htmlReady($icon) ?>"<?= $icon === $settings['link_icon'] ? " checked" : "" ?>>
+                    <?= version_compare($GLOBALS['SOFTWARE_VERSION'], "3.4", ">=")
+                        ? Icon::create($icon, "info")->asImg(20, array('class' => "text-bottom"))
+                        : Assets::image_path("icons/20/black/".$icon, array('class' => "text-bottom")) ?>
+                </label>
             <? endforeach ?>
         </div>
     </fieldset>

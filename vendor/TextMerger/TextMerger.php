@@ -74,10 +74,9 @@ class TextmergerReplacement {
     public function isConflictingWith($replacement)
     {
         return ($this->start < $replacement->end && $this->start > $replacement->start)
-            || ($this->end < $replacement->end && $this->end > $replacement->start)
-            || ($this->start < $replacement->end && $this->end > $replacement->end)
-            || ($this->start < $replacement->start && $this->end > $replacement->end)
-            || ($this->start === $replacement->start && ($this->end === $replacement->end) && ($this->end - $this->start > 0));
+                    || ($this->end < $replacement->end && $this->end > $replacement->start)
+                    || ($this->start < $replacement->start && $this->end > $replacement->end)
+                    || ($this->start === $replacement->start && $this->end === $replacement->end && $this->end - $this->start > 0);
     }
 
     /**
@@ -88,7 +87,7 @@ class TextmergerReplacement {
     public function breakApart($delimiter, $original)
     {
         $original_snippet = substr($original, $this->start, $this->end - $this->start + 1);
-        if (($this->start === $this->end && $this->text === "") || ($original_snippet === $this->text)) {
+        if ((($this->start === $this->end) && $this->text === "") || ($original_snippet === $this->text)) {
             return array($this);
         }
 
@@ -334,6 +333,13 @@ class TextmergerReplacementGroup implements ArrayAccess, Iterator, Countable{
         return isset($this->replacements[$this->position]);
     }
 
+    public function sort()
+    {
+        usort($this->replacements, function ($a, $b) {
+            return $a->start >= $b->start ? 1 : -1;
+        });
+        $this->rewind();
+    }
 
     public function count()
     {
@@ -444,14 +450,6 @@ class TextmergerReplacementGroup implements ArrayAccess, Iterator, Countable{
         }
         return $text;
     }
-
-    public function sort()
-    {
-        usort($this->replacements, function ($a, $b) {
-            return $a->start >= $b->start ? 1 : -1;
-        });
-        $this->rewind();
-    }
 }
 
 class Textmerger {
@@ -505,6 +503,7 @@ class Textmerger {
     public function merge($original, $text1, $text2)
     {
         $replacements = $this->getReplacements($original, $text1, $text2);
+        var_dump($replacements);
         return $replacements->applyTo($original);
     }
 
@@ -548,19 +547,33 @@ class Textmerger {
             return self::$replacement_hash[$hash_id];
         }
         //Make texts smaller
+<<<<<<< HEAD
         for ($offset = 0; $offset < strlen($original); $offset++) {
             if ($original[$offset] !== $text1[$offset] || $original[$offset] !== $text2[$offset]) {
                 if ($offset > 0) {
                     $offset--;
                 }
+=======
+        for($offset = 0; $offset < strlen($original); $offset++) {
+            if (($original[$offset] !== $text1[$offset]) || ($original[$offset] !== $text2[$offset])) {
+>>>>>>> af4e865f8095b07366b36abcb3d6a175526223ec
                 break;
             }
         }
 
+<<<<<<< HEAD
         for ($backoffset = 0; $backoffset < strlen($original); $backoffset++) {
             if (($original[strlen($original) - 1 - $backoffset] !== $text1[strlen($text1) - 1 - $backoffset])
                     || ($original[strlen($original) - 1 - $backoffset] !== $text2[strlen($text2) - 1 - $backoffset])
                     || (strlen($original) - $backoffset <= $offset)) {
+=======
+        for($backoffset = 0; $backoffset < strlen($original); $backoffset++) {
+            if (($original[strlen($original) - $backoffset - 1] !== $text1[strlen($text1) - $backoffset - 1])
+                || ($original[strlen($original) - $backoffset - 1] !== $text2[strlen($text2) - $backoffset - 1])
+                || (strlen($original) - $backoffset <= $offset)
+                || (strlen($text1) - $backoffset <= $offset)
+                || (strlen($text2) - $backoffset <= $offset)) {
+>>>>>>> af4e865f8095b07366b36abcb3d6a175526223ec
                 break;
             }
         }
@@ -572,13 +585,13 @@ class Textmerger {
         $replacements = new TextmergerReplacementGroup();
         $replacements[0] = $this->getSimpleReplacement($original_trimmed, $text1_trimmed, "text1");
         $replacements[1] = $this->getSimpleReplacement($original_trimmed, $text2_trimmed, "text2");
+        $replacements->sort();
 
         if (!$replacements->haveConflicts()) {
             foreach ($replacements as $replacement) {
                 $replacement->start += $offset;
                 $replacement->end += $offset;
             }
-            $replacements->sort();
             self::$replacement_hash[$hash_id] = $replacements;
             return $replacements;
         }
@@ -588,14 +601,17 @@ class Textmerger {
         $replacements[0] = new TextmergerReplacement(0, strlen($original_trimmed) - 1, $text1_trimmed, "text1");
         $replacements[1] = new TextmergerReplacement(0, strlen($original_trimmed) - 1, $text2_trimmed, "text2");
 
+        $original_replacements = clone $replacements;
         foreach ($this->levenshteinDelimiter as $delimiter) {
-            var_dump($replacements);
             if ($replacements->haveConflicts() !== false) {
+                $replacements = clone $original_replacements;
                 $replacements->breakApart($delimiter, $original_trimmed);
             } else {
                 break;
             }
         }
+
+
 
         $have_conflicts = $replacements->haveConflicts();
         if ($have_conflicts !== false) {
@@ -606,7 +622,7 @@ class Textmerger {
             $replacement->start += $offset;
             $replacement->end += $offset;
         }
-        $replacements->sort();
+
         self::$replacement_hash[$hash_id] = $replacements;
         return $replacements;
     }
@@ -625,7 +641,11 @@ class Textmerger {
         $replacement->origin = $origin;
         $text_start = 0;
         $text_end = strlen($text);
+<<<<<<< HEAD
         for ($i = 0; $i <= strlen($original); $i++) {
+=======
+        for($i = 0; $i <= max(strlen($original), strlen($text)); $i++) {
+>>>>>>> af4e865f8095b07366b36abcb3d6a175526223ec
             if ($original[$i] !== $text[$i]) {
                 $replacement->start = $i;
                 $text_start = $i;
@@ -637,7 +657,11 @@ class Textmerger {
             }
         }
 
+<<<<<<< HEAD
         for ($i = 0; $i < strlen($original); $i++) {
+=======
+        for($i = 0; $i < max(strlen($original), strlen($text)); $i++) {
+>>>>>>> af4e865f8095b07366b36abcb3d6a175526223ec
             if (($original[strlen($original) - 1 - $i] !== $text[strlen($text) - 1 - $i])
                     || (strlen($original) - $i === $replacement->start)) {
                 $replacement->end = strlen($original) - $i;
@@ -646,6 +670,7 @@ class Textmerger {
             }
         }
 
+
         if ($text_end - $text_start < 0) {
             $replacement->end++;
             $length = 0;
@@ -653,6 +678,7 @@ class Textmerger {
             $length = $text_end - $text_start;
         }
         $replacement->text = (string) substr($text, $text_start, $length);
+
         return $replacement;
     }
 

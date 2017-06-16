@@ -21,9 +21,9 @@ class PageController extends PluginController {
         PageLayout::setTitle((class_exists("Context") ? Context::getHeaderLine() : $GLOBALS['SessSemName']["header_line"]) . " - ".$this->settings['name']);
         Helpbar::Get()->addLink(_("Wikilinks und Navigation"), "https://github.com/Krassmus/SuperWiki/wiki/Wikilinks-und-Navigation", null, "_blank");
         Helpbar::Get()->addLink(_("Unsichtbare Wikiseiten"), "https://github.com/Krassmus/SuperWiki/wiki/Unsichtbare-Wikiseiten", null, "_blank");
-        Helpbar::Get()->addLink(_("SuperWiki für Gruppenaufgaben"), "https://github.com/Krassmus/SuperWiki/wiki/SuperWiki-f%C3%BCr-Gruppenaufgaben", null, "_blank");
+        Helpbar::Get()->addLink(_("SuperWiki für Gruppenaufgaben"), "https://github.com/Krassmus/SuperWiki/wiki/SuperWiki-für-Gruppenaufgaben", null, "_blank");
         //Helpbar::Get()->addLink(_("Superwiki für Lernorganisation"), "https://github.com/Krassmus/SuperWiki/wiki/Wikilinks-und-Navigation", null, "_blank");
-        Helpbar::Get()->addLink(_("Präsentationen mit SuperWiki"), "https://github.com/Krassmus/SuperWiki/wiki/Pr%C3%A4sentationen-mit-SuperWiki", null, "_blank");
+        Helpbar::Get()->addLink(_("Präsentationen mit SuperWiki"), "https://github.com/Krassmus/SuperWiki/wiki/Präsentationen-mit-SuperWiki", null, "_blank");
 
         Helpbar::Get()->addLink(_("PHP-Test"), URLHelper::getURL("plugins_packages/RasmusFuhse/SuperWiki/vendor/Textmerger/test/php.php"), null, "_blank");
         Helpbar::Get()->addLink(_("JS-Test"), URLHelper::getURL("plugins_packages/RasmusFuhse/SuperWiki/vendor/Textmerger/test/js.html"), null, "_blank");
@@ -74,6 +74,22 @@ class PageController extends PluginController {
             throw new AccessDeniedException("Keine Berechtigung.");
         }
 
+        if (!$this->page->isNew()) {
+            $statement = DBManager::get()->prepare("
+                    INSERT INTO superwiki_editors
+                    SET user_id = :me,
+                        page_id = :page_id,
+                        online = UNIX_TIMESTAMP(),
+                        latest_change = '0'
+                    ON DUPLICATE KEY UPDATE
+                        online = UNIX_TIMESTAMP()
+                ");
+            $statement->execute(array(
+                'me' => $GLOBALS['user']->id,
+                'page_id' => $page_id
+            ));
+        }
+
 
         if (Request::isPost()
                 && (!$this->page->isNew() || $this->settings->haveCreatePermission())
@@ -99,28 +115,7 @@ class PageController extends PluginController {
             $this->redirect("page/view/".$this->page->getId());
         }
         if (!$this->page->isNew()) {
-            $statement = DBManager::get()->prepare("
-                        INSERT INTO superwiki_editors
-                        SET user_id = :me,
-                            page_id = :page_id,
-                            latest_change = UNIX_TIMESTAMP()
-                        ON DUPLICATE KEY UPDATE
-                            latest_change = UNIX_TIMESTAMP()
-                    ");
-            $statement->execute(array(
-                'me' => $GLOBALS['user']->id,
-                'page_id' => $this->page->getId()
-            ));
-            $statement = DBManager::get()->prepare("
-                            SELECT user_id
-                            FROM superwiki_editors
-                            WHERE page_id = :page_id
-                                AND latest_change >= UNIX_TIMESTAMP() - 10
-                        ");
-            $statement->execute(array(
-                'page_id' => $this->page->getId()
-            ));
-            $this->onlineusers = $statement->fetchAll(PDO::FETCH_COLUMN, 0);
+            $this->onlineusers = $this->page->getActiveUsers();
         }
     }
 
@@ -152,6 +147,7 @@ class PageController extends PluginController {
             $this->settings['name'] = Request::get("name");
             $this->settings['indexpage'] = Request::get("indexpage");
             $this->settings['icon'] = Request::get("icon", "wiki");
+            $this->settings['link_icon'] = Request::get("link_icon", "wiki");
             $this->settings['create_permission'] = Request::get("create_permission");
             $this->settings['rename_permission'] = Request::get("rename_permission");
             $this->settings->store();

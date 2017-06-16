@@ -92,7 +92,7 @@ class SuperWikiFormat extends StudipFormat
         $page = SuperwikiPage::findOneBySQL("name = ? AND content IS NOT NULL AND content != ''", array($page_name));
 
         if ($page) {
-            return sprintf('<a href="%s">%s</a>',
+            return sprintf('<a href="%s" class="internallink">%s</a>',
                 URLHelper::getLink("plugins.php/superwiki/page/view/".$page->getId()),
                 $display_page
             );

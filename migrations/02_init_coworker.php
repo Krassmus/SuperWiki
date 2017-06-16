@@ -11,7 +11,7 @@ class InitCoworker extends Migration {
                 UNIQUE KEY `unique_users` (`user_id`, `page_id`),
                 KEY `user_id` (`user_id`),
                 KEY `page_id` (`page_id`)
-            ) ENGINE=MyISAM
+            )
 	    ");
 
     }
