@@ -113,15 +113,19 @@ Textmerger.Replacement.prototype.breakApart = function (delimiter, original) {
     for (var key in backtrace) {
         var operation = backtrace[key];
         if (key > 0) {
-            replacetext_end += delimiter.length;
-            originaltext_index += delimiter.length;
+            if (backtrace[key - 1] !== "i") {
+                replacetext_end += delimiter.length;
+                originaltext_index += delimiter.length;
+            }
         }
         if (operation === "=") {
             if (replacement !== null) {
                 replacement.end = originaltext_index - delimiter.length;
                 replacement.text = this.text.substr(
                     replacetext_start,
-                    replacetext_end - delimiter.length - replacetext_start
+                    (replacetext_end - delimiter.length - replacetext_start > 0)
+                        ? (replacetext_end - delimiter.length - replacetext_start)
+                        : 0
                 );
                 replacements.push(replacement);
                 replacement = null;
@@ -161,7 +165,7 @@ Textmerger.Replacement.prototype.breakApart = function (delimiter, original) {
                 replacetext_index++;
                 break;
             case "i":
-                replacetext_end += parts[replacetext_index].length;
+                replacetext_end += parts[replacetext_index].length + delimiter.length;
                 replacetext_index++;
                 break;
             case "d":
@@ -169,10 +173,10 @@ Textmerger.Replacement.prototype.breakApart = function (delimiter, original) {
         }
     }
     if (replacement !== null) {
-        replacement.end = originaltext_index;
+        replacement.end = originaltext_index - (operation === "i" ? delimiter.length : 0);
         replacement.text = this.text.substr(
             replacetext_start,
-            replacetext_end - delimiter.length - replacetext_start + 1 //TODO: why +1 ??
+            replacetext_end - replacetext_start
         );
         replacements.push(replacement);
     }

@@ -125,8 +125,10 @@ class TextmergerReplacement {
 
         foreach ($backtrace as $key => $operation) {
             if ($key > 0) {
-                $replacetext_end += strlen($delimiter);
-                $originaltext_index += strlen($delimiter);
+                if ($backtrace[$key - 1] !== "i") {
+                    $replacetext_end += strlen($delimiter);
+                    $originaltext_index += strlen($delimiter);
+                }
             }
             if ($operation === "=") {
                 if ($replacement !== null) {
@@ -134,7 +136,9 @@ class TextmergerReplacement {
                     $replacement->text = substr(
                         $this->text,
                         $replacetext_start,
-                        $replacetext_end - strlen($delimiter) - $replacetext_start
+                        ($replacetext_end - strlen($delimiter) - $replacetext_start > 0)
+                            ? ($replacetext_end - strlen($delimiter) - $replacetext_start)
+                            : 0
                     );
                     $replacements[] = $replacement;
                     $replacement = null;
@@ -174,7 +178,7 @@ class TextmergerReplacement {
                     $replacetext_index++;
                     break;
                 case "i":
-                    $replacetext_end += strlen($parts[$replacetext_index]);
+                    $replacetext_end += strlen($parts[$replacetext_index]) + strlen($delimiter);
                     $replacetext_index++;
                     break;
                 case "d":
@@ -182,11 +186,11 @@ class TextmergerReplacement {
             }
         }
         if ($replacement !== null) {
-            $replacement->end = $originaltext_index;
+            $replacement->end = $originaltext_index  - ($operation === "i" ? strlen($delimiter) : 0);
             $replacement->text = substr(
                 $this->text,
                 $replacetext_start,
-                $replacetext_end - strlen($delimiter) - $replacetext_start + 1 //TODO: why +1 ??
+                $replacetext_end - $replacetext_start
             );
             $replacements[] = $replacement;
         }
@@ -503,7 +507,6 @@ class Textmerger {
     public function merge($original, $text1, $text2)
     {
         $replacements = $this->getReplacements($original, $text1, $text2);
-        var_dump($replacements);
         return $replacements->applyTo($original);
     }
 
