@@ -1,9 +1,9 @@
-<table class="default nohover">
+<table class="default nohover changes">
     <thead>
         <tr>
             <th></th>
             <th><?= _("Änderung") ?></th>
-            <th></th>
+            <th><?= _("Datum") ?></th>
         </tr>
     </thead>
     <tbody>
@@ -15,24 +15,36 @@
                 </a>
             </td>
             <td>
-                <? $changes = Textmerger::get()->_getReplacements($version['content'], $new_version) ?>
+                <? $changes = Textmerger::get()->getReplacements($version['content'], $new_version, $version['content']) ?>
                 <? foreach ($changes as $change) : ?>
-                    <? $start = max($change['start'] - 10, 0) ?>
-                    <? $start = substr($new_version, $start, $change['start'] - $start) ?>
-                    <? $end = min($change['end'] + 10, strlen($new_version) - 1) ?>
-                    <? $end = substr($new_version, $change['end'], $end - $change['start']) ?>
-                    <div class="after"><span class="start"><?= htmlReady($start) ?></span><span class=""><?= htmlReady($change['text']) ?></span><span class="end"><?= htmlReady($end) ?></span></div>
-                    <!--
-                <div class="before"><span class="start"><?= htmlReady($start) ?></span><span class=""><?= htmlReady(substr($new_version, $change['start'], $change['end'] - $change['start'])) ?></span><span class="end"><?= htmlReady($change['end']) ?></span></div>
-                -->
+                    <? if (($change->start !== $change->end) || ($change->text !== "")) : ?>
+                        <? $start = max($change->start - 10, 0) ?>
+                        <? $start = substr($new_version, $start, $change->start - $start) ?>
+                        <? $end = min($change->end + 10, strlen($new_version) - 1) ?>
+                        <? $end = substr($new_version, $change->end, $end - $change->start) ?>
+                        <div class="change">
+                            <span class="start"><?= nl2br(htmlReady($start)) ?></span>
+                            <span class="changedtext"><?= nl2br(htmlReady($change->text)) ?></span>
+                            <span class="end"><?= nl2br(htmlReady($end)) ?></span>
+                        </div>
+                    <? endif ?>
                 <? endforeach ?>
             </td>
-            <td></td>
+            <td><?= date("G:i d.m.Y", $version['mkdate']) ?></td>
         </tr>
+        <? $new_version = $version['content'] ?>
     <? endforeach ?>
     </tbody>
 </table>
 
+<style>
+    .changes .start {
+        color: #dddddd;
+    }
+    .changes .end {
+        color: #dddddd;
+    }
+</style>
 
 <?
 $sidebar = Sidebar::Get();
