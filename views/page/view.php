@@ -1,8 +1,8 @@
-<? if (count($_SESSION['SuperWiki_History'][$_SESSION['SessionSeminar']]) > 1) : ?>
+<? if (count($_SESSION['SuperWiki_History'][$course_id]) > 1) : ?>
     <div id="superwiki_history" style="font-size: 0.8em;">
         <ol style="margin: 0px; list-style-type: none; padding: 0px; margin-bottom: 13px;">
-            <? foreach ($_SESSION['SuperWiki_History'][$_SESSION['SessionSeminar']] as $key => $page_id) : ?>
-                <? if ($key < count($_SESSION['SuperWiki_History'][$_SESSION['SessionSeminar']]) - 1) : ?>
+            <? foreach ($_SESSION['SuperWiki_History'][$course_id] as $key => $page_id) : ?>
+                <? if ($key < count($_SESSION['SuperWiki_History'][$course_id]) - 1) : ?>
                     <li style="display: inline-block; padding-left: 30px; background: 8px center url('<?= Assets::image_path("icons/grey/arr_2right.svg") ?>') no-repeat; background-size: 14px 14px;">
                         <a href="<?= PluginEngine::getLink($plugin, array(), "page/view/".$page_id) ?>">
                             <?= htmlReady(SuperwikiPage::find($page_id)->name) ?>
@@ -14,7 +14,7 @@
     </div>
 <? endif ?>
 
-<input type="hidden" id="seminar_id" value="<?= $_SESSION['SessionSeminar'] ?>">
+<input type="hidden" id="seminar_id" value="<?= htmlReady($course_id) ?>">
 <input type="hidden" id="page_id" value="<?= htmlReady($page->getId()) ?>">
 
 <div class="full_wiki_page">
@@ -58,7 +58,7 @@ $sidebar = Sidebar::Get();
 $sidebar->setImage('sidebar/wiki-sidebar.png');
 
 $actions = new ActionsWidget();
-if ($GLOBALS['perm']->have_studip_perm("tutor", $_SESSION['SessionSeminar'])) {
+if ($GLOBALS['perm']->have_studip_perm("tutor", $course_id)) {
     $actions->addLink(
         _("Wiki-Einstellungen"),
         PluginEngine::getURL($plugin, array(), "page/admin"),

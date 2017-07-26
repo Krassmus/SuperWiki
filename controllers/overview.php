@@ -9,7 +9,8 @@ class OverviewController extends PluginController {
     function before_filter(&$action, &$args)
     {
         parent::before_filter($action, $args);
-        $this->settings = new SuperwikiSettings($_SESSION['SessionSeminar']);
+        $this->course_id = class_exists("Context") ? Context::getId() : $_SESSION['SessionSeminar'];
+        $this->settings = new SuperwikiSettings($this->course_id);
         Navigation::activateItem("/course/superwiki/all");
         Navigation::getItem("/course/superwiki")->setImage(
             version_compare($GLOBALS['SOFTWARE_VERSION'], "3.4", ">=")
@@ -26,13 +27,17 @@ class OverviewController extends PluginController {
 
     public function all_action()
     {
-        $this->pages = SuperwikiPage::findAll($_SESSION['SessionSeminar']);
+        $this->pages = SuperwikiPage::findAll($this->course_id);
     }
 
     public function latest_changes_action()
     {
         if (Request::int("since")) {
-            $this->pages = SuperwikiPage::findBySql("seminar_id = ? AND chdate > ? ORDER BY chdate DESC", array($_SESSION['SessionSeminar'], Request::int("since")));
+            $course_id = class_exists("Context") ? Context::getId() : $_SESSION['SessionSeminar'];
+            $this->pages = SuperwikiPage::findBySql("seminar_id = ? AND chdate > ? ORDER BY chdate DESC", array(
+                $course_id,
+                Request::int("since")
+            ));
         }
     }
 

@@ -103,11 +103,11 @@ class SuperWiki extends StudIPPlugin implements StandardPlugin, SystemPlugin {
         if ($new_changes) {
             $icon->setURL(PluginEngine::getURL($this, array(), "overview/latest_changes"), array('since' => $last_visit));
             $icon->setImage(version_compare($GLOBALS['SOFTWARE_VERSION'], "3.4", ">=")
-                ? Icon::create($settings['icon']."+new", "new")
+                ? Icon::create(($settings['icon'] ?: "wiki")."+new", "new")
                 : Assets::image_path("icons/20/red/new/".($settings['icon'] ?: "wiki")), array('title' => sprintf(_("%s Seiten wurden verändert."), $new_changes)));
         } else {
             $icon->setImage(version_compare($GLOBALS['SOFTWARE_VERSION'], "3.4", ">=")
-                ? Icon::create($settings['icon'], "inactive")
+                ? Icon::create(($settings['icon'] ?: "wiki"), "inactive")
                 : Assets::image_path("icons/20/grey/".($settings['icon'] ?: "wiki")), array('title' => $settings ? $settings['name'] : _("SuperWiki")));
         }
         return $icon;
@@ -117,7 +117,7 @@ class SuperWiki extends StudIPPlugin implements StandardPlugin, SystemPlugin {
         $settings = SuperwikiSettings::find($course_id);
         $tab = new Navigation($settings ? $settings['name'] : _("SuperWiki"), PluginEngine::getURL($this, array(), "page/view"));
         $tab->setImage(version_compare($GLOBALS['SOFTWARE_VERSION'], "3.4", ">=")
-            ? Icon::create($settings['icon'], "info_alt")
+            ? Icon::create(($settings['icon'] ?: "wiki"), "info_alt")
             : Assets::image_path("icons/16/white/".($settings['icon'] ?: "wiki")));
         $tab->addSubNavigation("wiki", new Navigation($settings ? $settings['name'] : _("SuperWiki"), PluginEngine::getURL($this, array(), "page/view")));
         $tab->addSubNavigation("all", new Navigation(_("Alle Seiten"), PluginEngine::getURL($this, array(), "overview/all")));

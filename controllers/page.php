@@ -9,7 +9,8 @@ class PageController extends PluginController {
     function before_filter(&$action, &$args)
     {
         parent::before_filter($action, $args);
-        $this->settings = new SuperwikiSettings($_SESSION['SessionSeminar']);
+        $this->course_id = class_exists("Context") ? Context::getId() : $_SESSION['SessionSeminar'];
+        $this->settings = new SuperwikiSettings($this->course_id);
         Navigation::activateItem("/course/superwiki/wiki");
         Navigation::getItem("/course/superwiki")->setImage(
             version_compare($GLOBALS['SOFTWARE_VERSION'], "3.4", ">=")
@@ -38,17 +39,17 @@ class PageController extends PluginController {
     {
         if ($page_id) {
             $this->page = new SuperwikiPage($page_id);
-            if ($this->page['seminar_id'] !== (class_exists("Context") ? Context::getId() : $_SESSION['SessionSeminar'])) {
+            if ($this->page['seminar_id'] !== $this->course_id) {
                 throw new AccessDeniedException("Not in right course");
             }
-            $history = $_SESSION['SuperWiki_History'][class_exists("Context") ? Context::getId() : $_SESSION['SessionSeminar']];
+            $history = $_SESSION['SuperWiki_History'][$this->course_id];
             if ($history[count($history) - 1] !== $page_id) {
                 $history[] = $page_id;
                 if (count($history) > 6) {
                     array_shift($history);
                 }
             }
-            $_SESSION['SuperWiki_History'][class_exists("Context") ? Context::getId() : $_SESSION['SessionSeminar']] = $history;
+            $_SESSION['SuperWiki_History'][$this->course_id] = $history;
         } else {
             $this->page = new SuperwikiPage($this->settings['indexpage'] ?: null);
         }
@@ -61,11 +62,12 @@ class PageController extends PluginController {
     {
         if ($page_id) {
             $this->page = new SuperwikiPage($page_id);
-            if ($this->page['seminar_id'] !== (class_exists("Context") ? Context::getId() : $_SESSION['SessionSeminar'])) {
+
+            if ($this->page['seminar_id'] !== $this->course_id) {
                 throw new AccessDeniedException("Not in right course");
             }
         } else {
-            $this->page = SuperwikiPage::findByName(Request::get("name"), class_exists("Context") ? Context::getId() : $_SESSION['SessionSeminar']);
+            $this->page = SuperwikiPage::findByName(Request::get("name"), $this->course_id);
             if (!$this->page) {
                 $this->page = new SuperwikiPage();
             }
@@ -100,10 +102,10 @@ class PageController extends PluginController {
             }
             if ($this->page->isNew()) {
                 $this->page['name'] = Request::get("name");
-                $this->page['seminar_id'] = class_exists("Context") ? Context::getId() : $_SESSION['SessionSeminar'];
+                $this->page['seminar_id'] = $this->course_id;
             }
             $success = $this->page->store();
-            if (count(SuperwikiPage::findAll(class_exists("Context") ? Context::getId() : $_SESSION['SessionSeminar'])) === 1) {
+            if (count(SuperwikiPage::findAll($this->course_id)) === 1) {
                 $this->settings['indexpage'] = $this->page->getId();
                 $this->settings->store();
             }
@@ -122,7 +124,7 @@ class PageController extends PluginController {
     public function rename_action($page_id)
     {
         $this->page = new SuperwikiPage($page_id);
-        if ($this->page['seminar_id'] !== (class_exists("Context") ? Context::getId() : $_SESSION['SessionSeminar'])) {
+        if ($this->page['seminar_id'] !== $this->course_id) {
             throw new AccessDeniedException("Not in right course");
         }
         $this->settings = new SuperwikiSettings($this->page['seminar_id']);
@@ -139,7 +141,7 @@ class PageController extends PluginController {
 
     public function admin_action()
     {
-        if (!$GLOBALS['perm']->have_studip_perm("tutor", $_SESSION['SessionSeminar'])) {
+        if (!$GLOBALS['perm']->have_studip_perm("tutor", $this->course_id)) {
             throw new AccessDeniedException();
         }
         PageLayout::setTitle(_("SuperWiki Einstellungen"));
@@ -214,13 +216,13 @@ class PageController extends PluginController {
      */
     public function post_files_action() {
         if (!Request::isPost()
-            || !$GLOBALS['perm']->have_studip_perm("autor", class_exists("Context") ? Context::getId() : $_SESSION['SessionSeminar'])) {
+            || !$GLOBALS['perm']->have_studip_perm("autor", $this->course_id)) {
             throw new AccessDeniedException("Kein Zugriff");
         }
         //check folders
         $db = DBManager::get();
-        $folder_id = md5("Superwiki_".$_SESSION['SessionSeminar']."_".$GLOBALS['user']->id);
-        $parent_folder_id = md5("Superwiki_".$_SESSION['SessionSeminar']);
+        $folder_id = md5("Superwiki_".$this->course_id."_".$GLOBALS['user']->id);
+        $parent_folder_id = md5("Superwiki_".$this->course_id);
         $folder_id = $parent_folder_id;
         $folder = $db->query(
             "SELECT * " .
@@ -237,8 +239,8 @@ class PageController extends PluginController {
                 $db->exec(
                     "INSERT IGNORE INTO folder " .
                     "SET folder_id = ".$db->quote($parent_folder_id).", " .
-                        "range_id = ".$db->quote($_SESSION['SessionSeminar']).", " .
-                        "seminar_id = ".$db->quote($context).", " .
+                        "range_id = ".$db->quote($this->course_id).", " .
+                        "seminar_id = ".$db->quote($this->course_id).", " .
                         "user_id = ".$db->quote($GLOBALS['user']->id).", " .
                         "name = ".$db->quote("SuperwikiDateien").", " .
                         "permission = '7', " .
@@ -250,7 +252,7 @@ class PageController extends PluginController {
                 "INSERT IGNORE INTO folder " .
                 "SET folder_id = ".$db->quote($folder_id).", " .
                     "range_id = ".$db->quote($parent_folder_id).", " .
-                    "seminar_id = ".$db->quote($_SESSION['SessionSeminar']).", " .
+                    "seminar_id = ".$db->quote($this->course_id).", " .
                     "user_id = ".$db->quote($GLOBALS['user']->id).", " .
                     "name = ".$db->quote(get_fullname()).", " .
                     "permission = '7', " .
@@ -272,7 +274,7 @@ class PageController extends PluginController {
                 $document['name'] = $document['filename'] = studip_utf8decode(strtolower($file['name']));
                 $document['user_id'] = $GLOBALS['user']->id;
                 $document['author_name'] = get_fullname();
-                $document['seminar_id'] = $_SESSION['SessionSeminar'];
+                $document['seminar_id'] = $this->course_id;
                 $document['range_id'] = $folder_id;
                 $document['filesize'] = $file['size'];
 

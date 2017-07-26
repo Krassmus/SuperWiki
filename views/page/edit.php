@@ -1,4 +1,4 @@
-<input type="hidden" id="seminar_id" value="<?= htmlReady($page['seminar_id'] ?: $_SESSION['SessionSeminar']) ?>">
+<input type="hidden" id="seminar_id" value="<?= htmlReady($page['seminar_id'] ?: $course_id) ?>">
 <input type="hidden" id="page_id" value="<?= htmlReady($page->getId()) ?>">
 
 <form action="<?= PluginEngine::getLink($plugin, array(), "page/edit/".$page->getId()) ?>" method="post" id="superwiki_edit_form">
@@ -85,7 +85,7 @@ $sidebar = Sidebar::Get();
 $sidebar->setImage('sidebar/wiki-sidebar.png');
 
 $actions = new ActionsWidget();
-if ($GLOBALS['perm']->have_studip_perm("tutor", $_SESSION['SessionSeminar'])) {
+if ($GLOBALS['perm']->have_studip_perm("tutor", $course_id)) {
     $actions->addLink(
         _("Wiki-Einstellungen"),
         PluginEngine::getURL($plugin, array(), "page/admin"),

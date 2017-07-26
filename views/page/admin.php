@@ -6,10 +6,10 @@
         </legend>
         <label>
             <?= _("Name des Reiters") ?>
-            <input type="text" name="name" value="<?= htmlReady($settings['name']) ?>">
+            <input type="text" name="name" value="<?= htmlReady($settings['name'] ?: "SuperWiki") ?>" required>
         </label>
 
-        <? $allpages = SuperwikiPage::findAll($_SESSION['SessionSeminar']) ?>
+        <? $allpages = SuperwikiPage::findAll($course_id) ?>
         <? if (count($allpages)) : ?>
             <label>
                 <?= _("Startseite des Wikis") ?>

@@ -66,7 +66,7 @@ $sidebar = Sidebar::Get();
 $sidebar->setImage('sidebar/wiki-sidebar.png');
 
 $actions = new ActionsWidget();
-if ($GLOBALS['perm']->have_studip_perm("tutor", $_SESSION['SessionSeminar'])) {
+if ($GLOBALS['perm']->have_studip_perm("tutor", $course_id)) {
     $actions->addLink(
         _("Wiki-Einstellungen"),
         PluginEngine::getURL($plugin, array(), "page/admin"),
