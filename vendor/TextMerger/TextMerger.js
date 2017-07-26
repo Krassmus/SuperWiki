@@ -362,7 +362,6 @@ Textmerger.hash = function (text) {
 
 Textmerger.prototype.merge = function (original, text1, text2) {
     replacements = this.getReplacements(original, text1, text2);
-    console.log(replacements);
     var result = replacements.applyTo(original);
     if (result.length > original.length + Math.max(0, text1.length - original.length) + Math.max(0, text2.length - original.length)) {
         console.log("Fehler im Merging! Ergebnis ist zu lang geworden. (original, text1, text2, ergebnis)");

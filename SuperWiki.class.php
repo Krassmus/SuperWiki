@@ -22,29 +22,31 @@ class SuperWiki extends StudIPPlugin implements StandardPlugin, SystemPlugin {
                         $output['chdate'] = $page['chdate'];
                     }
                 } elseif ($data['SuperWiki']['mode'] === "edit" && $page->isEditable()) {
-                    $content1 = str_replace("\r", "", $data['SuperWiki']['content']);
-                    $original_content = str_replace("\r", "", $data['SuperWiki']['old_content']);
-                    $content2 = str_replace("\r", "", $page['content']);
-                    if ($original_content || $content1) {
-                        $page['content'] = Textmerger::get()->merge(
+                    if ($data['SuperWiki']['content'] || $data['SuperWiki']['old_content']) {
+                        $content1 = str_replace("\r", "", $data['SuperWiki']['content']);
+                        $original_content = str_replace("\r", "", $data['SuperWiki']['old_content']);
+                        $content2 = str_replace("\r", "", $page['content']);
+                        $output['content_server'] = $content2;
+                        $merged = Textmerger::get()->merge(
                             $original_content,
                             $content1,
                             $content2
                         );
-                        if ($page['content'] !== $content2) {
+
+                        if ($page['content'] !== $merged) {
+                            $page['content'] = $merged;
                             $page['last_author'] = $GLOBALS['user']->id;
+                            $output['content'] = $merged;
                             $page->store();
                         }
-                    }
-                    if ($content1 !== $page['content']) {
-                        $output['content'] = $page['content'];
                     }
                     //Online users
                     $statement = DBManager::get()->prepare("
                         INSERT INTO superwiki_editors
                         SET user_id = :me,
                             page_id = :page_id,
-                            online = UNIX_TIMESTAMP()
+                            online = UNIX_TIMESTAMP(),
+                            latest_change = 0
                         ON DUPLICATE KEY UPDATE
                             online = UNIX_TIMESTAMP(),
                             latest_change = IF(:changed, UNIX_TIMESTAMP(), latest_change)
@@ -52,7 +54,7 @@ class SuperWiki extends StudIPPlugin implements StandardPlugin, SystemPlugin {
                     $statement->execute(array(
                         'me' => $GLOBALS['user']->id,
                         'page_id' => $page->getId(),
-                        'changed' => ($content1 !== $original_content) ? 1 : 0
+                        'changed' => ($data['SuperWiki']['content'] || $data['SuperWiki']['old_content']) ? 1 : 0
                     ));
                     $statement = DBManager::get()->prepare("
                         SELECT user_id, latest_change

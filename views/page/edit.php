@@ -27,6 +27,10 @@
 <script>
     STUDIP.SuperWiki = STUDIP.SuperWiki || {};
     STUDIP.SuperWiki.periodicalPushData = function () {
+        if (STUDIP.SuperWiki.oldVersion !== STUDIP.SuperWiki.oldOldVersion) {
+            //the request went wrong and we need to resend the old-old-data:
+            STUDIP.SuperWiki.oldVersion = STUDIP.SuperWiki.oldOldVersion;
+        }
         var push = {
             'seminar_id': jQuery("#seminar_id").val(),
             'page_id': jQuery("#page_id").val(),
@@ -41,6 +45,7 @@
     };
     jQuery(function () {
         STUDIP.SuperWiki.oldVersion = jQuery("#superwiki_edit_content").val();
+        STUDIP.SuperWiki.oldOldVersion = STUDIP.SuperWiki.oldVersion;
     });
     STUDIP.SuperWiki.updatePage = function (data) {
         if (typeof data.content !== "undefined") {
@@ -50,6 +55,7 @@
             var content = Textmerger.get().merge(old_content, my_content, new_content);
             var replacements = Textmerger.get().getReplacements(old_content, my_content, new_content);
             if (content !== my_content) {
+                //update textarea content with cursor position:
                 var pos1 = null, pos2 = null;
                 if (jQuery("#superwiki_edit_content").is(":focus")) {
                     pos1 = document.getElementById("superwiki_edit_content").selectionStart;
@@ -73,6 +79,7 @@
             }
             STUDIP.SuperWiki.oldVersion = data.content;
         }
+        STUDIP.SuperWiki.oldOldVersion = STUDIP.SuperWiki.oldVersion;
         //Mitarbeiter aktualisieren:
         jQuery(".coworkerlist").html(data.onlineusers);
     };
