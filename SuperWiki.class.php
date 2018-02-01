@@ -12,7 +12,7 @@ class SuperWiki extends StudIPPlugin implements StandardPlugin, SystemPlugin {
     public function __construct() {
         parent::__construct();
         if (UpdateInformation::isCollecting()) {
-            $data = studip_utf8decode(Request::getArray("page_info"));
+            $data = Request::getArray("page_info");
             if (stripos(Request::get("page"), "plugins.php/superwiki") !== false && isset($data['SuperWiki'])) {
                 $output = array();
                 $page = SuperwikiPage::find($data['SuperWiki']['page_id']);
@@ -100,27 +100,27 @@ class SuperWiki extends StudIPPlugin implements StandardPlugin, SystemPlugin {
 
     function getIconNavigation($course_id, $last_visit, $user_id) {
         $settings = SuperwikiSettings::find($course_id);
-        $icon = new Navigation($settings ? $settings['name'] : _("SuperWiki"), PluginEngine::getURL($this, array(), "page/view"));
+        $icon = new Navigation(
+            $settings ? $settings['name'] : _("SuperWiki"),
+            PluginEngine::getURL($this, array(), "page/view")
+        );
         $new_changes = SuperwikiPage::countBySql("seminar_id = ? AND chdate > ? AND last_author != ?", array($course_id, $last_visit, $user_id));
         if ($new_changes) {
             $icon->setURL(PluginEngine::getURL($this, array(), "overview/latest_changes"), array('since' => $last_visit));
-            $icon->setImage(version_compare($GLOBALS['SOFTWARE_VERSION'], "3.4", ">=")
-                ? Icon::create(($settings['icon'] ?: "wiki")."+new", "new")
-                : Assets::image_path("icons/20/red/new/".($settings['icon'] ?: "wiki")), array('title' => sprintf(_("%s Seiten wurden verändert."), $new_changes)));
+            $icon->setImage(Icon::create(($settings['icon'] ?: "wiki")."+new", "new"));
         } else {
-            $icon->setImage(version_compare($GLOBALS['SOFTWARE_VERSION'], "3.4", ">=")
-                ? Icon::create(($settings['icon'] ?: "wiki"), "inactive")
-                : Assets::image_path("icons/20/grey/".($settings['icon'] ?: "wiki")), array('title' => $settings ? $settings['name'] : _("SuperWiki")));
+            $icon->setImage(Icon::create(($settings['icon'] ?: "wiki"), "inactive"), array('title' => $settings ? $settings['name'] : _("SuperWiki")));
         }
         return $icon;
     }
 
     function getTabNavigation($course_id) {
         $settings = SuperwikiSettings::find($course_id);
-        $tab = new Navigation($settings ? $settings['name'] : _("SuperWiki"), PluginEngine::getURL($this, array(), "page/view"));
-        $tab->setImage(version_compare($GLOBALS['SOFTWARE_VERSION'], "3.4", ">=")
-            ? Icon::create(($settings['icon'] ?: "wiki"), "info_alt")
-            : Assets::image_path("icons/16/white/".($settings['icon'] ?: "wiki")));
+        $tab = new Navigation(
+            $settings ? $settings['name'] : _("SuperWiki"),
+            PluginEngine::getURL($this, array(), "page/view")
+        );
+        $tab->setImage(Icon::create(($settings['icon'] ?: "wiki"), "info_alt"));
         $tab->addSubNavigation("wiki", new Navigation($settings ? $settings['name'] : _("SuperWiki"), PluginEngine::getURL($this, array(), "page/view")));
         $tab->addSubNavigation("all", new Navigation(_("Alle Seiten"), PluginEngine::getURL($this, array(), "overview/all")));
         return array('superwiki' => $tab);

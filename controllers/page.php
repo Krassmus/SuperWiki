@@ -13,26 +13,19 @@ class PageController extends PluginController {
         $this->settings = new SuperwikiSettings($this->course_id);
         Navigation::activateItem("/course/superwiki/wiki");
         Navigation::getItem("/course/superwiki")->setImage(
-            version_compare($GLOBALS['SOFTWARE_VERSION'], "3.4", ">=")
-                ? Icon::create(($this->settings['icon'] ?: "wiki"), "info")
-                : Assets::image_path("icons/16/black/".($this->settings['icon'] ?: "wiki"))
+            Icon::create(($this->settings['icon'] ?: "wiki"), "info")
         );
         PageLayout::addScript($this->plugin->getPluginURL()."/vendor/Textmerger/Textmerger.js");
         PageLayout::addScript($this->plugin->getPluginURL()."/assets/superwiki.js");
-        PageLayout::setTitle((class_exists("Context") ? Context::getHeaderLine() : $GLOBALS['SessSemName']["header_line"]) . " - ".$this->settings['name']);
+        PageLayout::setTitle(Context::getHeaderLine() . " - ".$this->settings['name']);
         Helpbar::Get()->addLink(_("Wikilinks und Navigation"), "https://github.com/Krassmus/SuperWiki/wiki/Wikilinks-und-Navigation", null, "_blank");
         Helpbar::Get()->addLink(_("Unsichtbare Wikiseiten"), "https://github.com/Krassmus/SuperWiki/wiki/Unsichtbare-Wikiseiten", null, "_blank");
-        Helpbar::Get()->addLink(_("SuperWiki für Gruppenaufgaben"), "https://github.com/Krassmus/SuperWiki/wiki/SuperWiki-für-Gruppenaufgaben", null, "_blank");
-        //Helpbar::Get()->addLink(_("Superwiki für Lernorganisation"), "https://github.com/Krassmus/SuperWiki/wiki/Wikilinks-und-Navigation", null, "_blank");
-        Helpbar::Get()->addLink(_("Präsentationen mit SuperWiki"), "https://github.com/Krassmus/SuperWiki/wiki/Präsentationen-mit-SuperWiki", null, "_blank");
+        Helpbar::Get()->addLink(_("SuperWiki fÃ¼r Gruppenaufgaben"), "https://github.com/Krassmus/SuperWiki/wiki/SuperWiki-fÃ¼r-Gruppenaufgaben", null, "_blank");
+        //Helpbar::Get()->addLink(_("Superwiki fÃ¼r Lernorganisation"), "https://github.com/Krassmus/SuperWiki/wiki/Wikilinks-und-Navigation", null, "_blank");
+        Helpbar::Get()->addLink(_("PrÃ¤sentationen mit SuperWiki"), "https://github.com/Krassmus/SuperWiki/wiki/PrÃ¤sentationen-mit-SuperWiki", null, "_blank");
 
         Helpbar::Get()->addLink(_("PHP-Test"), URLHelper::getURL("plugins_packages/RasmusFuhse/SuperWiki/vendor/Textmerger/test/php.php"), null, "_blank");
         Helpbar::Get()->addLink(_("JS-Test"), URLHelper::getURL("plugins_packages/RasmusFuhse/SuperWiki/vendor/Textmerger/test/js.html"), null, "_blank");
-
-        $this->set_content_type('text/html;charset=windows-1252');
-        if (Request::isAjax()) {
-            $this->set_layout(null);
-        }
     }
 
     public function view_action($page_id = null)
@@ -267,7 +260,7 @@ class PageController extends PluginController {
             $GLOBALS['msg'] = '';
             validate_upload($file);
             if ($GLOBALS['msg']) {
-                $output['errors'][] = $file['name'] . ': ' . decodeHTML(trim(substr($GLOBALS['msg'],6), '§'));
+                $output['errors'][] = $file['name'] . ': ' . decodeHTML(trim(substr($GLOBALS['msg'],6), 'Â§'));
                 continue;
             }
             if ($file['size']) {
@@ -308,9 +301,9 @@ class PageController extends PluginController {
         $page = SuperwikiPage::findOneBySQL("seminar_id = ? and name = ?", array(Request::option("seminar_id"), Request::get("name")));
         if ($page) {
             if (!$page->isReadable()) {
-                $output['error'] = _("Es gibt bereits eine versteckte Wikiseite. Sie dürfen diese weder sehen noch bearbeiten. Suchen Sie sich einen anderen Namen aus.");
+                $output['error'] = _("Es gibt bereits eine versteckte Wikiseite. Sie dÃ¼rfen diese weder sehen noch bearbeiten. Suchen Sie sich einen anderen Namen aus.");
             } elseif(!$page->isEditable()) {
-                $output['error'] = _("Es gibt diese Wikiseite bereits, aber Sie dürfen sie nicht bearbeiten. Suchen Sie sich einen anderen Namen aus.");
+                $output['error'] = _("Es gibt diese Wikiseite bereits, aber Sie dÃ¼rfen sie nicht bearbeiten. Suchen Sie sich einen anderen Namen aus.");
             } else {
                 $output['error'] = _("Diese Wikiseite gibt es bereits. Bearbeiten Sie diese doch, anstatt eine neue zu erstellen.");
             }

@@ -1,5 +1,48 @@
 
 STUDIP.SuperWiki = {
+    connections: {},        //current open webRTC connections
+    formerOldVersion: null, //second latest version - just in case our request fails
+    oldVersion: null,       //the latest version from the server to compare with our current version
+    //oldVersionChdate: null,
+    alreadyXHRactive: false, //only needed to prevent STUDIP.SuperWiki.pushData from firing when there is still a request open.
+    /**
+     * Sends our current version to the server and when the server returns an answer, call STUDIP.SuperWiki.updatePage
+     */
+    pushData: function () {
+        if (STUDIP.SuperWiki.alreadyXHRactive === false) {
+            STUDIP.SuperWiki.formerOldVersion = STUDIP.SuperWiki.oldVersion;
+            var old_content = STUDIP.SuperWiki.oldVersion;
+            STUDIP.SuperWiki.oldVersion = jQuery("#cowriter_edit_content").val();
+            STUDIP.SuperWiki.alreadyXHRactive = new Promise(function (resolve, reject) {
+                var data = {
+                    "cid": jQuery("#seminar_id").val(),
+                    "page_id": jQuery("#page_id").val(),
+                    "mode": "edit"
+                };
+                if (jQuery("#cowriter_edit_content").val() !== old_content) {
+                    data.content = jQuery("#cowriter_edit_content").val();
+                    data.old_content = old_content;
+                }
+                jQuery.ajax({
+                    "url": STUDIP.ABSOLUTE_URI_STUDIP + "plugins.php/cowriter/updater/cowriterupdate",
+                    "data": data,
+                    "dataType": "json",
+                    "type": "post",
+                    "success": function (data) {
+                        STUDIP.SuperWiki.updatePage(data);
+                        resolve(data);
+                    },
+                    "error": function () {
+                        STUDIP.SuperWiki.alreadyXHRactive = false;
+                        //Now revert the odVersion so our next request will have the correct oldVersion again:
+                        STUDIP.SuperWiki.oldVersion = STUDIP.SuperWiki.formerOldVersion;
+                        reject();
+                    }
+                });
+            });
+        }
+        return STUDIP.SuperWiki.alreadyXHRactive;
+    },
     /**
      * When a file is dropped into the textarea, it will be uploaded with this function
      * to the server. This function is copied from blubber.

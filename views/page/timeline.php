@@ -56,7 +56,7 @@
     <form action="<?= PluginEngine::getLink($plugin, array(), "page/timeline/".$page->getId()) ?>" method="post">
         <div style="text-align: center;">
             <input type="hidden" name="version_id" id="version_id" value="">
-            <?= \Studip\Button::create(_("Diese Version wiederherstellen"), "resurrect", array('onClick' => "return window.confirm('"._("Seite wirklich mit dieser alten Version überschreiben?")."');")) ?>
+            <?= \Studip\Button::create(_("Diese Version wiederherstellen"), "resurrect", array('onClick' => "return window.confirm('"._("Seite wirklich mit dieser alten Version Ã¼berschreiben?")."');")) ?>
         </div>
     </form>
 <? endif ?>
@@ -107,7 +107,7 @@ $sidebar->addWidget($actions);
 
 $views = new ViewsWidget();
 $views->addLink(_("Aktuelle Seite"), PluginEngine::getLink($plugin, array(), "page/view/".$page->getId()));
-$views->addLink(_("Autorenänderungen"), PluginEngine::getLink($plugin, array(), "page/changes/".$page->getId()));
+$views->addLink(_("AutorenÃ¤nderungen"), PluginEngine::getLink($plugin, array(), "page/changes/".$page->getId()));
 $views->addLink(_("Historie"), PluginEngine::getLink($plugin, array(), "page/timeline/".$page->getId()))->setActive(true);
 
 $sidebar->addWidget($views);

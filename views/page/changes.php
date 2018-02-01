@@ -2,7 +2,7 @@
     <thead>
         <tr>
             <th></th>
-            <th><?= _("Änderung") ?></th>
+            <th><?= _("Ã„nderung") ?></th>
             <th><?= _("Datum") ?></th>
         </tr>
     </thead>
@@ -93,7 +93,7 @@ $sidebar->addWidget($actions);
 if (!$page->isNew()) {
     $views = new ViewsWidget();
     $views->addLink(_("Aktuelle Seite"), PluginEngine::getLink($plugin, array(), "page/view/".$page->getId()));
-    $views->addLink(_("Autorenänderungen"), PluginEngine::getLink($plugin, array(), "page/changes/".$page->getId()))->setActive(true);
+    $views->addLink(_("AutorenÃ¤nderungen"), PluginEngine::getLink($plugin, array(), "page/changes/".$page->getId()))->setActive(true);
     $views->addLink(_("Historie"), PluginEngine::getLink($plugin, array(), "page/timeline/".$page->getId()));
     $sidebar->addWidget($views);
 }

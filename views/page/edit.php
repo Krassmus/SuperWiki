@@ -26,23 +26,30 @@
 <? if (!$page->isNew()) : ?>
 <script>
     STUDIP.SuperWiki = STUDIP.SuperWiki || {};
-    STUDIP.SuperWiki.periodicalPushData = function () {
-        if (STUDIP.SuperWiki.oldVersion !== STUDIP.SuperWiki.oldOldVersion) {
-            //the request went wrong and we need to resend the old-old-data:
-            STUDIP.SuperWiki.oldVersion = STUDIP.SuperWiki.oldOldVersion;
-        }
-        var push = {
-            'seminar_id': jQuery("#seminar_id").val(),
-            'page_id': jQuery("#page_id").val(),
-            'mode': "edit"
-        };
-        if (jQuery("#superwiki_edit_content").val() !== STUDIP.SuperWiki.oldVersion) {
-            push.content = jQuery("#superwiki_edit_content").val();
-            push.old_content = STUDIP.SuperWiki.oldVersion;
-        }
-        STUDIP.SuperWiki.oldVersion = jQuery("#superwiki_edit_content").val();
-        return push;
-    };
+    <? if (Config::get()->COWRITER_USE_OWN_UPDATER) : ?>
+        window.setInterval(STUDIP.SuperWiki.pushData, 2000);
+    <? else: ?>
+        jQuery(function () {
+            STUDIP.SuperWiki.periodicalPushData = function () {
+                if (STUDIP.SuperWiki.oldVersion !== STUDIP.SuperWiki.oldOldVersion) {
+                    //the request went wrong and we need to resend the old-old-data:
+                    STUDIP.SuperWiki.oldVersion = STUDIP.SuperWiki.oldOldVersion;
+                }
+                var push = {
+                    'seminar_id': jQuery("#seminar_id").val(),
+                    'page_id': jQuery("#page_id").val(),
+                    'mode': "edit"
+                };
+                if (jQuery("#superwiki_edit_content").val() !== STUDIP.SuperWiki.oldVersion) {
+                    push.content = jQuery("#superwiki_edit_content").val();
+                    push.old_content = STUDIP.SuperWiki.oldVersion;
+                }
+                STUDIP.SuperWiki.oldVersion = jQuery("#superwiki_edit_content").val();
+                return push;
+            };
+        });
+    <? endif ?>
+
     jQuery(function () {
         STUDIP.SuperWiki.oldVersion = jQuery("#superwiki_edit_content").val();
         STUDIP.SuperWiki.oldOldVersion = STUDIP.SuperWiki.oldVersion;
