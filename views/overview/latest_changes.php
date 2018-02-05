@@ -1,13 +1,13 @@
 <? if (count($pages)) : ?>
 <table class="default">
     <caption>
-        <?= _("Letzte Ã„nderungen") ?>
+        <?= _("Letzte Änderungen") ?>
     </caption>
     <thead>
         <tr>
             <th><?= _("Seite") ?></th>
             <th><?= _("Letzter Autor") ?></th>
-            <th><?= _("Letzte Ã„nderung") ?></th>
+            <th><?= _("Letzte Änderung") ?></th>
             <th></th>
         </tr>
     </thead>
@@ -31,10 +31,10 @@
                 </td>
                 <td>
                     <? if ($GLOBALS['perm']->have_studip_perm("tutor", $course_id) && $page['write_permission'] !== "all") : ?>
-                        <?= Assets::img("icons/20/black/lock-locked", array('class' => "text-bottom", 'title' => _("Seite ist schreibgeschÃ¼tzt."))) ?>
+                        <?= Assets::img("icons/20/black/lock-locked", array('class' => "text-bottom", 'title' => _("Seite ist schreibgeschützt."))) ?>
                     <? endif ?>
                     <? if ($GLOBALS['perm']->have_studip_perm("tutor", $course_id) && $page['read_permission'] !== "all") : ?>
-                        <?= Assets::img("icons/20/black/visibility-invisible", array('class' => "text-bottom", 'title' => _("Seite ist lesegeschÃ¼tzt."))) ?>
+                        <?= Assets::img("icons/20/black/visibility-invisible", array('class' => "text-bottom", 'title' => _("Seite ist lesegeschützt."))) ?>
                     <? endif ?>
                     <? if ($page->isEditable()) : ?>
                         <a href="<?= PluginEngine::getLink($plugin, array(), "page/edit/".$page->getId()) ?>">

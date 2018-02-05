@@ -18,9 +18,9 @@ class OverviewController extends PluginController {
         PageLayout::setTitle(Context::getHeaderLine()  . " - ".($this->settings && $this->settings['name'] ? $this->settings['name'] : Config::get()->SUPERWIKI_NAME));
         Helpbar::Get()->addLink(_("Wikilinks und Navigation"), "https://github.com/Krassmus/SuperWiki/wiki/Wikilinks-und-Navigation", null, "_blank");
         Helpbar::Get()->addLink(_("Unsichtbare Wikiseiten"), "https://github.com/Krassmus/SuperWiki/wiki/Unsichtbare-Wikiseiten", null, "_blank");
-        Helpbar::Get()->addLink(sprintf(_("%s fÃ¼r Gruppenaufgaben"), Config::get()->SUPERWIKI_NAME), "https://github.com/Krassmus/SuperWiki/wiki/SuperWiki-f%C3%BCr-Gruppenaufgaben", null, "_blank");
-        //Helpbar::Get()->addLink(_("Superwiki fÃ¼r Lernorganisation"), "https://github.com/Krassmus/SuperWiki/wiki/Wikilinks-und-Navigation", null, "_blank");
-        Helpbar::Get()->addLink(sprintf(_("PrÃ¤sentationen mit %s"), Config::get()->SUPERWIKI_NAME), "https://github.com/Krassmus/SuperWiki/wiki/Pr%C3%A4sentationen-mit-SuperWiki", null, "_blank");
+        Helpbar::Get()->addLink(sprintf(_("%s für Gruppenaufgaben"), Config::get()->SUPERWIKI_NAME), "https://github.com/Krassmus/SuperWiki/wiki/SuperWiki-f%C3%BCr-Gruppenaufgaben", null, "_blank");
+        //Helpbar::Get()->addLink(_("Superwiki für Lernorganisation"), "https://github.com/Krassmus/SuperWiki/wiki/Wikilinks-und-Navigation", null, "_blank");
+        Helpbar::Get()->addLink(sprintf(_("Präsentationen mit %s"), Config::get()->SUPERWIKI_NAME), "https://github.com/Krassmus/SuperWiki/wiki/Pr%C3%A4sentationen-mit-SuperWiki", null, "_blank");
     }
 
     public function all_action()

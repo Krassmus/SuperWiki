@@ -17,12 +17,16 @@ class PageController extends PluginController {
         );
         PageLayout::addScript($this->plugin->getPluginURL()."/vendor/Textmerger/Textmerger.js");
         PageLayout::addScript($this->plugin->getPluginURL()."/assets/superwiki.js");
-        PageLayout::setTitle(Context::getHeaderLine()  . " - ".($this->settings && $this->settings['name'] ? $this->settings['name'] : Config::get()->SUPERWIKI_NAME));
+        PageLayout::setTitle(
+            (class_exists("Context") ? Context::getHeaderLine() : $_SESSION['SessSemName']["header_line"])
+            . " - "
+            .($this->settings && $this->settings['name'] ? $this->settings['name'] : Config::get()->SUPERWIKI_NAME)
+        );
         Helpbar::Get()->addLink(_("Wikilinks und Navigation"), "https://github.com/Krassmus/SuperWiki/wiki/Wikilinks-und-Navigation", null, "_blank");
         Helpbar::Get()->addLink(_("Unsichtbare Wikiseiten"), "https://github.com/Krassmus/SuperWiki/wiki/Unsichtbare-Wikiseiten", null, "_blank");
-        Helpbar::Get()->addLink(sprintf(_("%s fÃ¼r Gruppenaufgaben"), Config::get()->SUPERWIKI_NAME), "https://github.com/Krassmus/SuperWiki/wiki/SuperWiki-fÃ¼r-Gruppenaufgaben", null, "_blank");
-        //Helpbar::Get()->addLink(_("Superwiki fÃ¼r Lernorganisation"), "https://github.com/Krassmus/SuperWiki/wiki/Wikilinks-und-Navigation", null, "_blank");
-        Helpbar::Get()->addLink(sprintf(_("PrÃ¤sentationen mit %s"), Config::get()->SUPERWIKI_NAME), "https://github.com/Krassmus/SuperWiki/wiki/PrÃ¤sentationen-mit-SuperWiki", null, "_blank");
+        Helpbar::Get()->addLink(sprintf(_("%s für Gruppenaufgaben"), Config::get()->SUPERWIKI_NAME), "https://github.com/Krassmus/SuperWiki/wiki/SuperWiki-für-Gruppenaufgaben", null, "_blank");
+        //Helpbar::Get()->addLink(_("Superwiki für Lernorganisation"), "https://github.com/Krassmus/SuperWiki/wiki/Wikilinks-und-Navigation", null, "_blank");
+        Helpbar::Get()->addLink(sprintf(_("Präsentationen mit %s"), Config::get()->SUPERWIKI_NAME), "https://github.com/Krassmus/SuperWiki/wiki/Präsentationen-mit-SuperWiki", null, "_blank");
 
         Helpbar::Get()->addLink(_("PHP-Test"), URLHelper::getURL("plugins_packages/RasmusFuhse/SuperWiki/vendor/Textmerger/test/php.php"), null, "_blank");
         Helpbar::Get()->addLink(_("JS-Test"), URLHelper::getURL("plugins_packages/RasmusFuhse/SuperWiki/vendor/Textmerger/test/js.html"), null, "_blank");
@@ -260,7 +264,7 @@ class PageController extends PluginController {
             $GLOBALS['msg'] = '';
             validate_upload($file);
             if ($GLOBALS['msg']) {
-                $output['errors'][] = $file['name'] . ': ' . decodeHTML(trim(substr($GLOBALS['msg'],6), 'Â§'));
+                $output['errors'][] = $file['name'] . ': ' . decodeHTML(trim(substr($GLOBALS['msg'],6), '§'));
                 continue;
             }
             if ($file['size']) {
@@ -301,9 +305,9 @@ class PageController extends PluginController {
         $page = SuperwikiPage::findOneBySQL("seminar_id = ? and name = ?", array(Request::option("seminar_id"), Request::get("name")));
         if ($page) {
             if (!$page->isReadable()) {
-                $output['error'] = _("Es gibt bereits eine versteckte Wikiseite. Sie dÃ¼rfen diese weder sehen noch bearbeiten. Suchen Sie sich einen anderen Namen aus.");
+                $output['error'] = _("Es gibt bereits eine versteckte Wikiseite. Sie dürfen diese weder sehen noch bearbeiten. Suchen Sie sich einen anderen Namen aus.");
             } elseif(!$page->isEditable()) {
-                $output['error'] = _("Es gibt diese Wikiseite bereits, aber Sie dÃ¼rfen sie nicht bearbeiten. Suchen Sie sich einen anderen Namen aus.");
+                $output['error'] = _("Es gibt diese Wikiseite bereits, aber Sie dürfen sie nicht bearbeiten. Suchen Sie sich einen anderen Namen aus.");
             } else {
                 $output['error'] = _("Diese Wikiseite gibt es bereits. Bearbeiten Sie diese doch, anstatt eine neue zu erstellen.");
             }

@@ -2,6 +2,7 @@
 class UpdaterController extends PluginController
 {
     protected $allow_nobody = true;
+    protected $utf8decode_xhr = true;
 
     public function superwikiupdate_action()
     {
