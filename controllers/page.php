@@ -17,12 +17,12 @@ class PageController extends PluginController {
         );
         PageLayout::addScript($this->plugin->getPluginURL()."/vendor/Textmerger/Textmerger.js");
         PageLayout::addScript($this->plugin->getPluginURL()."/assets/superwiki.js");
-        PageLayout::setTitle(Context::getHeaderLine() . " - ".$this->settings['name']);
+        PageLayout::setTitle(Context::getHeaderLine()  . " - ".($this->settings && $this->settings['name'] ? $this->settings['name'] : Config::get()->SUPERWIKI_NAME));
         Helpbar::Get()->addLink(_("Wikilinks und Navigation"), "https://github.com/Krassmus/SuperWiki/wiki/Wikilinks-und-Navigation", null, "_blank");
         Helpbar::Get()->addLink(_("Unsichtbare Wikiseiten"), "https://github.com/Krassmus/SuperWiki/wiki/Unsichtbare-Wikiseiten", null, "_blank");
-        Helpbar::Get()->addLink(_("SuperWiki für Gruppenaufgaben"), "https://github.com/Krassmus/SuperWiki/wiki/SuperWiki-für-Gruppenaufgaben", null, "_blank");
+        Helpbar::Get()->addLink(sprintf(_("%s für Gruppenaufgaben"), Config::get()->SUPERWIKI_NAME), "https://github.com/Krassmus/SuperWiki/wiki/SuperWiki-für-Gruppenaufgaben", null, "_blank");
         //Helpbar::Get()->addLink(_("Superwiki für Lernorganisation"), "https://github.com/Krassmus/SuperWiki/wiki/Wikilinks-und-Navigation", null, "_blank");
-        Helpbar::Get()->addLink(_("Präsentationen mit SuperWiki"), "https://github.com/Krassmus/SuperWiki/wiki/Präsentationen-mit-SuperWiki", null, "_blank");
+        Helpbar::Get()->addLink(sprintf(_("Präsentationen mit %s"), Config::get()->SUPERWIKI_NAME), "https://github.com/Krassmus/SuperWiki/wiki/Präsentationen-mit-SuperWiki", null, "_blank");
 
         Helpbar::Get()->addLink(_("PHP-Test"), URLHelper::getURL("plugins_packages/RasmusFuhse/SuperWiki/vendor/Textmerger/test/php.php"), null, "_blank");
         Helpbar::Get()->addLink(_("JS-Test"), URLHelper::getURL("plugins_packages/RasmusFuhse/SuperWiki/vendor/Textmerger/test/js.html"), null, "_blank");
@@ -137,7 +137,7 @@ class PageController extends PluginController {
         if (!$GLOBALS['perm']->have_studip_perm("tutor", $this->course_id)) {
             throw new AccessDeniedException();
         }
-        PageLayout::setTitle(_("SuperWiki Einstellungen"));
+        PageLayout::setTitle(sprintf(_("%s Einstellungen"), Config::get()->SUPERWIKI_NAME));
         if (Request::isPost()) {
             $this->settings['name'] = Request::get("name");
             $this->settings['indexpage'] = Request::get("indexpage");

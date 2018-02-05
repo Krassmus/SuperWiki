@@ -6,7 +6,7 @@
         </legend>
         <label>
             <?= _("Name des Reiters") ?>
-            <input type="text" name="name" value="<?= htmlReady($settings['name'] ?: "SuperWiki") ?>" required>
+            <input type="text" name="name" value="<?= htmlReady($settings['name'] ?: Config::get()->SUPERWIKI_NAME) ?>" required>
         </label>
 
         <? $allpages = SuperwikiPage::findAll($course_id) ?>
@@ -40,7 +40,7 @@
     </fieldset>
     <fieldset style="display: inline-block; width: calc(50% - 2px);">
         <legend>
-            <?= _("Icon des Superwikis") ?>
+            <?= sprintf(_("Icon des %s"), Config::get()->SUPERWIKI_NAME) ?>
         </legend>
         <div>
             <? $icons = array("wiki", "info-circle", "info-small", "infopage", "exclaim", "link-intern", "literature", "log") ?>

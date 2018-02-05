@@ -101,7 +101,7 @@ class SuperWiki extends StudIPPlugin implements StandardPlugin, SystemPlugin {
     function getIconNavigation($course_id, $last_visit, $user_id) {
         $settings = SuperwikiSettings::find($course_id);
         $icon = new Navigation(
-            $settings ? $settings['name'] : _("SuperWiki"),
+            $settings && $settings['name'] ? $settings['name'] : Config::get()->SUPERWIKI_NAME,
             PluginEngine::getURL($this, array(), "page/view")
         );
         $new_changes = SuperwikiPage::countBySql("seminar_id = ? AND chdate > ? AND last_author != ?", array($course_id, $last_visit, $user_id));
@@ -116,17 +116,30 @@ class SuperWiki extends StudIPPlugin implements StandardPlugin, SystemPlugin {
 
     function getTabNavigation($course_id) {
         $settings = SuperwikiSettings::find($course_id);
+        $name = $settings && $settings['name'] ? $settings['name'] : Config::get()->SUPERWIKI_NAME;
         $tab = new Navigation(
-            $settings ? $settings['name'] : _("SuperWiki"),
+            $name,
             PluginEngine::getURL($this, array(), "page/view")
         );
         $tab->setImage(Icon::create(($settings['icon'] ?: "wiki"), "info_alt"));
-        $tab->addSubNavigation("wiki", new Navigation($settings ? $settings['name'] : _("SuperWiki"), PluginEngine::getURL($this, array(), "page/view")));
+        $tab->addSubNavigation("wiki", new Navigation($name, PluginEngine::getURL($this, array(), "page/view")));
         $tab->addSubNavigation("all", new Navigation(_("Alle Seiten"), PluginEngine::getURL($this, array(), "overview/all")));
         return array('superwiki' => $tab);
     }
 
     function getNotificationObjects($course_id, $since, $user_id) {
         return null;
+    }
+
+    function getPluginname() {
+        return Config::get()->SUPERWIKI_NAME;
+    }
+
+    function getMetadata() {
+        $metadata = parent::getMetadata();
+        $metadata['pluginname'] = Config::get()->SUPERWIKI_NAME;
+        $metadata['descriptionlong'] = str_replace("SuperWiki", Config::get()->SUPERWIKI_NAME, $metadata['descriptionlong']);
+        $metadata['summary'] = str_replace("SuperWiki", Config::get()->SUPERWIKI_NAME, $metadata['summary']);
+        return $metadata;
     }
 }
