@@ -12,19 +12,19 @@ STUDIP.SuperWiki = {
         if (STUDIP.SuperWiki.alreadyXHRactive === false) {
             STUDIP.SuperWiki.formerOldVersion = STUDIP.SuperWiki.oldVersion;
             var old_content = STUDIP.SuperWiki.oldVersion;
-            STUDIP.SuperWiki.oldVersion = jQuery("#cowriter_edit_content").val();
+            STUDIP.SuperWiki.oldVersion = jQuery("#superwiki_edit_content").val();
             STUDIP.SuperWiki.alreadyXHRactive = new Promise(function (resolve, reject) {
                 var data = {
                     "cid": jQuery("#seminar_id").val(),
                     "page_id": jQuery("#page_id").val(),
                     "mode": "edit"
                 };
-                if (jQuery("#cowriter_edit_content").val() !== old_content) {
-                    data.content = jQuery("#cowriter_edit_content").val();
+                if (jQuery("#superwiki_edit_content").val() !== old_content) {
+                    data.content = jQuery("#superwiki_edit_content").val();
                     data.old_content = old_content;
                 }
                 jQuery.ajax({
-                    "url": STUDIP.ABSOLUTE_URI_STUDIP + "plugins.php/cowriter/updater/cowriterupdate",
+                    "url": STUDIP.ABSOLUTE_URI_STUDIP + "plugins.php/superwiki/updater/superwikiupdate",
                     "data": data,
                     "dataType": "json",
                     "type": "post",
@@ -42,6 +42,91 @@ STUDIP.SuperWiki = {
             });
         }
         return STUDIP.SuperWiki.alreadyXHRactive;
+    },
+
+    updatePage: function (data) {
+        STUDIP.SuperWiki.alreadyXHRactive = false;
+        if (data.content) {
+            var old_content = STUDIP.SuperWiki.oldVersion;
+            var new_content = data.content;
+            var my_content = jQuery("#superwiki_edit_content").val();
+            STUDIP.SuperWiki.oldVersion = data.content; //save the version from the server as the oldVersion
+            //STUDIP.SuperWiki.oldVersion.oldVersionChdate = data.chdate;
+            var content = Textmerger.get().merge(old_content, my_content, new_content);
+            var replacements = Textmerger.get().getReplacements(old_content, my_content, new_content);
+            if (content !== my_content) {
+                var pos1 = null, pos2 = null;
+                if (jQuery("#superwiki_edit_content").is(":focus")) {
+                    pos1 = document.getElementById("superwiki_edit_content").selectionStart;
+                    pos2 = document.getElementById("superwiki_edit_content").selectionEnd;
+                }
+                jQuery("#superwiki_edit_content").val(content);
+                for (var i in replacements.replacements) {
+                    var replacement = replacements.replacements[i];
+                    if (replacement.origin == "text2") { //because we our own changes already changed the cursor position
+                        if (replacement.end < pos1) {
+                            pos1 = pos1 + replacement.text.length - (replacement.end - replacement.start);
+                        }
+                        if (replacement.end < pos2) {
+                            pos2 = pos2 + replacement.text.length - (replacement.end - replacement.start);
+                        }
+                    }
+                }
+                if (pos1 !== null) {
+                    document.getElementById("superwiki_edit_content").setSelectionRange(pos1, pos2);
+                }
+            }
+        }
+
+        //Mitarbeiter aktualisieren:
+        jQuery(".coworkerlist").html(data.onlineusers);
+
+        //WebRTC offers and answers:
+        /*if (data.open_offers) {
+            for (var i in data.open_offers) {
+                var connection = new RTC.Connection({
+                    'offer': data.open_offers[i].offer_sdp,
+                    'sendAnswer': function (answer) {
+                        jQuery.ajax({
+                            "url": STUDIP.ABSOLUTE_URI_STUDIP + "plugins.php/superwiki/rtc/answer_offer",
+                            "data": {
+                                "page_id": jQuery("#page_id").val(),
+                                "remote_user_id": data.open_offers[i].user_id,
+                                "sdp": answer
+                            },
+                            "type": "post"
+                        });
+                    },
+                    'established': function () {
+                        alert("yeah");
+                    },
+                    'error': function (error) {
+                        console.log("Error:");
+                        console.log(error);
+                    },
+                    'receive': function (data) {
+                    }
+                });
+                STUDIP.SuperWiki.connections[data.open_offers[i].user_id] = connection;
+            }
+        }
+        if (data.answered_connections) {
+            for (var i in data.answered_connections) {
+                //console.log(data.answered_connections[i]);
+                var user_id = data.answered_connections[i].user_id;
+                if (STUDIP.SuperWiki.connections[user_id]) {
+                    STUDIP.SuperWiki.connections[user_id].insertAnswer(data.answered_connections[i].answer_sdp);
+                    jQuery.ajax({
+                     "url": STUDIP.ABSOLUTE_URI_STUDIP + "plugins.php/superwiki/rtc/delete_offer",
+                     "data": {
+                     "page_id": jQuery("#page_id").val(),
+                     "remote_user_id": user_id
+                     },
+                     "type": "post"
+                     });
+                }
+            }
+        }*/
     },
     /**
      * When a file is dropped into the textarea, it will be uploaded with this function

@@ -26,7 +26,13 @@
 <? if (!$page->isNew()) : ?>
 <script>
     STUDIP.SuperWiki = STUDIP.SuperWiki || {};
-    <? if (Config::get()->COWRITER_USE_OWN_UPDATER) : ?>
+    STUDIP.SuperWiki.oldVersion = jQuery("#superwiki_edit_content").val();
+
+    <? if (Config::get()->SUPERWIKI_USE_OWN_UPDATER) : ?>
+        jQuery(function () {
+            STUDIP.SuperWiki.oldVersion = jQuery("#superwiki_edit_content").val();
+            STUDIP.SuperWiki.oldVersionChdate = '<?= (int) $page['chdate'] ?>';
+        });
         window.setInterval(STUDIP.SuperWiki.pushData, 2000);
     <? else: ?>
         jQuery(function () {
@@ -47,49 +53,12 @@
                 STUDIP.SuperWiki.oldVersion = jQuery("#superwiki_edit_content").val();
                 return push;
             };
+            jQuery(function () {
+                STUDIP.SuperWiki.oldVersion = jQuery("#superwiki_edit_content").val();
+                STUDIP.SuperWiki.oldOldVersion = STUDIP.SuperWiki.oldVersion;
+            });
         });
     <? endif ?>
-
-    jQuery(function () {
-        STUDIP.SuperWiki.oldVersion = jQuery("#superwiki_edit_content").val();
-        STUDIP.SuperWiki.oldOldVersion = STUDIP.SuperWiki.oldVersion;
-    });
-    STUDIP.SuperWiki.updatePage = function (data) {
-        if (typeof data.content !== "undefined") {
-            var old_content = STUDIP.SuperWiki.oldVersion;
-            var new_content = data.content;
-            var my_content = jQuery("#superwiki_edit_content").val();
-            var content = Textmerger.get().merge(old_content, my_content, new_content);
-            var replacements = Textmerger.get().getReplacements(old_content, my_content, new_content);
-            if (content !== my_content) {
-                //update textarea content with cursor position:
-                var pos1 = null, pos2 = null;
-                if (jQuery("#superwiki_edit_content").is(":focus")) {
-                    pos1 = document.getElementById("superwiki_edit_content").selectionStart;
-                    pos2 = document.getElementById("superwiki_edit_content").selectionEnd;
-                }
-                jQuery("#superwiki_edit_content").val(content);
-                for (var i in replacements.replacements) {
-                    var replacement = replacements.replacements[i];
-                    if (replacement.origin === "text2") {
-                        if (replacements[i].end < pos1) {
-                            pos1 = pos1 - replacements[i].end + replacements[i].start + replacements[i].text.length;
-                        }
-                        if (replacements[i].end < pos2) {
-                            pos2 = pos2 - replacements[i].end + replacements[i].start + replacements[i].text.length;
-                        }
-                    }
-                }
-                if (pos1 !== null) {
-                    document.getElementById("superwiki_edit_content").setSelectionRange(pos1, pos2);
-                }
-            }
-            STUDIP.SuperWiki.oldVersion = data.content;
-        }
-        STUDIP.SuperWiki.oldOldVersion = STUDIP.SuperWiki.oldVersion;
-        //Mitarbeiter aktualisieren:
-        jQuery(".coworkerlist").html(data.onlineusers);
-    };
 
 </script>
 <? endif ?>

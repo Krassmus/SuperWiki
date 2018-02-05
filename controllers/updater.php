@@ -1,9 +1,9 @@
 <?php
-class UpdaterController extends CoWriterController
+class UpdaterController extends PluginController
 {
     protected $allow_nobody = true;
 
-    public function cowriterupdate_action()
+    public function superwikiupdate_action()
     {
         $output = array();
         if (Request::isPost()) {
