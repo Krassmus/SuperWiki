@@ -39,7 +39,8 @@ class UpdaterController extends PluginController
                     INSERT INTO superwiki_editors
                     SET user_id = :me,
                         page_id = :page_id,
-                        online = UNIX_TIMESTAMP()
+                        online = UNIX_TIMESTAMP(),
+                        latest_change = '0'
                     ON DUPLICATE KEY UPDATE
                         online = UNIX_TIMESTAMP(),
                         latest_change = IF(:changed, UNIX_TIMESTAMP(), latest_change)
