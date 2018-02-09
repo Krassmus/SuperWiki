@@ -19,7 +19,7 @@ class UpdaterController extends PluginController
                     $content1 = str_replace("\r", "", Request::get('content'));
                     $original_content = str_replace("\r", "", Request::get('old_content'));
                     $content2 = str_replace("\r", "", $page['content']);
-                    $page['content'] = Textmerger::get()->merge(
+                    $page['content'] = \Superwiki\Textmerger::get()->merge(
                         $original_content,
                         $content1,
                         $content2

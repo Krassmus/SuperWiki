@@ -1,10 +1,12 @@
 <?php
 
+namespace Superwiki;
+
 /**
  * Class TextmergerException
  * Special Exception class for exceptions that are thrown when text-conflicts happen.
  */
-class TextmergerException extends Exception {
+class TextmergerException extends \Exception {
 
     public $data = array();
 
@@ -287,7 +289,7 @@ class TextmergerReplacement {
 
 }
 
-class TextmergerReplacementGroup implements ArrayAccess, Iterator, Countable{
+class TextmergerReplacementGroup implements \ArrayAccess, \Iterator, \Countable{
 
     public $replacements = array();
     private $position = 0;

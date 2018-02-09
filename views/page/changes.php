@@ -15,7 +15,7 @@
                 </a>
             </td>
             <td>
-                <? $changes = Textmerger::get()->getReplacements($version['content'], $new_version, $version['content']) ?>
+                <? $changes = \Superwiki\Textmerger::get()->getReplacements($version['content'], $new_version, $version['content']) ?>
                 <? foreach ($changes as $change) : ?>
                     <? if (($change->start !== $change->end) || ($change->text !== "")) : ?>
                         <? $start = max($change->start - 10, 0) ?>
