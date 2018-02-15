@@ -1,48 +1,115 @@
-<table class="default nohover changes">
+<table class="default changes">
     <thead>
-        <tr>
-            <th></th>
-            <th><?= _("Änderung") ?></th>
-            <th><?= _("Datum") ?></th>
-        </tr>
+    <tr>
+        <th></th>
+        <th><?= _("Änderung") ?></th>
+        <th><?= _("Datum") ?></th>
+    </tr>
     </thead>
     <tbody>
-    <? foreach ($page->versions as $version) : ?>
+    <? $former_version = count($page->versions) ? $page->versions[0]->content : "" ?>
+    <tr>
+        <td>
+            <a href="<?= URLHelper::getLink("dispatch.php/profile", array('username' => get_username($page['last_author']))) ?>"
+               style="text-align: center;">
+                <div>
+                    <?= Avatar::getAvatar($page['last_author'])->getImageTag(Avatar::SMALL) ?>
+                </div>
+                <div>
+                    <?= htmlReady(get_fullname($page['last_author'])) ?>
+                </div>
+            </a>
+        </td>
+        <td>
+            <? $changes = \Superwiki\Textmerger::get()->getReplacements(
+                $former_version,
+                $former_version,
+                $page['content']
+            ) ?>
+            <? foreach ($changes as $change) : ?>
+                <? if (($change->start !== $change->end) || ($change->text !== "")) : ?>
+                    <? $start = max($change->start - 10, 0) ?>
+                    <? $start = substr($former_version, $start, $change->start - $start) ?>
+                    <? $end = min($change->end + 10, strlen($new_version) - 1) ?>
+                    <? $end = substr($new_version, $change->end, $end - $change->start) ?>
+                    <div class="change">
+                        <span class="start"><?= nl2br(htmlReady($start)) ?></span>
+                        <span class="changedtext">
+                            <? if ($change->text) : ?>
+                                <?= nl2br(htmlReady($change->text)) ?>
+                            <? else : ?>
+                                <?= Icon::create("decline-circle", "status-red")->asImg(16, array(
+                                    'class' => "text-bottom",
+                                    'title' => "Text gelöscht: ".substr($former_version, $change->start, $change->end - $change->start)
+                                )) ?>
+                            <? endif ?>
+                        </span>
+                        <span class="end"><?= nl2br(htmlReady($end)) ?></span>
+                    </div>
+                <? endif ?>
+            <? endforeach ?>
+        </td>
+        <td>
+            <?= date("G:i d.m.Y", $page['chdate']) ?>
+        </td>
+    </tr>
+    <? foreach ($page->versions as $number => $version) : ?>
+        <? $former_version = $number < count($page->versions) ? $page->versions[$number + 1]->content : "" ?>
         <tr>
             <td>
-                <a href="<?= URLHelper::getLink("dispatch.php/profile", array('username' => get_username($version['last_author']))) ?>" title="<?= htmlReady(get_fullname($version['last_author'])) ?>">
-                    <?= Avatar::getAvatar($version['last_author'])->getImageTag(Avatar::SMALL) ?>
+                <a href="<?= URLHelper::getLink("dispatch.php/profile", array('username' => get_username($version['last_author']))) ?>"
+                   style="text-align: center;">
+                    <div>
+                        <?= Avatar::getAvatar($version['last_author'])->getImageTag(Avatar::SMALL) ?>
+                    </div>
+                    <div>
+                        <?= htmlReady(get_fullname($version['last_author'])) ?>
+                    </div>
                 </a>
             </td>
             <td>
-                <? $changes = Textmerger::get()->getReplacements($version['content'], $new_version, $version['content']) ?>
+                <? $changes = \Superwiki\Textmerger::get()->getReplacements(
+                    $former_version,
+                    $former_version,
+                    $version['content']
+                ) ?>
                 <? foreach ($changes as $change) : ?>
                     <? if (($change->start !== $change->end) || ($change->text !== "")) : ?>
                         <? $start = max($change->start - 10, 0) ?>
-                        <? $start = substr($new_version, $start, $change->start - $start) ?>
+                        <? $start = substr($former_version, $start, $change->start - $start) ?>
                         <? $end = min($change->end + 10, strlen($new_version) - 1) ?>
                         <? $end = substr($new_version, $change->end, $end - $change->start) ?>
                         <div class="change">
                             <span class="start"><?= nl2br(htmlReady($start)) ?></span>
-                            <span class="changedtext"><?= nl2br(htmlReady($change->text)) ?></span>
+                            <span class="changedtext">
+                            <? if ($change->text) : ?>
+                                <?= nl2br(htmlReady($change->text)) ?>
+                            <? else : ?>
+                                <?= Icon::create("decline-circle", "status-red")->asImg(16, array(
+                                    'class' => "text-bottom",
+                                    'title' => "Text gelöscht: ".substr($former_version, $change->start, $change->end - $change->start)
+                                )) ?>
+                            <? endif ?>
+                            </span>
                             <span class="end"><?= nl2br(htmlReady($end)) ?></span>
                         </div>
                     <? endif ?>
                 <? endforeach ?>
             </td>
-            <td><?= date("G:i d.m.Y", $version['mkdate']) ?></td>
+            <td>
+                <?= date("G:i d.m.Y", $version['chdate']) ?>
+            </td>
         </tr>
-        <? $new_version = $version['content'] ?>
     <? endforeach ?>
     </tbody>
 </table>
 
 <style>
-    .changes .start {
-        color: #dddddd;
+    .changes .start, .changes .end {
+        color: #999999;
     }
-    .changes .end {
-        color: #dddddd;
+    .changes td {
+        vertical-align: top;
     }
 </style>
 
