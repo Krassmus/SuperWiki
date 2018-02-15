@@ -104,9 +104,8 @@ class SuperwikiPage extends SimpleORMap {
 
     public function wikiFormat()
     {
-        $formatter = new SuperWikiFormat();
-        //Markup::purify($this['content']) ... error
-        $text = symbol(smile($formatter->format(nl2br(htmlspecialchars($this['content'], ENT_QUOTES, 'cp1252')))));
+        $text = \Studip\Markup::apply(new SuperWikiFormat(), $this['content'], true);
+
         $pages = self::findBySQL("seminar_id = ? AND content IS NOT NULL AND content != '' ORDER BY CHAR_LENGTH(name) DESC", array($this['seminar_id']));
         foreach ($pages as $page) {
             if (($page->getId() !== $this->getId()) && $page->isReadable()) {
@@ -125,16 +124,16 @@ class SuperwikiPage extends SimpleORMap {
             $text = '<a class="superwiki_presentation starter" 
                         href="#" 
                         onClick="STUDIP.SuperWiki.requestFullscreen(); return false;" 
-                        title="'._("Diese Wikiseite ist eine Pr‰sentation. Klicken Sie hier, um sie im Vollbildmodus darzustellen.").'" 
+                        title="'._("Diese Wikiseite ist eine Pr√§sentation. Klicken Sie hier, um sie im Vollbildmodus darzustellen.").'" 
                         style="background-image: url('."'".$GLOBALS['ABSOLUTE_URI_STUDIP']."plugins_packages/RasmusFuhse/SuperWiki/assets/presentation_white.svg'".')">'
                     .(version_compare($GLOBALS['SOFTWARE_VERSION'], "3.4", ">=")
                         ? Icon::create("play", "info_alt")->asImg(20, array('class' => "text-bottom"))
                         : Assets::image_path("icons/20/white/play"))
-                    ._("Pr‰sentation starten")
+                    ._("Pr√§sentation starten")
                     .'</a>'
                     .$text;
         }
-        return $text;
+        return $text ? sprintf(FORMATTED_CONTENT_WRAPPER, $text) : '';
     }
 
     public function getActiveUsers()

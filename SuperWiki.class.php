@@ -27,7 +27,7 @@ class SuperWiki extends StudIPPlugin implements StandardPlugin, SystemPlugin {
                         $original_content = str_replace("\r", "", $data['SuperWiki']['old_content']);
                         $content2 = str_replace("\r", "", $page['content']);
                         $output['content_server'] = $content2;
-                        $merged = Textmerger::get()->merge(
+                        $merged = \Superwiki\Textmerger::get()->merge(
                             $original_content,
                             $content1,
                             $content2

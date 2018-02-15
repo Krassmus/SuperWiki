@@ -44,7 +44,7 @@ require_once __DIR__ . "/../Textmerger.php";
     }
     $successful = 0;
     foreach ($tests as $key => $test) {
-        $tests[$key]['result'] = Textmerger::get()->merge($test['original'], $test['mine'], $test['theirs']);
+        $tests[$key]['result'] = \Superwiki\Textmerger::get()->merge($test['original'], $test['mine'], $test['theirs']);
         if ($tests[$key]['result'] === $test['expected']) {
             $successful++;
         }
