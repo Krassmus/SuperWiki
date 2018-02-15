@@ -13,6 +13,7 @@
     <textarea
         name="content"
         id="superwiki_edit_content"
+        class="add_toolbar"
         style="width: calc(100% - 8px); height: 300px;"
         ><?= htmlReady($page['content']) ?></textarea>
     <?= \Studip\Button::create(_("Bearbeiten beenden")) ?>

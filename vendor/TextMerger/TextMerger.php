@@ -1,9 +1,6 @@
 <?php
 
 namespace Superwiki;
-//use \Superwiki\TextmergerException;
-//use \Superwiki\TextmergerReplacement;
-//use \Superwiki\TextmergerReplacementGroup;
 
 /**
  * Class TextmergerException
@@ -32,7 +29,7 @@ class TextmergerReplacement {
     public $origin;
 
     /**
-     * TextMergerReplacement constructor.
+     * TextmergerReplacement constructor.
      * Create a new Replacement. A replacement consists of a start-value (index within the text string),
      * an end-value and the text that replaces everything between start and end.
      * @param integer $start
