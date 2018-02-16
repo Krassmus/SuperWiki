@@ -25,20 +25,18 @@ class SuperwikiPage extends SimpleORMap {
             'class_name' => 'SuperwikiSettings',
             'foreign_key' => 'seminar_id'
         );
+        $config['registered_callbacks']['before_store'][] = 'createVersion';
         parent::configure($config);
-    }
-
-    public function __construct($id = null)
-    {
-        $this->registerCallback('before_store', 'createVersion');
-        parent::__construct($id);
     }
 
     protected function createVersion()
     {
-        if (!$this->isNew() && ($this->content['content'] !== $this->content_db['data'])
-                && (($this->content_db['last_author'] !== $this->content['last_author'])
-                    || ($this['chdate'] < time() - 60 * 30))) {
+        if (!$this->isNew()
+                && ($this->content['content'] !== $this->content_db['data'])
+                && (
+                    ($this->content_db['last_author'] !== $this->content['last_author'])
+                    || ($this['chdate'] < time() - 60 * 30)
+                )) {
             //Neue Version anlegen:
             $version = new SuperwikiVersion();
             $version->setData($this->content_db);

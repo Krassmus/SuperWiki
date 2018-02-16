@@ -1,4 +1,4 @@
-<table class="default changes">
+<table class="default nohover changes">
     <thead>
     <tr>
         <th></th>
@@ -105,9 +105,20 @@
 </table>
 
 <style>
-    .changes .start, .changes .end {
-        color: #999999;
+    .changes .change {
+        opacity: 0.8;
     }
+    .changes .start, .changes .end {
+        opacity: 0.6;
+    }
+    .changes .change:hover {
+        opacity: 1.0;
+    }
+    .changes .change:hover .start, .changes .change:hover .end {
+        opacity: 0.4;
+    }
+
+
     .changes td {
         vertical-align: top;
     }
@@ -122,14 +133,14 @@ if ($GLOBALS['perm']->have_studip_perm("tutor", $course_id)) {
     $actions->addLink(
         _("Wiki-Einstellungen"),
         PluginEngine::getURL($plugin, array(), "page/admin"),
-        version_compare($GLOBALS['SOFTWARE_VERSION'], "3.4", ">=") ? Icon::create("admin", "clickable") : "icons/16/blue/admin",
+        Icon::create("admin", "clickable"),
         array('data-dialog' => "true")
     );
     if (!$page->isNew()) {
         $actions->addLink(
             _("Seiten-Einstellungen"),
             PluginEngine::getURL($plugin, array(), "page/permissions/".$page->getId()),
-            version_compare($GLOBALS['SOFTWARE_VERSION'], "3.4", ">=") ? Icon::create("roles", "clickable") : "icons/16/blue/roles",
+            Icon::create("roles", "clickable"),
             array('data-dialog' => "true")
         );
     }
@@ -138,14 +149,14 @@ if ($page->isEditable()) {
     $actions->addLink(
         _("Seite bearbeiten"),
         PluginEngine::getURL($plugin, array(), "page/edit/".$page->getId()),
-        version_compare($GLOBALS['SOFTWARE_VERSION'], "3.4", ">=") ? Icon::create("edit", "clickable") :  "icons/16/blue/edit"
+        Icon::create("edit", "clickable")
     );
 }
 if (!$page->isNew() && $settings->haveRenamePermission()) {
     $actions->addLink(
         _("Seite umbenennen"),
         PluginEngine::getURL($plugin, array(), "page/rename/".$page->getId()),
-        version_compare($GLOBALS['SOFTWARE_VERSION'], "3.4", ">=") ? Icon::create("edit", "clickable") : "icons/16/blue/edit",
+        Icon::create("edit", "clickable"),
         array('data-dialog' => "true")
     );
 }
@@ -153,7 +164,8 @@ if ($settings->haveCreatePermission()) {
     $actions->addLink(
         _("Neue Seite anlegen"),
         PluginEngine::getURL($plugin, array(), "page/edit"),
-        version_compare($GLOBALS['SOFTWARE_VERSION'], "3.4", ">=") ? Icon::create("add", "clickable") : "icons/16/blue/add");
+        Icon::create("add", "clickable")
+    );
 }
 $sidebar->addWidget($actions);
 
