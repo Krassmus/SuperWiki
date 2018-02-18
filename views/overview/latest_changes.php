@@ -31,14 +31,14 @@
                 </td>
                 <td>
                     <? if ($GLOBALS['perm']->have_studip_perm("tutor", $course_id) && $page['write_permission'] !== "all") : ?>
-                        <?= Assets::img("icons/20/black/lock-locked", array('class' => "text-bottom", 'title' => _("Seite ist schreibgeschützt."))) ?>
+                        <?= Icon::create("lock-locked", "info")->asImg(20, array('class' => "text-bottom", 'title' => _("Seite ist schreibgeschützt."))) ?>
                     <? endif ?>
                     <? if ($GLOBALS['perm']->have_studip_perm("tutor", $course_id) && $page['read_permission'] !== "all") : ?>
-                        <?= Assets::img("icons/20/black/visibility-invisible", array('class' => "text-bottom", 'title' => _("Seite ist lesegeschützt."))) ?>
+                        <?= Icon::create("visibility-invisible", "info")->asImg(20, array('class' => "text-bottom", 'title' => _("Seite ist lesegeschützt."))) ?>
                     <? endif ?>
                     <? if ($page->isEditable()) : ?>
                         <a href="<?= PluginEngine::getLink($plugin, array(), "page/edit/".$page->getId()) ?>">
-                            <?= Assets::img("icons/20/blue/edit", array('class' => "text-bottom")) ?>
+                            <?= Icon::create("edit", "clickable")->asImg(20, array('class' => "text-bottom")) ?>
                         </a>
                     <? endif ?>
                 </td>
