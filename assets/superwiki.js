@@ -12,15 +12,23 @@ STUDIP.SuperWiki = {
         if (STUDIP.SuperWiki.alreadyXHRactive === false) {
             STUDIP.SuperWiki.formerOldVersion = STUDIP.SuperWiki.oldVersion;
             var old_content = STUDIP.SuperWiki.oldVersion;
-            STUDIP.SuperWiki.oldVersion = jQuery("#superwiki_edit_content").val();
+            if ((typeof CKEDITOR.instances["superwiki_edit_content"] !== "undefined")) {
+                /*CKEDITOR.instances["superwiki_edit_content"].loadSnapshot(
+                    CKEDITOR.instances["superwiki_edit_content"].getSnapshot()
+                );*/
+                var my_content = STUDIP.wysiwyg.markAsHtml(CKEDITOR.instances["superwiki_edit_content"].getData());
+            } else {
+                var my_content = jQuery("#superwiki_edit_content").val();
+            }
+            STUDIP.SuperWiki.oldVersion = my_content;
             STUDIP.SuperWiki.alreadyXHRactive = new Promise(function (resolve, reject) {
                 var data = {
                     "cid": jQuery("#seminar_id").val(),
                     "page_id": jQuery("#page_id").val(),
                     "mode": "edit"
                 };
-                if (jQuery("#superwiki_edit_content").val() !== old_content) {
-                    data.content = jQuery("#superwiki_edit_content").val();
+                if (my_content !== old_content) {
+                    data.content = my_content;
                     data.old_content = old_content;
                 }
                 jQuery.ajax({
@@ -49,7 +57,14 @@ STUDIP.SuperWiki = {
         if (data.content) {
             var old_content = STUDIP.SuperWiki.oldVersion;
             var new_content = data.content;
-            var my_content = jQuery("#superwiki_edit_content").val();
+            if ((typeof CKEDITOR.instances["superwiki_edit_content"] !== "undefined")) {
+                /*CKEDITOR.instances["superwiki_edit_content"].loadSnapshot(
+                    CKEDITOR.instances["superwiki_edit_content"].getSnapshot()
+                );*/
+                var my_content = CKEDITOR.instances["superwiki_edit_content"].getData();
+            } else {
+                var my_content = jQuery("#superwiki_edit_content").val();
+            }
             STUDIP.SuperWiki.oldVersion = data.content; //save the version from the server as the oldVersion
             //STUDIP.SuperWiki.oldVersion.oldVersionChdate = data.chdate;
             var content = Textmerger.get().merge(old_content, my_content, new_content);
@@ -59,8 +74,18 @@ STUDIP.SuperWiki = {
                 if (jQuery("#superwiki_edit_content").is(":focus")) {
                     pos1 = document.getElementById("superwiki_edit_content").selectionStart;
                     pos2 = document.getElementById("superwiki_edit_content").selectionEnd;
+                } else if (typeof CKEDITOR.instances["superwiki_edit_content"] !== "undefined") {
+                    //CKEDITOR.instances["superwiki_edit_content"].focus();
+                    var selection = CKEDITOR.instances["superwiki_edit_content"].getSelection();
+                    var range = selection.getRanges()[0];
+                    //var pos1 = range;
+
+                    //console.log(range);
                 }
                 jQuery("#superwiki_edit_content").val(content);
+                if (typeof CKEDITOR !== "undefined" && (typeof CKEDITOR.instances["superwiki_edit_content"] !== "undefined")) {
+                    CKEDITOR.instances["superwiki_edit_content"].setData(content);
+                }
                 for (var i in replacements.replacements) {
                     var replacement = replacements.replacements[i];
                     if (replacement.origin == "text2") { //because we our own changes already changed the cursor position
@@ -73,7 +98,15 @@ STUDIP.SuperWiki = {
                     }
                 }
                 if (pos1 !== null) {
-                    document.getElementById("superwiki_edit_content").setSelectionRange(pos1, pos2);
+                    if (jQuery("#superwiki_edit_content").is(":focus")) {
+                        document.getElementById("superwiki_edit_content").setSelectionRange(pos1, pos2);
+                    } else if (typeof CKEDITOR.instances["superwiki_edit_content"]) {
+                        var newrange = CKEDITOR.instances["superwiki_edit_content"].createRange();
+                        newrange.setEnd(newrange.endContainer, 3);
+                        //var newRange = new CKEDITOR.dom.range(range.document);
+                        //newrange.moveToPosition(200, CKEDITOR.POSITION_BEFORE_START);
+                        newrange.select();
+                    }
                 }
             }
         }

@@ -31,11 +31,12 @@ class SuperwikiPage extends SimpleORMap {
 
     protected function createVersion()
     {
+        $newest_version = SuperwikiVersion::findOneBySQL("page_id = ? ORDER BY chdate DESC LIMIT 1", array($this->getId()));
         if (!$this->isNew()
-                && ($this->content['content'] !== $this->content_db['data'])
+                && ($this->content['content'] != $this->content_db['content'])
                 && (
                     ($this->content_db['last_author'] !== $this->content['last_author'])
-                    || ($this['chdate'] < time() - 60 * 30)
+                    || ($newest_version['chdate'] < time() - 60)
                 )) {
             //Neue Version anlegen:
             $version = new SuperwikiVersion();

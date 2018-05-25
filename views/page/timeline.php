@@ -2,6 +2,8 @@
 
 </div>
 
+<?= _("Version auswählen:") ?>
+
 <div id="timeline_slider" style="width: calc(100% - 20px); margin-bottom: 20px;"></div>
 <script>
     jQuery(function () {
