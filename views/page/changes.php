@@ -33,18 +33,18 @@
                     <? $end = min($change->end + 10, strlen($new_version) - 1) ?>
                     <? $end = substr($new_version, $change->end, $end - $change->start) ?>
                     <div class="change">
-                        <span class="start"><?= nl2br(htmlReady($start)) ?></span>
+                        <span class="start"><?= nl2br(htmlReady(strip_tags($start))) ?></span>
                         <span class="changedtext">
-                            <? if ($change->text) : ?>
-                                <?= nl2br(htmlReady($change->text)) ?>
+                            <? if (trim($change->text)) : ?>
+                                <?= nl2br(htmlReady(strip_tags($change->text))) ?>
                             <? else : ?>
                                 <?= Icon::create("decline-circle", "status-red")->asImg(16, array(
                                     'class' => "text-bottom",
-                                    'title' => "Text gelöscht: ".substr($former_version, $change->start, $change->end - $change->start)
+                                    'title' => "Text gelöscht: ".strip_tags(substr($former_version, $change->start, $change->end - $change->start))
                                 )) ?>
                             <? endif ?>
                         </span>
-                        <span class="end"><?= nl2br(htmlReady($end)) ?></span>
+                        <span class="end"><?= nl2br(htmlReady(strip_tags($end))) ?></span>
                     </div>
                 <? endif ?>
             <? endforeach ?>
@@ -80,18 +80,18 @@
                         <? $end = min($change->end + 10, strlen($new_version) - 1) ?>
                         <? $end = substr($new_version, $change->end, $end - $change->start) ?>
                         <div class="change">
-                            <span class="start"><?= nl2br(htmlReady($start)) ?></span>
+                            <span class="start"><?= nl2br(htmlReady(strip_tags($start))) ?></span>
                             <span class="changedtext">
-                            <? if ($change->text) : ?>
-                                <?= nl2br(htmlReady($change->text)) ?>
+                            <? if (trim($change->text)) : ?>
+                                <?= nl2br(htmlReady(strip_tags($change->text))) ?>
                             <? else : ?>
                                 <?= Icon::create("decline-circle", "status-red")->asImg(16, array(
                                     'class' => "text-bottom",
-                                    'title' => "Text gelöscht: ".substr($former_version, $change->start, $change->end - $change->start)
+                                    'title' => "Text gelöscht: ".strip_tags(substr($former_version, $change->start, $change->end - $change->start))
                                 )) ?>
                             <? endif ?>
                             </span>
-                            <span class="end"><?= nl2br(htmlReady($end)) ?></span>
+                            <span class="end"><?= nl2br(htmlReady(strip_tags($end))) ?></span>
                         </div>
                     <? endif ?>
                 <? endforeach ?>

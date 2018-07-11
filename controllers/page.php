@@ -184,7 +184,7 @@ class PageController extends PluginController {
                 $this->page['last_author'] = $GLOBALS['user']->id;
                 $this->page->store();
                 PageLayout::postMessage(MessageBox::success(_("Alte Version der Seite wiederhergestellt.")));
-                $this->redirect("superwiki/page/view/".$page_id);
+                $this->redirect("page/view/".$page_id);
             }
         }
     }
@@ -198,7 +198,7 @@ class PageController extends PluginController {
     {
         $this->page = new SuperwikiPage($page_id);
         if (!$this->page->isReadable()) {
-            throw new AccessDeniedException("Keine Berechtigung.");
+            throw new AccessDeniedException(                                                                                                                                                                                                                                                                                                 "Keine Berechtigung.");
         }
     }
 
@@ -264,7 +264,7 @@ class PageController extends PluginController {
                 continue;
             }
             if ($file['size']) {
-                $document['name'] = $document['filename'] = studip_utf8decode(strtolower($file['name']));
+                $document['name'] = $document['filename'] = strtolower($file['name']);
                 $document['user_id'] = $GLOBALS['user']->id;
                 $document['author_name'] = get_fullname();
                 $document['seminar_id'] = $this->course_id;
