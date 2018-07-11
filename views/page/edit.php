@@ -114,3 +114,11 @@ if (!$page->isNew() && $page->isEditable()) {
     $cowriter->addElement(new WidgetElement('<ul class="clean coworkerlist">'.$coworker.'</ul>'));
     $sidebar->addWidget($cowriter);
 }
+
+if (!$page->isNew()) {
+    $views = new ViewsWidget();
+    $views->addLink(_("Aktuelle Seite"), PluginEngine::getLink($plugin, array(), "page/view/".$page->getId()))->setActive(true);
+    $views->addLink(_("Autorenänderungen"), PluginEngine::getLink($plugin, array(), "page/changes/".$page->getId()));
+    $views->addLink(_("Historie"), PluginEngine::getLink($plugin, array(), "page/timeline/".$page->getId()));
+    $sidebar->addWidget($views);
+}
