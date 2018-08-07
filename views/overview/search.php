@@ -1,10 +1,13 @@
 <? if (count($pages)) : ?>
 <table class="default">
+    <caption>
+        <?= _("Suchergebnisse") ?>
+    </caption>
     <head>
         <tr>
             <th></th>
             <th><?= _("Seitenname") ?></th>
-            <th><?= _("Letzte Änderung") ?></th>
+            <th><?= _("Auszug") ?></th>
             <th></th>
         </tr>
     </head>
@@ -21,11 +24,31 @@
                 </td>
                 <td>
                     <a href="<?= PluginEngine::getLink($plugin, array(), "page/view/".$page->getId()) ?>">
-                        <?= htmlReady($page['name']) ?>
+                        <?
+                        $content = htmlReady($page['name']);
+                        $content = preg_replace(
+                            "/(".preg_quote(Request::get("search"), "/").")/i",
+                            '<strong>$1</strong>',
+                            $content
+                        );
+                        echo $content
+                        ?>
                     </a>
                 </td>
                 <td>
-                    <?= date("d.m.Y", $page['chdate']) ?>
+                    <?
+                    $content = strip_tags(formatReady($page['content']));
+                    $pos = stripos($content, Request::get("search")) ?: 0;
+                    $start = $pos > 50 ? $pos - 50 : 0;
+                    $end = strlen($content) > $pos + 200 ? $pos + 200 : strlen($content);
+                    $content = substr($content, $start, $end - $start);
+                    $content = preg_replace(
+                            "/(".preg_quote(Request::get("search"), "/").")/i",
+                        '<strong>$1</strong>',
+                        $content
+                    );
+                    echo $content
+                    ?>
                 </td>
                 <td class="actions">
                     <? if ($GLOBALS['perm']->have_studip_perm("tutor", $course_id) && $page['write_permission'] !== "all") : ?>
@@ -48,7 +71,7 @@
     </tbody>
 </table>
 <? else : ?>
-    <? PageLayout::postMessage(MessageBox::info(_("Noch keine Seiten vorhanden."))) ?>
+    <? PageLayout::postMessage(MessageBox::info(_("Die Suche ergab keinen Treffer"))) ?>
 <? endif ?>
 
 <?
