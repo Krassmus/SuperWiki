@@ -5,7 +5,6 @@
     </caption>
     <head>
         <tr>
-            <th></th>
             <th><?= _("Seitenname") ?></th>
             <th><?= _("Auszug") ?></th>
             <th></th>
@@ -15,13 +14,6 @@
     <? foreach ($pages as $page) : ?>
         <? if ($page->isReadable()) : ?>
             <tr>
-                <td style="width: 20px;">
-                    <? if ($page->getId() === $page->settings['indexpage']) : ?>
-                        <?= version_compare($GLOBALS['SOFTWARE_VERSION'], "3.4", ">=")
-                            ? Icon::create("arr_2right", "info")->asImg(20, array('class' => "text-bottom", 'title' => _("Startseite")))
-                            : Assets::image_path("icons/20/black/arr_2right", array('class' => "text-bottom", 'title' => _("Startseite"))) ?>
-                    <? endif ?>
-                </td>
                 <td>
                     <a href="<?= PluginEngine::getLink($plugin, array(), "page/view/".$page->getId()) ?>">
                         <?
