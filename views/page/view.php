@@ -57,6 +57,14 @@
 $sidebar = Sidebar::Get();
 $sidebar->setImage('sidebar/wiki-sidebar.png');
 
+$search = new SearchWidget(PluginEngine::getURL($plugin, array(), "overview/search"));
+$search->addNeedle(
+    _("Suche nach ..."),
+    "search",
+    true
+);
+$sidebar->addWidget($search);
+
 $actions = new ActionsWidget();
 if ($GLOBALS['perm']->have_studip_perm("tutor", $course_id)) {
     $actions->addLink(
