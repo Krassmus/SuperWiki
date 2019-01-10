@@ -68,7 +68,10 @@ class SuperwikiPage extends SimpleORMap {
                     return true;
                 }
                 //statusgruppe_id
-                return Statusgruppen::find($this['read_permission'])->isMember($user_id);
+                $gruppe = Statusgruppen::find($this['read_permission']);
+                if ($gruppe) {
+                    return $gruppe->isMember($user_id);
+                }
         }
         return false;
     }
