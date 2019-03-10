@@ -105,6 +105,23 @@ class SuperwikiPage extends SimpleORMap {
 
     public function wikiFormat()
     {
+        if (parse_url(trim($this['content'])) !== false) {
+            $allow = array(
+                "allow-forms",
+                "allow-modals",
+                "allow-orientation-lock",
+                "allow-pointer-lock",
+                "allow-popups",
+                //"allow-same-origin",
+                "allow-scripts",
+                "allow-presentation",
+                "allow-top-navigation",
+                "allow-top-navigation-by-user-activation"
+            );
+            return '<iframe sandbox="'.implode(" ", $allow).'" 
+                        src="'.htmlReady(trim($this['content'])).'" 
+                        style="width: 100%; height: 95vh; border: none;"></iframe>';
+        }
         $text = \Studip\Markup::apply(new SuperWikiFormat(), $this['content'], true);
 
         $pages = self::findBySQL("seminar_id = ? AND content IS NOT NULL AND content != '' ORDER BY CHAR_LENGTH(name) DESC", array($this['seminar_id']));
