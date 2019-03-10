@@ -105,7 +105,7 @@ class SuperwikiPage extends SimpleORMap {
 
     public function wikiFormat()
     {
-        if (parse_url(trim($this['content'])) !== false) {
+        if (filter_var(trim($this['content']), FILTER_VALIDATE_URL) !== false) {
             $allow = array(
                 "allow-forms",
                 "allow-modals",
