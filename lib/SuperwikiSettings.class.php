@@ -19,7 +19,7 @@ class SuperwikiSettings extends SimpleORMap {
             case "dozent":
                 return $GLOBALS['perm']->have_studip_perm("dozent", $this['seminar_id'], $user_id);
         }
-        return $this->isNew();
+        return true;
     }
 
     public function haveRenamePermission($user_id = null)
@@ -34,6 +34,6 @@ class SuperwikiSettings extends SimpleORMap {
             case "dozent":
                 return $GLOBALS['perm']->have_studip_perm("dozent", $this['seminar_id'], $user_id);
         }
-        return $this->isNew();
+        return true;
     }
 }

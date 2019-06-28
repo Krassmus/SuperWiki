@@ -65,6 +65,49 @@ class PageController extends PluginController {
             $this->page = SuperwikiPage::findByName(Request::get("name"), $this->course_id);
             if (!$this->page) {
                 $this->page = new SuperwikiPage();
+                $this->page['name'] = Request::get("name");
+                $this->page['seminar_id'] = $this->course_id;
+            }
+        }
+        if ((!$this->page->isNew() && !$this->page->isEditable()) || ($this->page->isNew() && !$this->settings->haveCreatePermission())) {
+            throw new AccessDeniedException("Keine Berechtigung.");
+        }
+
+        if (!$this->page->isNew()) {
+            $statement = DBManager::get()->prepare("
+                    INSERT INTO superwiki_editors
+                    SET user_id = :me,
+                        page_id = :page_id,
+                        online = UNIX_TIMESTAMP(),
+                        latest_change = '0'
+                    ON DUPLICATE KEY UPDATE
+                        online = UNIX_TIMESTAMP()
+                ");
+            $statement->execute(array(
+                'me' => $GLOBALS['user']->id,
+                'page_id' => $page_id
+            ));
+        }
+
+        if (!$this->page->isNew()) {
+            $this->onlineusers = $this->page->getActiveUsers();
+        }
+    }
+
+    public function save_action($page_id = null)
+    {
+        if ($page_id) {
+            $this->page = new SuperwikiPage($page_id);
+
+            if ($this->page['seminar_id'] !== $this->course_id) {
+                throw new AccessDeniedException("Not in right course");
+            }
+        } else {
+            $this->page = SuperwikiPage::findByName(Request::get("name"), $this->course_id);
+            if (!$this->page) {
+                $this->page = new SuperwikiPage();
+                $this->page['name'] = Request::get("name");
+                $this->page['seminar_id'] = $this->course_id;
             }
         }
         if ((!$this->page->isNew() && !$this->page->isEditable()) || ($this->page->isNew() && !$this->settings->haveCreatePermission())) {
@@ -109,11 +152,8 @@ class PageController extends PluginController {
             } elseif($success === false) {
                 PageLayout::postMessage(MessageBox::error(_("Ein Fehler ist aufgetreten.")));
             }
-            $this->redirect("page/view/".$this->page->getId());
         }
-        if (!$this->page->isNew()) {
-            $this->onlineusers = $this->page->getActiveUsers();
-        }
+        $this->redirect("page/view/".$this->page->getId());
     }
 
     public function rename_action($page_id)
