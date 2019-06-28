@@ -124,7 +124,7 @@ class SuperwikiPage extends SimpleORMap {
                         src="'.htmlReady(trim($this['content'])).'" 
                         style="width: 100%; height: 95vh; border: none;"></iframe>';
         }
-        $text = \Studip\Markup::apply(new SuperWikiFormat(), $this['content'], true);
+        $text = \Studip\Markup::apply(new SuperwikiFormat(), $this['content'], true);
 
         $pages = self::findBySQL("seminar_id = ? AND content IS NOT NULL AND content != '' ORDER BY CHAR_LENGTH(name) DESC", array($this['seminar_id']));
         foreach ($pages as $page) {

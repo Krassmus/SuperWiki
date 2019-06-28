@@ -1,24 +1,24 @@
 <?php
 
-class SuperWikiFormat extends StudipFormat
+class SuperwikiFormat extends StudipFormat
 {
     private static $superwiki_rules = array(
         'presentation-settings' => array(
             'start'    => '{{presentation(.*?)}}',
-            'callback' => 'SuperWikiFormat::markupPresentationSettings',
+            'callback' => 'SuperwikiFormat::markupPresentationSettings',
             'before' => "media"
         ),
         'presentation-newpage' => array(
             'start'    => '{{newpage(.*?)}}',
-            'callback' => 'SuperWikiFormat::markupSlideNewpage'
+            'callback' => 'SuperwikiFormat::markupSlideNewpage'
         ),
         'presentation-stoppoint' => array(
             'start'    => '{{stoppoint(.*?)}}',
-            'callback' => 'SuperWikiFormat::markupSlideStoppoint'
+            'callback' => 'SuperwikiFormat::markupSlideStoppoint'
         ),
         'wiki-links' => array(
             'start'    => '\[\[(.*?)(?:\|(.*?))?\]\]',
-            'callback' => 'SuperWikiFormat::markupWikiLinks',
+            'callback' => 'SuperwikiFormat::markupWikiLinks',
             'before'   => 'links'
         ),
     );

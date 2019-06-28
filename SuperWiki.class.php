@@ -1,9 +1,10 @@
 <?php
 
-require_once __DIR__."/lib/SuperWikiFormat.php";
-require_once __DIR__."/lib/SuperwikiPage.class.php";
-require_once __DIR__."/lib/SuperwikiVersion.class.php";
-require_once __DIR__."/lib/SuperwikiSettings.class.php";
+require_once __DIR__ . "/lib/SuperwikiFormat.php";
+require_once __DIR__."/lib/SuperwikiPage.php";
+require_once __DIR__."/lib/SuperwikiVersion.php";
+require_once __DIR__."/lib/SuperwikiSettings.php";
+require_once __DIR__."/lib/SuperwikiCMS.php";
 require_once __DIR__ . "/vendor/Textmerger/Textmerger.php";
 require_once 'lib/classes/Markup.class.php';
 
@@ -82,6 +83,21 @@ class SuperWiki extends StudIPPlugin implements StandardPlugin, SystemPlugin {
                     UpdateInformation::setInformation("SuperWiki.updatePage", $output);
                 }
             }
+        }
+
+        if ($GLOBALS['perm']->have_perm("root")) {
+            $nav = new Navigation(_("Superwiki CMS"), PluginEngine::getURL($this, array(), "cms/overview"));
+            Navigation::addItem("/admin/locations/superwikicms", $nav);
+        }
+        foreach (SuperwikiCMS::findBySQL("active = '1' ORDER BY title ASC") as $cms) {
+            $nav = new Navigation($cms['title'], PluginEngine::getURL($this, array(), "cms/view"));
+            if ($cms['icon']) {
+                $nav->setImage(Icon::create($cms['icon'], "navigation"));
+            }
+            if ($cms['description']) {
+                $nav->setDescription($cms['description']);
+            }
+            Navigation::addItem($cms['navigation'], $nav);
         }
     }
 
