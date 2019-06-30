@@ -9,20 +9,33 @@ class PageController extends PluginController {
     function before_filter(&$action, &$args)
     {
         parent::before_filter($action, $args);
-        $this->course_id = class_exists("Context") ? Context::getId() : $_SESSION['SessionSeminar'];
-        $this->settings = new SuperwikiSettings($this->course_id);
-        Navigation::activateItem("/course/superwiki/wiki");
-        Navigation::getItem("/course/superwiki")->setImage(
-            Icon::create(($this->settings['icon'] ?: "wiki"), "info")
-        );
+        if (Request::get("cms_id")) {
+            $this->cms = SuperwikiCMS::find(Request::get("cms_id"));
+            $this->settings = new SuperwikiSettings($this->cms['seminar_id']);
+            URLHelper::bindLinkParam("cms", $this->cms->getId());
+            $navigation = preg_split("/\//", $this->cms['navigation'], -1, PREG_SPLIT_NO_EMPTY);
+            if (count($navigation) === 1) {
+                $navigation[] = "superwiki_subtab";
+                Navigation::addItem($this->cms['navigation']."/superwiki_subtab", new Navigation($this->cms['title'], Navigation::getItem($this->cms['navigation'])->getURL()));
+            }
+            $navigation = "/".implode("/", $navigation);
+            Navigation::activateItem($navigation);
+        } else {
+            $this->course_id = Context::getId();
+            $this->settings = new SuperwikiSettings($this->course_id);
+            Navigation::activateItem("/course/superwiki/wiki");
+            Navigation::getItem("/course/superwiki")->setImage(
+                Icon::create(($this->settings['icon'] ?: "wiki"), "info")
+            );
+            PageLayout::setTitle(Context::getHeaderLine()  . " - ".($this->settings && $this->settings['name'] ? $this->settings['name'] : Config::get()->SUPERWIKI_NAME));
+            Helpbar::Get()->addLink(_("Wikilinks und Navigation"), "https://github.com/Krassmus/SuperWiki/wiki/Wikilinks-und-Navigation", null, "_blank");
+            Helpbar::Get()->addLink(_("Unsichtbare Wikiseiten"), "https://github.com/Krassmus/SuperWiki/wiki/Unsichtbare-Wikiseiten", null, "_blank");
+            Helpbar::Get()->addLink(sprintf(_("%s für Gruppenaufgaben"), Config::get()->SUPERWIKI_NAME), "https://github.com/Krassmus/SuperWiki/wiki/SuperWiki-für-Gruppenaufgaben", null, "_blank");
+            //Helpbar::Get()->addLink(_("Superwiki für Lernorganisation"), "https://github.com/Krassmus/SuperWiki/wiki/Wikilinks-und-Navigation", null, "_blank");
+            Helpbar::Get()->addLink(sprintf(_("Präsentationen mit %s"), Config::get()->SUPERWIKI_NAME), "https://github.com/Krassmus/SuperWiki/wiki/Präsentationen-mit-SuperWiki", null, "_blank");
+        }
         PageLayout::addScript($this->plugin->getPluginURL()."/vendor/Textmerger/Textmerger.js");
         PageLayout::addScript($this->plugin->getPluginURL()."/assets/superwiki.js");
-        PageLayout::setTitle(Context::getHeaderLine()  . " - ".($this->settings && $this->settings['name'] ? $this->settings['name'] : Config::get()->SUPERWIKI_NAME));
-        Helpbar::Get()->addLink(_("Wikilinks und Navigation"), "https://github.com/Krassmus/SuperWiki/wiki/Wikilinks-und-Navigation", null, "_blank");
-        Helpbar::Get()->addLink(_("Unsichtbare Wikiseiten"), "https://github.com/Krassmus/SuperWiki/wiki/Unsichtbare-Wikiseiten", null, "_blank");
-        Helpbar::Get()->addLink(sprintf(_("%s für Gruppenaufgaben"), Config::get()->SUPERWIKI_NAME), "https://github.com/Krassmus/SuperWiki/wiki/SuperWiki-für-Gruppenaufgaben", null, "_blank");
-        //Helpbar::Get()->addLink(_("Superwiki für Lernorganisation"), "https://github.com/Krassmus/SuperWiki/wiki/Wikilinks-und-Navigation", null, "_blank");
-        Helpbar::Get()->addLink(sprintf(_("Präsentationen mit %s"), Config::get()->SUPERWIKI_NAME), "https://github.com/Krassmus/SuperWiki/wiki/Präsentationen-mit-SuperWiki", null, "_blank");
 
         if ($GLOBALS['perm']->have_perm("root")) {
             Helpbar::Get()->addLink(_("PHP-Test"), URLHelper::getURL("plugins_packages/RasmusFuhse/SuperWiki/vendor/Textmerger/test/php.php"), null, "_blank");
@@ -32,21 +45,27 @@ class PageController extends PluginController {
 
     public function view_action($page_id = null)
     {
-        if ($page_id) {
-            $this->page = new SuperwikiPage($page_id);
-            if ($this->page['seminar_id'] !== $this->course_id) {
-                throw new AccessDeniedException("Not in right course");
+        $this->page = $page_id ? new SuperwikiPage($page_id) : new SuperwikiPage($this->settings['indexpage'] ?: null);
+        if ($this->cms) {
+            if (!$this->cms['active'] || $this->cms['seminar_id'] !== $this->page['seminar_id']) {
+                throw new AccessDeniedException();
             }
-            $history = $_SESSION['SuperWiki_History'][$this->course_id];
-            if ($history[count($history) - 1] !== $page_id) {
-                $history[] = $page_id;
-                if (count($history) > 6) {
-                    array_shift($history);
-                }
-            }
-            $_SESSION['SuperWiki_History'][$this->course_id] = $history;
+            URLHelper::bindLinkParam("cms_id", $this->cms->getId());
+            PageLayout::setTitle($this->cms['title'].": ".$this->page['name']);
         } else {
-            $this->page = new SuperwikiPage($this->settings['indexpage'] ?: null);
+            if ($page_id) {
+                if ($this->page['seminar_id'] !== $this->course_id) {
+                    throw new AccessDeniedException("Not in right course");
+                }
+                $history = $_SESSION['SuperWiki_History'][$this->course_id];
+                if ($history[count($history) - 1] !== $page_id) {
+                    $history[] = $page_id;
+                    if (count($history) > 6) {
+                        array_shift($history);
+                    }
+                }
+                $_SESSION['SuperWiki_History'][$this->course_id] = $history;
+            }
         }
         if (!$this->page->isNew() && !$this->page->isReadable()) {
             throw new AccessDeniedException("Keine Berechtigung.");

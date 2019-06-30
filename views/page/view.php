@@ -65,52 +65,53 @@ $search->addNeedle(
 );
 $sidebar->addWidget($search);
 
-$actions = new ActionsWidget();
-if ($GLOBALS['perm']->have_studip_perm("tutor", $course_id)) {
-    $actions->addLink(
-        _("Wiki-Einstellungen"),
-        PluginEngine::getURL($plugin, array(), "page/admin"),
-        version_compare($GLOBALS['SOFTWARE_VERSION'], "3.4", ">=") ? Icon::create("admin", "clickable") : "icons/16/blue/admin",
-        array('data-dialog' => "true")
-    );
-    if (!$page->isNew()) {
+if (!$cms) {
+    $actions = new ActionsWidget();
+    if ($GLOBALS['perm']->have_studip_perm("tutor", $course_id)) {
         $actions->addLink(
-            _("Seiten-Einstellungen"),
-            PluginEngine::getURL($plugin, array(), "page/permissions/".$page->getId()),
-            version_compare($GLOBALS['SOFTWARE_VERSION'], "3.4", ">=") ? Icon::create("roles", "clickable") : "icons/16/blue/roles",
+            _("Wiki-Einstellungen"),
+            PluginEngine::getURL($plugin, array(), "page/admin"),
+            version_compare($GLOBALS['SOFTWARE_VERSION'], "3.4", ">=") ? Icon::create("admin", "clickable") : "icons/16/blue/admin",
+            array('data-dialog' => "true")
+        );
+        if (!$page->isNew()) {
+            $actions->addLink(
+                _("Seiten-Einstellungen"),
+                PluginEngine::getURL($plugin, array(), "page/permissions/" . $page->getId()),
+                version_compare($GLOBALS['SOFTWARE_VERSION'], "3.4", ">=") ? Icon::create("roles", "clickable") : "icons/16/blue/roles",
+                array('data-dialog' => "true")
+            );
+        }
+    }
+    if ($page->isEditable()) {
+        $actions->addLink(
+            _("Seite bearbeiten"),
+            PluginEngine::getURL($plugin, array(), "page/edit/" . $page->getId()),
+            version_compare($GLOBALS['SOFTWARE_VERSION'], "3.4", ">=") ? Icon::create("edit", "clickable") : "icons/16/blue/edit"
+        );
+    }
+    if (!$page->isNew() && $settings->haveRenamePermission()) {
+        $actions->addLink(
+            _("Seite umbenennen"),
+            PluginEngine::getURL($plugin, array(), "page/rename/" . $page->getId()),
+            version_compare($GLOBALS['SOFTWARE_VERSION'], "3.4", ">=") ? Icon::create("edit", "clickable") : "icons/16/blue/edit",
             array('data-dialog' => "true")
         );
     }
-}
-if ($page->isEditable()) {
-    $actions->addLink(
-        _("Seite bearbeiten"),
-        PluginEngine::getURL($plugin, array(), "page/edit/".$page->getId()),
-        version_compare($GLOBALS['SOFTWARE_VERSION'], "3.4", ">=") ? Icon::create("edit", "clickable") :  "icons/16/blue/edit"
-    );
-}
-if (!$page->isNew() && $settings->haveRenamePermission()) {
-    $actions->addLink(
-        _("Seite umbenennen"),
-        PluginEngine::getURL($plugin, array(), "page/rename/".$page->getId()),
-        version_compare($GLOBALS['SOFTWARE_VERSION'], "3.4", ">=") ? Icon::create("edit", "clickable") : "icons/16/blue/edit",
-        array('data-dialog' => "true")
-    );
-}
-if ($settings->haveCreatePermission()) {
-    $actions->addLink(
-        _("Neue Seite anlegen"),
-        PluginEngine::getURL($plugin, array(), "page/edit"),
-        version_compare($GLOBALS['SOFTWARE_VERSION'], "3.4", ">=") ? Icon::create("add", "clickable") : "icons/16/blue/add");
-}
-$sidebar->addWidget($actions);
+    if ($settings->haveCreatePermission()) {
+        $actions->addLink(
+            _("Neue Seite anlegen"),
+            PluginEngine::getURL($plugin, array(), "page/edit"),
+            version_compare($GLOBALS['SOFTWARE_VERSION'], "3.4", ">=") ? Icon::create("add", "clickable") : "icons/16/blue/add");
+    }
+    $sidebar->addWidget($actions);
 
-if (!$page->isNew()) {
-    $views = new ViewsWidget();
-    $views->addLink(_("Aktuelle Seite"), PluginEngine::getLink($plugin, array(), "page/view/".$page->getId()))->setActive(true);
-    $views->addLink(_("Vollbild"), "#", null, array('onClick' => "STUDIP.SuperWiki.requestFullscreen(); return false;"));
-    $views->addLink(_("Autorenänderungen"), PluginEngine::getLink($plugin, array(), "page/changes/".$page->getId()));
-    $views->addLink(_("Historie"), PluginEngine::getLink($plugin, array(), "page/timeline/".$page->getId()));
-    $sidebar->addWidget($views);
+    if (!$page->isNew()) {
+        $views = new ViewsWidget();
+        $views->addLink(_("Aktuelle Seite"), PluginEngine::getLink($plugin, array(), "page/view/" . $page->getId()))->setActive(true);
+        $views->addLink(_("Vollbild"), "#", null, array('onClick' => "STUDIP.SuperWiki.requestFullscreen(); return false;"));
+        $views->addLink(_("Autorenänderungen"), PluginEngine::getLink($plugin, array(), "page/changes/" . $page->getId()));
+        $views->addLink(_("Historie"), PluginEngine::getLink($plugin, array(), "page/timeline/" . $page->getId()));
+        $sidebar->addWidget($views);
+    }
 }
-

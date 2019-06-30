@@ -1,7 +1,7 @@
 <table class="default">
     <thead>
         <tr>
-            <th>
+            <th style="width: 20px;">
 
             </th>
             <th>
@@ -25,7 +25,11 @@
         <? endif ?>
         <? foreach ($cms as $c) : ?>
             <tr>
-                <td></td>
+                <td>
+                    <? if ($c['icon']) : ?>
+                    <?= Icon::create($c['icon'], "info")->asImg(20, array('class' => "text-bottom")) ?>
+                    <? endif ?>
+                </td>
                 <td>
                     <?= htmlReady($c['title']) ?>
                 </td>
@@ -37,7 +41,7 @@
                 </td>
                 <td class="actions">
                     <a href="<?= PluginEngine::getLink($plugin, array(), "cms/edit/".$c->getId()) ?>" data-dialog>
-                        <?= Icon::create("edit", "clickable") ?>
+                        <?= Icon::create("edit", "clickable")->asImg(20, array('class' => "text-bottom")) ?>
                     </a>
                 </td>
             </tr>
