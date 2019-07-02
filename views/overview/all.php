@@ -59,22 +59,23 @@ $search->addNeedle(
 );
 $sidebar->addWidget($search);
 
-$actions = new ActionsWidget();
-if ($GLOBALS['perm']->have_studip_perm("tutor", $course_id)) {
-    $actions->addLink(
-        _("Wiki-Einstellungen"),
-        PluginEngine::getURL($plugin, array(), "page/admin"),
-        Icon::create("admin", "clickable"),
-        array('data-dialog' => "true")
-    );
+if (!$cms) {
+    $actions = new ActionsWidget();
+    if ($GLOBALS['perm']->have_studip_perm("tutor", $course_id)) {
+        $actions->addLink(
+            _("Wiki-Einstellungen"),
+            PluginEngine::getURL($plugin, array(), "page/admin"),
+            Icon::create("admin", "clickable"),
+            array('data-dialog' => "true")
+        );
+    }
+    if ($settings->haveCreatePermission()) {
+        $actions->addLink(
+            _("Neue Seite anlegen"),
+            PluginEngine::getURL($plugin, array(), "page/edit"),
+            Icon::create("add", "clickable")
+        );
+    }
+    $sidebar->addWidget($actions);
 }
-if ($settings->haveCreatePermission()) {
-    $actions->addLink(
-        _("Neue Seite anlegen"),
-        PluginEngine::getURL($plugin, array(), "page/edit"),
-        Icon::create("add", "clickable")
-    );
-}
-$sidebar->addWidget($actions);
-
 

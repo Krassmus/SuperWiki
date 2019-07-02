@@ -9,18 +9,37 @@ class OverviewController extends PluginController {
     function before_filter(&$action, &$args)
     {
         parent::before_filter($action, $args);
-        $this->course_id = class_exists("Context") ? Context::getId() : $_SESSION['SessionSeminar'];
-        $this->settings = new SuperwikiSettings($this->course_id);
-        Navigation::activateItem("/course/superwiki/all");
-        Navigation::getItem("/course/superwiki")->setImage(
-            Icon::create(($this->settings['icon'] ?: "wiki"), "info_alt")
-        );
-        PageLayout::setTitle(Context::getHeaderLine()  . " - ".($this->settings && $this->settings['name'] ? $this->settings['name'] : Config::get()->SUPERWIKI_NAME));
-        Helpbar::Get()->addLink(_("Wikilinks und Navigation"), "https://github.com/Krassmus/SuperWiki/wiki/Wikilinks-und-Navigation", null, "_blank");
-        Helpbar::Get()->addLink(_("Unsichtbare Wikiseiten"), "https://github.com/Krassmus/SuperWiki/wiki/Unsichtbare-Wikiseiten", null, "_blank");
-        Helpbar::Get()->addLink(sprintf(_("%s für Gruppenaufgaben"), Config::get()->SUPERWIKI_NAME), "https://github.com/Krassmus/SuperWiki/wiki/SuperWiki-f%C3%BCr-Gruppenaufgaben", null, "_blank");
-        //Helpbar::Get()->addLink(_("Superwiki für Lernorganisation"), "https://github.com/Krassmus/SuperWiki/wiki/Wikilinks-und-Navigation", null, "_blank");
-        Helpbar::Get()->addLink(sprintf(_("Präsentationen mit %s"), Config::get()->SUPERWIKI_NAME), "https://github.com/Krassmus/SuperWiki/wiki/Pr%C3%A4sentationen-mit-SuperWiki", null, "_blank");
+
+        if (Request::get("cms_id")) {
+            $this->cms = SuperwikiCMS::find(Request::get("cms_id"));
+            $this->settings = new SuperwikiSettings($this->cms['seminar_id']);
+            URLHelper::bindLinkParam("cms_id", $this->cms->getId());
+            $navigation = preg_split("/\//", $this->cms['navigation'], -1, PREG_SPLIT_NO_EMPTY);
+            if (count($navigation) === 1) {
+                $navigation[] = "superwiki_subtab";
+                Navigation::addItem($this->cms['navigation']."/superwiki_subtab", new Navigation($this->cms['title'], Navigation::getItem($this->cms['navigation'])->getURL()));
+            }
+            if (count($navigation === 2)) {
+                $navigation[] = "superwiki_subsubtab";
+                Navigation::addItem($this->cms['navigation']."/superwiki_subtab/superwiki_subsubtab", new Navigation($this->cms['title'], Navigation::getItem($this->cms['navigation'])->getURL()));
+                Navigation::addItem($this->cms['navigation']."/superwiki_subtab/superwiki_all", new Navigation(_("Alle Seiten"), PluginEngine::getURL($this->plugin, array('cms_id' => $this->cms->getId()), "overview/all")));
+            }
+            $navigation = "/".implode("/", $navigation);
+            Navigation::activateItem($navigation);
+        } else {
+            $this->course_id = Context::getId();
+            $this->settings = new SuperwikiSettings($this->course_id);
+            Navigation::activateItem("/course/superwiki/all");
+            Navigation::getItem("/course/superwiki")->setImage(
+                Icon::create(($this->settings['icon'] ?: "wiki"), "info")
+            );
+            PageLayout::setTitle(Context::getHeaderLine()  . " - ".($this->settings && $this->settings['name'] ? $this->settings['name'] : Config::get()->SUPERWIKI_NAME));
+            Helpbar::Get()->addLink(_("Wikilinks und Navigation"), "https://github.com/Krassmus/SuperWiki/wiki/Wikilinks-und-Navigation", null, "_blank");
+            Helpbar::Get()->addLink(_("Unsichtbare Wikiseiten"), "https://github.com/Krassmus/SuperWiki/wiki/Unsichtbare-Wikiseiten", null, "_blank");
+            Helpbar::Get()->addLink(sprintf(_("%s für Gruppenaufgaben"), Config::get()->SUPERWIKI_NAME), "https://github.com/Krassmus/SuperWiki/wiki/SuperWiki-für-Gruppenaufgaben", null, "_blank");
+            //Helpbar::Get()->addLink(_("Superwiki für Lernorganisation"), "https://github.com/Krassmus/SuperWiki/wiki/Wikilinks-und-Navigation", null, "_blank");
+            Helpbar::Get()->addLink(sprintf(_("Präsentationen mit %s"), Config::get()->SUPERWIKI_NAME), "https://github.com/Krassmus/SuperWiki/wiki/Präsentationen-mit-SuperWiki", null, "_blank");
+        }
 
         if ($GLOBALS['perm']->have_perm("root")) {
             Helpbar::Get()->addLink(_("PHP-Test"), URLHelper::getURL("plugins_packages/RasmusFuhse/SuperWiki/vendor/Textmerger/test/php.php"), null, "_blank");
@@ -30,7 +49,15 @@ class OverviewController extends PluginController {
 
     public function all_action()
     {
-        $this->pages = SuperwikiPage::findAll($this->course_id);
+        if ($this->cms) {
+            if (!$this->cms['active']) {
+                throw new AccessDeniedException();
+            }
+            PageLayout::setTitle($this->cms['title'].": ".$this->page['name']);
+            $this->pages = SuperwikiPage::findAll($this->cms['seminar_id']);
+        } else {
+            $this->pages = SuperwikiPage::findAll($this->course_id);
+        }
     }
 
     public function latest_changes_action()
@@ -46,6 +73,12 @@ class OverviewController extends PluginController {
 
     public function search_action()
     {
+        if ($this->cms) {
+            if (!$this->cms['active']) {
+                throw new AccessDeniedException();
+            }
+            $this->course_id = $this->cms['seminar_id'];
+        }
         if (!Request::get("search")) {
             $this->redirect("overview/all");
         }

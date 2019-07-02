@@ -12,11 +12,16 @@ class PageController extends PluginController {
         if (Request::get("cms_id")) {
             $this->cms = SuperwikiCMS::find(Request::get("cms_id"));
             $this->settings = new SuperwikiSettings($this->cms['seminar_id']);
-            URLHelper::bindLinkParam("cms", $this->cms->getId());
+            URLHelper::bindLinkParam("cms_id", $this->cms->getId());
             $navigation = preg_split("/\//", $this->cms['navigation'], -1, PREG_SPLIT_NO_EMPTY);
             if (count($navigation) === 1) {
                 $navigation[] = "superwiki_subtab";
                 Navigation::addItem($this->cms['navigation']."/superwiki_subtab", new Navigation($this->cms['title'], Navigation::getItem($this->cms['navigation'])->getURL()));
+            }
+            if (count($navigation === 2)) {
+                $navigation[] = "superwiki_subsubtab";
+                Navigation::addItem($this->cms['navigation']."/superwiki_subtab/superwiki_subsubtab", new Navigation($this->cms['title'], Navigation::getItem($this->cms['navigation'])->getURL()));
+                Navigation::addItem($this->cms['navigation']."/superwiki_subtab/superwiki_all", new Navigation(_("Alle Seiten"), PluginEngine::getURL($this->plugin, array('cms_id' => $this->cms->getId()), "overview/all")));
             }
             $navigation = "/".implode("/", $navigation);
             Navigation::activateItem($navigation);
@@ -50,7 +55,6 @@ class PageController extends PluginController {
             if (!$this->cms['active'] || $this->cms['seminar_id'] !== $this->page['seminar_id']) {
                 throw new AccessDeniedException();
             }
-            URLHelper::bindLinkParam("cms_id", $this->cms->getId());
             PageLayout::setTitle($this->cms['title'].": ".$this->page['name']);
         } else {
             if ($page_id) {
