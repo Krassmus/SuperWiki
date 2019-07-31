@@ -24,7 +24,7 @@
         <label>
             <?= _("Wer darf neue Seiten erstellen?") ?>
             <select name="create_permission">
-                <option value="all"<?= $settings['create_permission'] === "all" ? " selected" : "" ?>><?= _("jeder") ?></option>
+                <option value="all"<?= $settings['create_permission'] === "all" ? " selected" : "" ?>><?= _("Alle") ?></option>
                 <option value="tutor"<?= $settings['create_permission'] === "tutor" ? " selected" : "" ?>><?= _("Tutoren und Dozenten") ?></option>
             </select>
         </label>
@@ -32,7 +32,7 @@
         <label>
             <?= _("Wer darf Seiten umbenennen?") ?>
             <select name="rename_permission">
-                <option value="all"<?= $settings['create_permission'] === "all" ? " selected" : "" ?>><?= _("jeder") ?></option>
+                <option value="all"<?= $settings['create_permission'] === "all" ? " selected" : "" ?>><?= _("Alle") ?></option>
                 <option value="tutor"<?= $settings['create_permission'] === "tutor" ? " selected" : "" ?>><?= _("Tutoren und Dozenten") ?></option>
                 <option value="dozent"<?= $settings['create_permission'] === "dozent" ? " selected" : "" ?>><?= _("Nur Dozenten") ?></option>
             </select>

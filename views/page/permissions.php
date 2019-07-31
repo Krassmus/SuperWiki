@@ -6,7 +6,7 @@
         <label>
             <?= _("Wer darf diese Seite lesen?") ?>
             <select name="read_permission">
-                <option value="all"<?= $page['read_permission'] === "all" ? " selected" : "" ?>><?= _("Jeder") ?></option>
+                <option value="all"<?= $page['read_permission'] === "all" ? " selected" : "" ?>><?= _("Alle") ?></option>
                 <option value="tutor"<?= $page['read_permission'] === "tutor" ? " selected" : "" ?>><?= _("Tutoren & Dozenten") ?></option>
                 <option value="dozent"<?= $page['read_permission'] === "dozent" ? " selected" : "" ?>><?= _("Nur Dozenten") ?></option>
                 <? foreach ($statusgruppen as $statusgruppe) : ?>
@@ -17,7 +17,7 @@
         <label>
             <?= _("Wer darf diese Seite bearbeiten?") ?>
             <select name="write_permission">
-                <option value="all"<?= $page['write_permission'] === "all" ? " selected" : "" ?>><?= _("Jeder") ?></option>
+                <option value="all"<?= $page['write_permission'] === "all" ? " selected" : "" ?>><?= _("Alle") ?></option>
                 <option value="tutor"<?= $page['write_permission'] === "tutor" ? " selected" : "" ?>><?= _("Tutoren & Dozenten") ?></option>
                 <option value="dozent"<?= $page['write_permission'] === "dozent" ? " selected" : "" ?>><?= _("Nur Dozenten") ?></option>
                 <? foreach ($statusgruppen as $statusgruppe) : ?>

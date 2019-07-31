@@ -43,18 +43,18 @@
                     ?>
                 </td>
                 <td class="actions">
-                    <? if ($GLOBALS['perm']->have_studip_perm("tutor", $course_id) && $page['write_permission'] !== "all") : ?>
-                        <?= Assets::img("icons/20/black/lock-locked", array('class' => "text-bottom", 'title' => _("Seite ist schreibgeschützt."))) ?>
-                    <? endif ?>
-                    <? if ($GLOBALS['perm']->have_studip_perm("tutor", $course_id) && $page['read_permission'] !== "all") : ?>
-                        <?= Assets::img("icons/20/black/visibility-invisible", array('class' => "text-bottom", 'title' => _("Seite ist lesegeschützt."))) ?>
-                    <? endif ?>
-                    <? if ($page->isEditable()) : ?>
-                        <a href="<?= PluginEngine::getLink($plugin, array(), "page/edit/".$page->getId()) ?>">
-                            <?= version_compare($GLOBALS['SOFTWARE_VERSION'], "3.4", ">=")
-                                ? Icon::create("edit", "clickable")->asImg(20, array('class' => "text-bottom"))
-                                : Assets::image_path("icons/20/blue/edit", array('class' => "text-bottom")) ?>
-                        </a>
+                    <? if (!Request::get("cms_id")) : ?>
+                        <? if ($GLOBALS['perm']->have_studip_perm("tutor", $course_id) && $page['write_permission'] !== "all") : ?>
+                            <?= Icon::create("lock-locked", "info")->asImg(20, array('class' => "text-bottom", 'title' => _("Seite ist schreibgeschützt."))) ?>
+                        <? endif ?>
+                        <? if ($GLOBALS['perm']->have_studip_perm("tutor", $course_id) && $page['read_permission'] !== "all") : ?>
+                            <?= Icon::create("visibility-invisible", "info")->asImg(20, array('class' => "text-bottom", 'title' => _("Seite ist lesegeschützt."))) ?>
+                        <? endif ?>
+                        <? if ($page->isEditable()) : ?>
+                            <a href="<?= PluginEngine::getLink($plugin, array(), "page/edit/".$page->getId()) ?>">
+                                <?= Icon::create("edit", "clickable")->asImg(20, array('class' => "text-bottom")) ?>
+                            </a>
+                        <? endif ?>
                     <? endif ?>
                 </td>
             </tr>
