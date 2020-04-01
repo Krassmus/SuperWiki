@@ -208,6 +208,7 @@ STUDIP.SuperWiki = {
 
         jQuery(presentation).children(":first-child").addClass("active");
         if (settings.data("background")) {
+            console.log(settings);
             jQuery(presentation).css('background-image', "url(" + settings.data("background") + ")");
         } else {
             jQuery(presentation).css('background-image', "url(" + STUDIP.ABSOLUTE_URI_STUDIP + "plugins_packages/RasmusFuhse/SuperWiki/assets/presentation_background.svg)");
@@ -222,6 +223,7 @@ STUDIP.SuperWiki = {
         jQuery(presentation).css('padding-bottom', (settings.data("bottom") ? settings.data("bottom") : "0") + "vh");
         jQuery(presentation).css('padding-left', (settings.data("left") ? settings.data("left") : "10") + "vw");
         jQuery(presentation).css('padding-right', (settings.data("right") ? settings.data("right") : "10") + "vw");
+
         if (settings.data("align")) {
             jQuery(presentation).css('text-align', settings.data("align"));
         } else {

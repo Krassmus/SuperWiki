@@ -1,6 +1,6 @@
 <?php
 
-class SuperwikiFormat extends StudipFormat
+class SuperwikiFormat extends StudipCoreFormat
 {
     private static $superwiki_rules = array(
         'presentation-settings' => array(

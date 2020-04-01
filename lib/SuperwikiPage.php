@@ -120,11 +120,13 @@ class SuperwikiPage extends SimpleORMap {
                 "allow-top-navigation",
                 "allow-top-navigation-by-user-activation"
             );
-            return '<iframe sandbox="'.implode(" ", $allow).'" 
-                        src="'.htmlReady(trim($this['content'])).'" 
+            return '<iframe sandbox="'.implode(" ", $allow).'"
+                        src="'.htmlReady(trim($this['content'])).'"
                         style="width: 100%; height: 95vh; border: none;"></iframe>';
         }
-        $text = \Studip\Markup::apply(new SuperwikiFormat(), $this['content'], true);
+        $markup = new SuperwikiFormat();
+        $text = $markup->format(nl2br(trim($this['content'])));
+        //$text = \Studip\Markup::apply(new SuperwikiFormat(), $this['content'], true);
 
         $pages = self::findBySQL("seminar_id = ? AND content IS NOT NULL AND content != '' ORDER BY CHAR_LENGTH(name) DESC", array($this['seminar_id']));
         foreach ($pages as $page) {
@@ -141,10 +143,10 @@ class SuperwikiPage extends SimpleORMap {
             }
         }
         if (strpos($text, '<div class="superwiki_presentation') !== false) {
-            $text = '<a class="superwiki_presentation starter" 
-                        href="#" 
-                        onClick="STUDIP.SuperWiki.requestFullscreen(); return false;" 
-                        title="'._("Diese Wikiseite ist eine Präsentation. Klicken Sie hier, um sie im Vollbildmodus darzustellen.").'" 
+            $text = '<a class="superwiki_presentation starter"
+                        href="#"
+                        onClick="STUDIP.SuperWiki.requestFullscreen(); return false;"
+                        title="'._("Diese Wikiseite ist eine Präsentation. Klicken Sie hier, um sie im Vollbildmodus darzustellen.").'"
                         style="background-image: url('."'".$GLOBALS['ABSOLUTE_URI_STUDIP']."plugins_packages/RasmusFuhse/SuperWiki/assets/presentation_white.svg'".')">'
                     .(version_compare($GLOBALS['SOFTWARE_VERSION'], "3.4", ">=")
                         ? Icon::create("play", "info_alt")->asImg(20, array('class' => "text-bottom"))
