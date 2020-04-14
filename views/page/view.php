@@ -1,4 +1,4 @@
-<? if (count($_SESSION['SuperWiki_History'][$course_id]) > 1) : ?>
+<? if (count((array) $_SESSION['SuperWiki_History'][$course_id]) > 1) : ?>
     <div id="superwiki_history" style="font-size: 0.8em;">
         <ol style="margin: 0px; list-style-type: none; padding: 0px; margin-bottom: 13px;">
             <? foreach ($_SESSION['SuperWiki_History'][$course_id] as $key => $page_id) : ?>
