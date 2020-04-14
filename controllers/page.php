@@ -28,7 +28,9 @@ class PageController extends PluginController {
         } else {
             $this->course_id = Context::getId();
             $this->settings = new SuperwikiSettings($this->course_id);
-            Navigation::activateItem("/course/superwiki/wiki");
+            if (Navigation::hasItem("/course/superwiki/wiki")) {
+                Navigation::activateItem("/course/superwiki/wiki");
+            }
             Navigation::getItem("/course/superwiki")->setImage(
                 Icon::create(($this->settings['icon'] ?: "wiki"), "info")
             );
