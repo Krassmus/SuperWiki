@@ -90,14 +90,23 @@ class SuperWiki extends StudIPPlugin implements StandardPlugin, SystemPlugin {
             Navigation::addItem("/admin/locations/superwikicms", $nav);
         }
         foreach (SuperwikiCMS::findBySQL("active = '1' ORDER BY title ASC") as $cms) {
-            $nav = new Navigation($cms['title'], PluginEngine::getURL($this, array('cms_id' => $cms->getId()), "page/view"));
+            $nav = new Navigation(
+                $cms['title'],
+                PluginEngine::getURL($this, array('cms_id' => $cms->getId()), "page/view")
+            );
             if ($cms['icon']) {
                 $nav->setImage(Icon::create($cms['icon'], "navigation"));
             }
             if ($cms['description']) {
                 $nav->setDescription($cms['description']);
             }
-            Navigation::addItem($cms['navigation'], $nav);
+
+            $navigation_path = preg_split("/\//", $cms['navigation'], -1, PREG_SPLIT_NO_EMPTY);
+            array_pop($navigation_path);
+            $navigation_path = "/".implode("/", $navigation_path);
+            if (Navigation::hasItem($navigation_path)) {
+                Navigation::addItem($cms['navigation'], $nav);
+            }
         }
     }
 

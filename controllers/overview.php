@@ -19,7 +19,7 @@ class OverviewController extends PluginController {
                 $navigation[] = "superwiki_subtab";
                 Navigation::addItem($this->cms['navigation']."/superwiki_subtab", new Navigation($this->cms['title'], Navigation::getItem($this->cms['navigation'])->getURL()));
             }
-            if (count($navigation === 2)) {
+            if (count($navigation) === 2) {
                 $navigation[] = "superwiki_subsubtab";
                 Navigation::addItem($this->cms['navigation']."/superwiki_subtab/superwiki_subsubtab", new Navigation($this->cms['title'], Navigation::getItem($this->cms['navigation'])->getURL()));
                 Navigation::addItem($this->cms['navigation']."/superwiki_subtab/superwiki_all", new Navigation(_("Alle Seiten"), PluginEngine::getURL($this->plugin, array('cms_id' => $this->cms->getId()), "overview/all")));
