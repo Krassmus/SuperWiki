@@ -286,79 +286,85 @@ class PageController extends PluginController {
         $db = DBManager::get();
         $folder_id = md5("Superwiki_".$this->course_id."_".$GLOBALS['user']->id);
         $parent_folder_id = md5("Superwiki_".$this->course_id);
-        $folder_id = $parent_folder_id;
-        $folder = $db->query(
-            "SELECT * " .
-            "FROM folder " .
-            "WHERE folder_id = ".$db->quote($folder_id)." " .
-            "")->fetch(PDO::FETCH_COLUMN, 0);
+        $folder = $db->query("
+            SELECT *
+            FROM folders
+            WHERE id = ".$db->quote($folder_id)."
+        ")->fetch(PDO::FETCH_COLUMN, 0);
         if (!$folder) {
-            $folder = $db->query(
-                "SELECT * " .
-                "FROM folder " .
-                "WHERE folder_id = ".$db->quote($parent_folder_id)." " .
-                "")->fetch(PDO::FETCH_COLUMN, 0);
+            $folder = $db->query("
+                SELECT *
+                FROM folders
+                WHERE id = ".$db->quote($parent_folder_id)."
+            ")->fetch(PDO::FETCH_COLUMN, 0);
             if (!$folder) {
-                $db->exec(
-                    "INSERT IGNORE INTO folder " .
-                    "SET folder_id = ".$db->quote($parent_folder_id).", " .
-                        "range_id = ".$db->quote($this->course_id).", " .
-                        "seminar_id = ".$db->quote($this->course_id).", " .
-                        "user_id = ".$db->quote($GLOBALS['user']->id).", " .
-                        "name = ".$db->quote("SuperwikiDateien").", " .
-                        "permission = '7', " .
-                        "mkdate = ".$db->quote(time()).", " .
-                        "chdate = ".$db->quote(time())." " .
-                        "");
+                $db->exec( "
+                    INSERT IGNORE INTO folders
+                    SET id = ".$db->quote($parent_folder_id).",
+                        parent_id = '',
+                        range_id = ".$db->quote($this->course_id).",
+                        range_type = 'course',
+                        folder_type = 'StandardFolder',
+                        user_id = ".$db->quote($GLOBALS['user']->id).",
+                        name = ".$db->quote("SuperwikiDateien").",
+                        data_content = '[]',
+                        description = ".$db->quote(_('Dateien des Superwikis')).",
+                        mkdate = ".$db->quote(time()).",
+                        chdate = ".$db->quote(time())."
+                    ");
             }
-            $db->exec(
-                "INSERT IGNORE INTO folder " .
-                "SET folder_id = ".$db->quote($folder_id).", " .
-                    "range_id = ".$db->quote($parent_folder_id).", " .
-                    "seminar_id = ".$db->quote($this->course_id).", " .
-                    "user_id = ".$db->quote($GLOBALS['user']->id).", " .
-                    "name = ".$db->quote(get_fullname()).", " .
-                    "permission = '7', " .
-                    "mkdate = ".$db->quote(time()).", " .
-                    "chdate = ".$db->quote(time())." " .
-            "");
+            $db->exec("
+                INSERT IGNORE INTO folders
+                SET id = ".$db->quote($folder_id).",
+                    parent_id = ".$db->quote($parent_folder_id).",
+                    range_id = ".$db->quote($this->course_id).",
+                    range_type = 'course',
+                    folder_type = 'StandardFolder',
+                    user_id = ".$db->quote($GLOBALS['user']->id).",
+                    name = ".$db->quote(get_fullname()).",
+                    data_content = '[]',
+                    description = ".$db->quote(_('Dateien des Nutzers')).",
+                    mkdate = ".$db->quote(time()).",
+                    chdate = ".$db->quote(time())."
+            ");
         }
+
+        $folder = Folder::find($folder_id)->getTypedFolder();
 
         $output = array();
 
         foreach ($_FILES as $file) {
-            $GLOBALS['msg'] = '';
-            validate_upload($file);
-            if ($GLOBALS['msg']) {
-                $output['errors'][] = $file['name'] . ': ' . decodeHTML(trim(substr($GLOBALS['msg'],6), '§'));
+            $standardfile = StandardFile::create($file);
+            $error = $folder->validateUpload($standardfile, $GLOBALS['user']->id);
+            if ($error != null) {
+                $output['errors'][] = $file['name'] . ': ' . $error;
                 continue;
             }
-            if ($file['size']) {
-                $document['name'] = $document['filename'] = strtolower($file['name']);
-                $document['user_id'] = $GLOBALS['user']->id;
-                $document['author_name'] = get_fullname();
-                $document['seminar_id'] = $this->course_id;
-                $document['range_id'] = $folder_id;
-                $document['filesize'] = $file['size'];
+            if ($standardfile->getSize()) {
+                $standardfile = $folder->addFile($standardfile);
 
-                $newfile = StudipDocument::createWithFile($file['tmp_name'], $document);
-                $success = (bool)$newfile;
+                if (!$standardfile instanceof FileType) {
+                    $error_message = _('Die hochgeladene Datei kann nicht verarbeitet werden!');
 
-                if ($success) {
-                    $url = GetDownloadLink($newfile->getId(), $newfile['filename']);
+                    if ($standardfile instanceof MessageBox) {
+                        $error_message .= ' ' . $standardfile->message;
+                    }
+                    PageLayout::postError($error_message);
+                } else {
                     $type = null;
-                    strpos($file['type'], 'image') === false || $type = "img";
-                    strpos($file['type'], 'video') === false || $type = "video";
-                    if (strpos($file['type'], 'audio') !== false || strpos($document['filename'], '.ogg') !== false) {
+                    strpos($standardfile->getMimeType(), 'image') === false || $type = "img";
+                    strpos($standardfile->getMimeType(), 'video') === false || $type = "video";
+                    if (strpos($standardfile->getMimeType(), 'audio') !== false || strpos($standardfile->getFilename(), '.ogg') !== false) {
                         $type = "audio";
                     }
                     if ($type) {
-                        $output['inserts'][] = "[".$type."]".$url;
+                        $output['inserts'][] = "[".$type."]".$standardfile->getDownloadURL();
                     } else {
-                        $output['inserts'][] = "[".$document['filename']."]".$url;
+                        $output['inserts'][] = "[".$standardfile->getFilename()."]".$standardfile->getDownloadURL();
                     }
                 }
             }
+
         }
         $this->render_json($output);
     }
