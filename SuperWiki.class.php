@@ -85,7 +85,7 @@ class SuperWiki extends StudIPPlugin implements StandardPlugin, SystemPlugin {
             }
         }
 
-        if ($GLOBALS['perm']->have_perm("root")) {
+        if ($GLOBALS['perm']->have_perm("root") && Navigation::hasItem("/admin/locations")) {
             $nav = new Navigation(_("Superwiki CMS"), PluginEngine::getURL($this, array(), "cms/overview"));
             Navigation::addItem("/admin/locations/superwikicms", $nav);
         }
