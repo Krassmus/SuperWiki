@@ -66,7 +66,7 @@ class PageController extends PluginController {
                 if ($this->page['seminar_id'] !== $this->course_id) {
                     throw new AccessDeniedException("Not in right course");
                 }
-                $history = $_SESSION['SuperWiki_History'][$this->course_id];
+                $history = $_SESSION['SuperWiki_History'][$this->course_id] ?? [];
                 if ($history[count($history) - 1] !== $page_id) {
                     $history[] = $page_id;
                     if (count($history) > 6) {

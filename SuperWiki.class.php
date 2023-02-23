@@ -139,17 +139,22 @@ class SuperWiki extends StudIPPlugin implements StandardPlugin, SystemPlugin {
         return $icon;
     }
 
-    function getTabNavigation($course_id) {
-        $settings = SuperwikiSettings::find($course_id);
-        $name = $settings && $settings['name'] ? $settings['name'] : Config::get()->SUPERWIKI_NAME;
+    public function getTabNavigation($course_id)
+    {
+        $settings = SuperwikiSettings::find($course_id) ?? [
+            'name' => null,
+            'icon' => null,
+        ];
+
+        $name = $settings['name'] ?: Config::get()->SUPERWIKI_NAME;
         $tab = new Navigation(
             $name,
-            PluginEngine::getURL($this, array(), "page/view")
+            PluginEngine::getURL($this, [], 'page/view')
         );
-        $tab->setImage(Icon::create(($settings['icon'] ?: "wiki"), "info_alt"));
-        $tab->addSubNavigation("wiki", new Navigation($name, PluginEngine::getURL($this, array(), "page/view")));
-        $tab->addSubNavigation("all", new Navigation(_("Alle Seiten"), PluginEngine::getURL($this, array(), "overview/all")));
-        return array('superwiki' => $tab);
+        $tab->setImage(Icon::create($settings['icon'] ?? 'wiki', Icon::ROLE_INFO_ALT));
+        $tab->addSubNavigation('wiki', new Navigation($name, PluginEngine::getURL($this, [], 'page/view')));
+        $tab->addSubNavigation('all', new Navigation(_('Alle Seiten'), PluginEngine::getURL($this, [], 'overview/all')));
+        return ['superwiki' => $tab];
     }
 
     function getNotificationObjects($course_id, $since, $user_id) {
