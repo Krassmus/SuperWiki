@@ -123,18 +123,19 @@ class SuperWiki extends StudIPPlugin implements StandardPlugin, SystemPlugin {
         return null;
     }
 
-    function getIconNavigation($course_id, $last_visit, $user_id) {
+    public function getIconNavigation($course_id, $last_visit, $user_id)
+    {
         $settings = SuperwikiSettings::find($course_id);
         $icon = new Navigation(
-            $settings && $settings['name'] ? $settings['name'] : Config::get()->SUPERWIKI_NAME,
-            PluginEngine::getURL($this, array(), "page/view")
+            $settings && $settings['name'] ?: Config::get()->SUPERWIKI_NAME,
+            PluginEngine::getURL($this, [], 'page/view')
         );
-        $new_changes = SuperwikiPage::countBySql("seminar_id = ? AND chdate > ? AND last_author != ?", array($course_id, $last_visit, $user_id));
+        $new_changes = SuperwikiPage::countBySql("seminar_id = ? AND chdate > ? AND last_author != ?", [$course_id, $last_visit, $user_id]);
         if ($new_changes) {
-            $icon->setURL(PluginEngine::getURL($this, array(), "overview/latest_changes"), array('since' => $last_visit));
-            $icon->setImage(Icon::create(($settings['icon'] ?: "wiki")."+new", "new"));
+            $icon->setURL(PluginEngine::getURL($this, [], 'overview/latest_changes'), ['since' => $last_visit]);
+            $icon->setImage(Icon::create(($settings['icon'] ?? 'wiki') . '+new', Icon::ROLE_NEW));
         } else {
-            $icon->setImage(Icon::create(($settings['icon'] ?: "wiki"), "inactive"), array('title' => $settings ? $settings['name'] : _("SuperWiki")));
+            $icon->setImage(Icon::create($settings['icon'] ?? 'wiki', Icon::ROLE_INACTIVE), ['title' => $settings['name'] ?? _("SuperWiki")]);
         }
         return $icon;
     }
