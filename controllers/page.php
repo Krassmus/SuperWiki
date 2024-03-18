@@ -60,6 +60,9 @@ class PageController extends PluginController {
             if (!$this->cms['active'] || $this->cms['seminar_id'] !== $this->page['seminar_id']) {
                 throw new AccessDeniedException();
             }
+            if (!$this->page->isNew() && !$this->page->isReadable('cms')) {
+                throw new AccessDeniedException("Keine Berechtigung.");
+            }
             PageLayout::setTitle($this->cms['title'].": ".$this->page['name']);
         } else {
             if ($page_id) {
@@ -75,9 +78,9 @@ class PageController extends PluginController {
                 }
                 $_SESSION['SuperWiki_History'][$this->course_id] = $history;
             }
-        }
-        if (!$this->page->isNew() && !$this->page->isReadable()) {
-            throw new AccessDeniedException("Keine Berechtigung.");
+            if (!$this->page->isNew() && !$this->page->isReadable()) {
+                throw new AccessDeniedException("Keine Berechtigung.");
+            }
         }
     }
 

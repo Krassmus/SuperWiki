@@ -1,0 +1,128 @@
+
+#superwiki_edit_form textarea.uploading {
+    background: url("#{$image-path}/ajax_indicator_small.gif") bottom right no-repeat;
+    background-color: var(--yellow);
+}
+#superwiki_edit_form textarea.hovered {
+    background-color: var(--content-color-20);
+    opacity: 1.0;
+}
+.superwiki_content img {
+    max-width: 100%;
+}
+
+.superwiki_presentation, .superwiki_presentation + br {
+    display: none;
+}
+
+.superwiki_presentation.stoppoint {
+    display: block;
+    visibility: hidden;
+}
+
+a.superwiki_presentation.starter {
+    background-color: var(--content-color);
+    display: flex;
+    align-items: center;
+    color: white;
+    //background-image: url(./presentation_white.svg);
+    background-repeat: no-repeat;
+    background-position: 25% center;
+    background-size: auto 90%;
+    font-size: 1.2em;
+
+    padding-left: 50%;
+    height: 80px;
+    margin: 50px;
+    border-radius: 20px;
+}
+
+#superwiki_presentation {
+    background-color: white;
+    background-repeat: no-repeat;
+    display: flex;
+    align-items: flex-start;
+    align-content: center;
+    background-size: contain;
+    background-position: center center;
+    font-size: 2vw;
+    h1 {
+        font-size: 3.2vw;
+    }
+    h2 {
+        font-size: 2.8vw;
+        margin-top: 0px;
+    }
+    h3 {
+        margin-top: 0px;
+        font-size: 2.4vw;
+    }
+    h4, h5, h6 {
+        margin-top: 0px;
+        font-size: 2vw;
+    }
+    display: none;
+    &:-moz-full-screen {
+        display: flex;
+    }
+    &:-webkit-full-screen {
+        width: 100%;
+        height: 100%;
+        display: flex;
+    }
+    &:-ms-fullscreen {
+        display: flex;
+    }
+    &:fullscreen {
+        display: flex;
+    }
+    > .slide {
+        max-height: 100%;
+        overflow: auto;
+        display: none;
+        width: 100%;
+        &.active {
+            display: block;
+        }
+    }
+    ul, ol {
+        display: inline-block;
+        width: auto;
+        text-align: left;
+
+
+    }
+    ul {
+        list-style-type: none;
+        padding: 0px;
+        li {
+            display: block;
+            padding-left: 2.5vw;
+            background-image: url(./dot.svg);
+            background-size: 2vw 2vw;
+            background-repeat: no-repeat;
+            background-position: left 0.5vw;
+        }
+    }
+    a.link-extern:before, a.link-intern:before {
+        background-size: 2vw;
+        height: 2vw;
+        width: 2vw;
+    }
+    .superwiki_presentation.starter {
+        display: none;
+    }
+    &.forced {
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        position: absolute;
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+        top: 0px;
+        left: 0px;
+        z-index: 10000;
+    }
+}
+

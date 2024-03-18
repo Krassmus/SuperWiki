@@ -116,7 +116,7 @@ class SuperWiki extends StudIPPlugin implements StandardPlugin, SystemPlugin {
      */
     public function initialize()
     {
-        $this->addStylesheet('assets/superwiki.less');
+        $this->addStylesheet('assets/superwiki.scss');
     }
 
     function getInfoTemplate($course_id) {
