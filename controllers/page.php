@@ -70,7 +70,10 @@ class PageController extends PluginController {
                     throw new AccessDeniedException("Not in right course");
                 }
                 $history = $_SESSION['SuperWiki_History'][$this->course_id] ?? [];
-                if ($history[count($history) - 1] !== $page_id) {
+                if (
+                    isset($history[count($history) - 1])
+                    && $history[count($history) - 1] !== $page_id
+                ) {
                     $history[] = $page_id;
                     if (count($history) > 6) {
                         array_shift($history);

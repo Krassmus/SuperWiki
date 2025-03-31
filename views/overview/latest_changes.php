@@ -1,4 +1,6 @@
-<? if (count($pages)) : ?>
+<? if (empty($pages)) : ?>
+    <?= MessageBox::info(_("Noch keine Seiten vorhanden.")) ?>
+<? else : ?>
 <table class="default">
     <caption>
         <?= _("Letzte Änderungen") ?>
@@ -47,8 +49,6 @@
     <? endforeach ?>
     </tbody>
 </table>
-<? else : ?>
-    <? PageLayout::postMessage(MessageBox::info(_("Noch keine Seiten vorhanden."))) ?>
 <? endif ?>
 
 <?
