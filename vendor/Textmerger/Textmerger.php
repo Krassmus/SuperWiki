@@ -632,7 +632,10 @@ class Textmerger {
         $text_start = 0;
         $text_end = strlen($text);
         for($i = 0; $i <= max(strlen($original), strlen($text)); $i++) {
-            if ($original[$i] !== $text[$i]) {
+            if (
+                isset($original[$i], $text[$i])
+                && $original[$i] !== $text[$i]
+            ) {
                 $replacement->start = $i;
                 $text_start = $i;
                 break;

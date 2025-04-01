@@ -13,30 +13,32 @@ class SuperwikiPage extends SimpleORMap {
         return self::findBySQL("content != '' AND content IS NOT NULL AND seminar_id = ? ORDER BY name ASC", array($seminar_id));
     }
 
-    protected static function configure($config = array())
+    protected static function configure($config = [])
     {
         $config['db_table'] = 'superwiki_pages';
-        $config['has_many']['versions'] = array(
+        $config['has_many']['versions'] = [
             'class_name' => 'SuperwikiVersion',
             'on_delete' => 'delete',
             'on_store' => 'store'
-        );
-        $config['belongs_to']['settings'] = array(
+        ];
+        $config['belongs_to']['settings'] = [
             'class_name' => 'SuperwikiSettings',
             'foreign_key' => 'seminar_id'
-        );
+        ];
         $config['registered_callbacks']['before_store'][] = 'createVersion';
         parent::configure($config);
     }
 
     protected function createVersion()
     {
-        if (!$this->isNew()
-                && ($this->content['content'] !== $this->content_db['data'])
-                && (
-                    ($this->content_db['last_author'] !== $this->content['last_author'])
-                    || ($this['chdate'] < time() - 60 * 30)
-                )) {
+        if (
+            !$this->isNew()
+            && $this->content['content'] !== $this->content_db['content']
+            && (
+                $this->content_db['last_author'] !== $this->content['last_author']
+                || $this['chdate'] < time() - 60 * 30
+            )
+        ) {
             //Neue Version anlegen:
             $version = new SuperwikiVersion();
             $version->setData($this->content_db);

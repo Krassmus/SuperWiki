@@ -2,26 +2,26 @@
 
 class SuperwikiFormat extends StudipCoreFormat
 {
-    private static $superwiki_rules = array(
-        'presentation-settings' => array(
+    private static $superwiki_rules = [
+        'presentation-settings' => [
             'start'    => '{{presentation(.*?)}}',
             'callback' => 'SuperwikiFormat::markupPresentationSettings',
             'before' => "media"
-        ),
-        'presentation-newpage' => array(
+        ],
+        'presentation-newpage' => [
             'start'    => '{{newpage(.*?)}}',
             'callback' => 'SuperwikiFormat::markupSlideNewpage'
-        ),
-        'presentation-stoppoint' => array(
+        ],
+        'presentation-stoppoint' => [
             'start'    => '{{stoppoint(.*?)}}',
             'callback' => 'SuperwikiFormat::markupSlideStoppoint'
-        ),
-        'wiki-links' => array(
+        ],
+        'wiki-links' => [
             'start'    => '\[\[(.*?)(?:\|(.*?))?\]\]',
             'callback' => 'SuperwikiFormat::markupWikiLinks',
             'before'   => 'links'
-        ),
-    );
+        ],
+    ];
 
     /**
      * Adds a new markup rule to the superwiki markup set. This can
@@ -78,9 +78,9 @@ class SuperwikiFormat extends StudipCoreFormat
             $this->addMarkup(
                 $name,
                 $rule['start'],
-                $rule['end'],
+                $rule['end'] ?? null,
                 $rule['callback'],
-                $rule['before'] ?: null
+                $rule['before'] ?? null
             );
         }
     }
