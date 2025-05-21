@@ -10,32 +10,6 @@ class ConvertDatabaseToDefaultEngine extends Migration
 
     public function up()
     {
-        $default_engine = $this->getDefaultEngine();
-
-        if (!$default_engine || $default_engine === 'MyISAM') {
-            return;
-        }
-
-        foreach (self::$tables as $table) {
-            $this->alterTableEngine($table, $default_engine);
-        }
-    }
-
-    public function down()
-    {
-        $default_engine = $this->getDefaultEngine();
-
-        if (!$default_engine || $default_engine === 'MyISAM') {
-            return;
-        }
-
-        foreach (self::$tables as $table) {
-            $this->alterTableEngine($table, 'MyISAM');
-        }
-    }
-
-    private function getDefaultEngine(): ?string
-    {
         $default_engine = null;
 
         $query = "SHOW ENGINES";
@@ -45,12 +19,13 @@ class ConvertDatabaseToDefaultEngine extends Migration
             }
         });
 
-        return $default_engine;
-    }
+        if (!$default_engine) {
+            return;
+        }
 
-    private function alterTableEngine(string $table, string $engine)
-    {
-        $query = "ALTER TABLE `{$table}` ENGINE = {$engine}";
-        DBManager::get()->exec($query);
+        foreach (self::$tables as $table) {
+            $query = "ALTER TABLE `{$table}` ENGINE = {$default_engine}";
+            DBManager::get()->exec($query);
+        }
     }
 }
