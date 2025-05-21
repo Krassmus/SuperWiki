@@ -64,5 +64,8 @@ class InitPlugin extends Migration {
         DBManager::get()->exec("
             DROP TABLE IF EXISTS `superwiki_pages`
         ");
+        DBManager::get()->exec("
+            DROP TABLE IF EXISTS `superwiki_versions`
+        ");
     }
 }
