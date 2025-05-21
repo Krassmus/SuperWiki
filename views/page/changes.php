@@ -30,8 +30,8 @@
                 <? if (($change->start !== $change->end) || ($change->text !== "")) : ?>
                     <? $start = max($change->start - 10, 0) ?>
                     <? $start = substr($former_version, $start, $change->start - $start) ?>
-                    <? $end = min($change->end + 10, strlen($new_version) - 1) ?>
-                    <? $end = substr($new_version, $change->end, $end - $change->start) ?>
+                    <? $end = min($change->end + 10, isset($new_version) ? strlen($new_version) - 1 : 0) ?>
+                    <? $end = substr($new_version ?? '', $change->end, $end - $change->start) ?>
                     <div class="change">
                         <span class="start"><?= nl2br(htmlReady(strip_tags($start))) ?></span>
                         <span class="changedtext">
@@ -54,7 +54,7 @@
         </td>
     </tr>
     <? foreach ($page->versions as $number => $version) : ?>
-        <? $former_version = $number < count($page->versions) ? $page->versions[$number + 1]->content : "" ?>
+        <? $former_version = $number < count($page->versions) && isset($page->versions[$number + 1]) ? $page->versions[$number + 1]->content : "" ?>
         <tr>
             <td>
                 <a href="<?= URLHelper::getLink("dispatch.php/profile", array('username' => get_username($version['last_author']))) ?>"
@@ -77,8 +77,8 @@
                     <? if (($change->start !== $change->end) || ($change->text !== "")) : ?>
                         <? $start = max($change->start - 10, 0) ?>
                         <? $start = substr($former_version, $start, $change->start - $start) ?>
-                        <? $end = min($change->end + 10, strlen($new_version) - 1) ?>
-                        <? $end = substr($new_version, $change->end, $end - $change->start) ?>
+                        <? $end = min($change->end + 10, isset($new_version) ? strlen($new_version) - 1 : 0) ?>
+                        <? $end = substr($new_version ?? '', $change->end, $end - $change->start) ?>
                         <div class="change">
                             <span class="start"><?= nl2br(htmlReady(strip_tags($start))) ?></span>
                             <span class="changedtext">

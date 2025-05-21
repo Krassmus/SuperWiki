@@ -646,9 +646,15 @@ class Textmerger {
             }
         }
 
-        for($i = 0; $i < max(strlen($original), strlen($text)); $i++) {
-            if (($original[strlen($original) - 1 - $i] !== $text[strlen($text) - 1 - $i])
-                    || (strlen($original) - $i === $replacement->start)) {
+        for ($i = 0; $i < max(strlen($original), strlen($text)); $i++) {
+            if (
+                isset($original[$i], $text[$i])
+                &&
+                (
+                    $original[strlen($original) - 1 - $i] !== $text[strlen($text) - 1 - $i]
+                    || strlen($original) - $i === $replacement->start
+                )
+            ) {
                 $replacement->end = strlen($original) - $i;
                 $text_end = strlen($text) - $i;
                 break;
